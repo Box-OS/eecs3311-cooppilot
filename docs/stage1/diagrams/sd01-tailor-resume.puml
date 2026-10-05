@@ -1,0 +1,85 @@
+@startuml sd01-tailor-resume
+title SD01 — Tailor Resume with Agent (F05, F07)
+skinparam shadowing false
+skinparam sequenceMessageAlign left
+autonumber
+actor Student
+boundary TailorView
+control CoopPilotFacade as F
+control AgentController as AC
+participant PromptBuilder as PB
+participant "LLMClient\n(ClaudeAdapter)" as LLM
+participant ToolRegistry as TR
+participant FindSimilarResumeTool as FST
+participant ResumeLibrary as RL
+participant KeywordScanTool as KST
+participant KeywordScanner as KS
+participant SearchVaultTool as SVT
+participant VaultService as VS
+participant ComposeResumeTool as CRT
+participant LatexAssembler as LA
+participant EstimatePageTool as EPT
+participant CondenseTool as CT
+participant "CondenseStrategy\n(RuleBasedCondense)" as CS
+participant SaveResumeTool as SRT
+database ResumeRepository as RR
+
+Student -> TailorView : click "Tailor resume"
+TailorView -> F : tailorResume(postingId, this)
+F -> AC : run(goal, questionHandler)
+AC -> PB : buildSystemPrompt(goal)
+PB --> AC : system prompt (rules: no invented facts,\none page, reverse-chronological)
+AC -> AC : session = new AgentSession(goal)
+
+loop until LLM returns no tool calls, or stepCount == maxSteps
+  AC -> PB : buildRequest(session, TR.schemas())
+  AC -> LLM : complete(request)
+  LLM --> AC : LlmResponse(toolCalls)
+  AC -> TailorView : onToolCalled(call)  <<Observer>>
+  AC -> TR : execute(call, session)
+  TR -> TR : validateArgs(tool, args)
+  alt args invalid
+    TR --> AC : ToolResult(error="invalid args")
+  else typical sequence chosen by the LLM
+    TR -> FST : execute(args, session)
+    FST -> RL : findClosest(analysis)
+    RL --> FST : ResumeMatch(CV_RBC_Dev, 82%)
+    FST --> TR : ToolResult
+    TR -> KST : execute(args, session)
+    KST -> KS : scan(resume, analysis)
+    KS --> KST : KeywordReport(missing: "Docker")
+    TR -> SVT : execute({query:"Docker"}, session)
+    SVT -> VS : search("Docker", tags)
+    VS --> SVT : List<VaultEntry>
+    TR -> CRT : execute({blockIds, newBullets}, session)
+    CRT -> LA : assemble(resume)
+    LA --> CRT : LaTeX (ordered, no bold in Edu/Skills)
+    CRT -> CRT : session.updateDraft(resume)
+    TR -> EPT : execute({}, session)
+    EPT --> TR : ToolResult("104% of a page")
+    opt over one page
+      TR -> CT : execute({mode:"quick"}, session)
+      CT -> CS : condense(draft, analysis, estimator)
+      CS --> CT : shorter Resume (97%)
+    end
+  end
+  TR --> AC : ToolResult
+  AC -> AC : session.addMessage(toolResult)
+end
+
+alt finished normally
+  AC -> LLM : complete(request)
+  LLM --> AC : LlmResponse(toolCalls=[save_resume])
+  AC -> TR : execute(save_resume)
+  TR -> SRT : execute(args, session)
+  SRT -> RR : save(resume)
+  AC --> F : AgentResult(COMPLETED, resume)
+else step limit reached
+  AC --> F : AgentResult(STEP_LIMIT, partial draft)
+else LLM API error after retries
+  AC --> F : AgentResult(FAILED, "LLM unavailable")
+end
+AC -> TailorView : onFinished(result)
+F --> TailorView : AgentResult
+TailorView --> Student : show resume, keyword chips, agent steps
+@enduml

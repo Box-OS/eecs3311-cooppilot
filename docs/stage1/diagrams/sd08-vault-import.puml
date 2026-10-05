@@ -1,0 +1,41 @@
+@startuml sd08-vault-import
+title SD08 — Import Resume into Vault and Block Library (F01)
+skinparam shadowing false
+autonumber
+actor Student
+boundary VaultView as VV
+control CoopPilotFacade as F
+participant LatexResumeParser as LP
+participant VaultService as VS
+database ResumeRepository as RR
+database VaultRepository as VR
+
+Student -> VV : choose .tex file, click "Import"
+VV -> F : importResume(latex)
+F -> LP : parse(latex)
+loop each \\resumeSubheading / \\resumeProjectHeading
+  LP -> LP : parseEntry(cmd)
+  alt entry malformed
+    LP -> LP : record warning, skip entry
+  end
+end
+LP --> F : ParseResult(blocks, warnings)
+alt no blocks found
+  F --> VV : error "Not a Jake's-template resume"
+else blocks found
+  loop each block
+    F -> RR : save(block)
+    F -> VS : addEntry(VaultEntry from block)
+    VS -> VR : save(entry)
+  end
+  F --> VV : ParseResult
+  VV --> Student : imported blocks + warnings
+end
+
+== Add or edit an entry manually ==
+Student -> VV : fill title, kind, tags, body
+VV -> F : addVaultEntry(entry)
+F -> VS : addEntry(entry)
+VS -> VS : reject duplicate skill\n(case/spacing variants)
+VS -> VR : save(entry)
+@enduml

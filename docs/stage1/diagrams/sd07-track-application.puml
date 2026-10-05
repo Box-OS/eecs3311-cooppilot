@@ -1,0 +1,44 @@
+@startuml sd07-track-application
+title SD07 — Update Application Status and Dashboard (F11, F12)
+skinparam shadowing false
+autonumber
+actor Student
+boundary TrackerView as TRV
+boundary "DashboardView\n<<ApplicationListener>>" as DV
+control CoopPilotFacade as F
+participant "ApplicationTracker\n<<Subject>>" as AT
+participant Application as APP
+participant "AppliedState\n<<State>>" as AS
+participant InterviewState as IS
+database ApplicationRepository as AR
+participant DashboardService as DS
+
+Student -> TRV : set status to "Interview"
+TRV -> F : updateStatus(appId, INTERVIEW)
+F -> AT : updateStatus(appId, INTERVIEW)
+AT -> AR : findById(appId)
+AR --> AT : Application
+AT -> APP : handle(INTERVIEW)
+APP -> AS : inviteInterview(app)
+alt transition allowed
+  AS -> APP : setState(new InterviewState())
+  APP --> AT
+  AT -> AR : save(app)
+  AT -> AT : notifyChanged(app)
+  AT -> DV : onApplicationChanged(app)
+  DV -> F : dashboard()
+  F -> DS : stats(today)
+  DS -> AT : followUpsDue(today)
+  AT --> DS : List<Application>
+  DS --> F : DashboardStats
+  F --> DV : DashboardStats
+  DV --> Student : updated tiles (interviews +1, response rate)
+  AT --> F : app
+  F --> TRV : app
+else illegal (e.g. REJECTED -> OFFER)
+  AS --> APP : throws IllegalStateTransitionException
+  APP --> AT : exception
+  AT --> F : exception
+  F --> TRV : "Cannot move Rejected to Offer"
+end
+@enduml

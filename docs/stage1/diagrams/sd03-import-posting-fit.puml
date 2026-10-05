@@ -1,0 +1,51 @@
+@startuml sd03-import-posting-fit
+title SD03 — Import Posting, Fit Analysis and Keyword Coverage (F02, F03, F04)
+skinparam shadowing false
+autonumber
+actor Student
+boundary PostingView as PV
+control CoopPilotFacade as F
+participant "PostingAnalysisTask\n<<Template Method>>" as PAT
+participant "LLMClient" as LLM
+database PostingRepository as PR
+participant FitScorer as FS
+participant VaultService as VS
+participant ResumeLibrary as RL
+participant KeywordScanner as KS
+
+Student -> PV : paste posting text, click "Analyze"
+PV -> F : importPosting(text)
+F -> PAT : run()
+PAT -> PAT : buildRequest()
+loop attempt <= maxRetries (2)
+  PAT -> LLM : complete(request)
+  LLM --> PAT : JSON text
+  PAT -> PAT : parse(response)
+  PAT -> PAT : validate(analysis)
+  break valid
+  end
+end
+alt still invalid
+  PAT --> F : throws LlmTaskException
+  F --> PV : error "Could not analyze posting - edit fields manually"
+else valid
+  PAT --> F : PostingAnalysis
+  F -> PR : save(posting)
+  F --> PV : Posting
+end
+
+PV -> F : analyzeFit(postingId)
+F -> VS : skills()
+VS --> F : Set<String>
+F -> FS : score(analysis, skills)
+FS --> F : FitReport(score, matched, gaps)
+F -> RL : findClosest(analysis)
+RL --> F : Optional<ResumeMatch>
+opt a saved resume exists
+  F -> KS : scan(match.resume, analysis)
+  KS --> F : KeywordReport
+  F -> F : report.strategy = REUSE (>=75%) / TWEAK / GENERATE
+end
+F --> PV : FitReport (+ KeywordReport)
+PV --> Student : fit score, gaps, keyword chips, recommended strategy
+@enduml

@@ -1,0 +1,45 @@
+@startuml sd06-reuse-export
+title SD06 — Reuse Saved Resume and Export (F10)
+skinparam shadowing false
+autonumber
+actor Student
+boundary TailorView as TV
+control CoopPilotFacade as F
+participant ResumeLibrary as RL
+database ResumeRepository as RR
+participant ExportService as ES
+participant LatexAssembler as LA
+participant "File System" as FS
+
+Student -> TV : open posting, click "Use as-is"
+TV -> F : suggestReuse(postingId)
+F -> RL : findClosest(analysis)
+RL -> RR : findAll()
+RR --> RL : List<Resume>
+RL -> RL : score each (skill overlap 65% +\nrole-family similarity 35%),\nskip resumes with placeholders
+alt best match >= 75%
+  RL --> F : ResumeMatch
+  F -> F : copy = match.resume.copy()\nrename CV_Company_Role
+  F -> RR : save(copy)
+  F --> TV : copy
+else no good match
+  RL --> F : Optional.empty()
+  F --> TV : "No close resume - run Tailor instead"
+end
+
+Student -> TV : click "Export"
+TV -> F : export(resumeId, dir)
+F -> ES : exportLatex(resume, dir)
+ES -> LA : assemble(resume)
+LA --> ES : LaTeX
+ES -> FS : write CV_Company_Role.tex
+alt write fails (no permission / disk full)
+  FS --> ES : IOException
+  ES --> F : throws ExportException
+  F --> TV : error message
+else ok
+  ES --> F : Path
+  F --> TV : Path
+  TV --> Student : "Saved - open in Overleaf"
+end
+@enduml

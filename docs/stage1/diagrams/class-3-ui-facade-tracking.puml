@@ -1,0 +1,209 @@
+@startuml class-3-ui-facade-tracking
+title Class Diagram (3/3) — GUI/CLI, facade, application tracking and persistence
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam defaultFontSize 12
+hide empty members
+
+package "ui.gui (JavaFX, MVC)" {
+  class MainWindow {
+    + start(stage : Stage) : void
+    - showView(v : View) : void
+  }
+  class VaultView {
+    + onImportResume() : void
+    + onAddEntry() : void
+  }
+  class PostingView {
+    + onAnalyze() : void
+  }
+  class TailorView {
+    + onTailor() : void
+    + onRevise(instruction : String) : void
+    + onUndo() : void
+    + onCoverLetter() : void
+    + onExport() : void
+  }
+  class TrackerView {
+    + onLogApplication() : void
+    + onChangeStatus(appId : String, e : StatusEvent) : void
+  }
+  class DashboardView {
+    + refresh() : void
+  }
+}
+
+package "ui.cli (picocli)" {
+  class CliRunner {
+    - jsonOutput : boolean
+    + main(args : String[]) : void
+    + tailor(postingFile : Path) : int
+    + analyze(postingFile : Path) : int
+    + track(appId : String, e : StatusEvent) : int
+  }
+}
+
+package "app" {
+  class CoopPilotFacade <<Facade>> {
+    + importResume(latex : String) : ParseResult
+    + addVaultEntry(e : VaultEntry) : void
+    + importPosting(text : String) : Posting
+    + analyzeFit(postingId : String) : FitReport
+    + tailorResume(postingId : String, q : QuestionHandler) : AgentResult
+    + condense(resumeId : String, mode : CondenseMode) : Resume
+    + revise(resumeId : String, instruction : String) : Resume
+    + undo(resumeId : String) : Resume
+    + draftCoverLetter(postingId : String, resumeId : String) : CoverLetter
+    + suggestReuse(postingId : String) : Optional<Resume>
+    + export(resumeId : String, dir : Path) : Path
+    + logApplication(postingId : String, resumeId : String) : Application
+    + updateStatus(appId : String, e : StatusEvent) : Application
+    + dashboard() : DashboardStats
+    + addAgentListener(l : AgentEventListener) : void
+    + addApplicationListener(l : ApplicationListener) : void
+  }
+}
+
+package "tracking" {
+  class Application {
+    - id : String
+    - company : String
+    - role : String
+    - appliedOn : LocalDate
+    - followUpOn : LocalDate
+    - resumeName : String
+    - coverLetterName : String
+    - state : ApplicationState
+    + handle(e : StatusEvent) : void
+    ~ setState(s : ApplicationState) : void
+    + statusName() : String
+  }
+  abstract class ApplicationState <<State>> {
+    + submit(a : Application) : void
+    + receiveAssessment(a : Application) : void
+    + inviteInterview(a : Application) : void
+    + offer(a : Application) : void
+    + reject(a : Application) : void
+    + markGhosted(a : Application) : void
+    # illegal(event : String) : void
+  }
+  class ToApplyState
+  class AppliedState
+  class AssessmentState
+  class InterviewState
+  class OfferState
+  class RejectedState
+  class GhostedState
+  enum StatusEvent {
+    SUBMIT
+    ASSESSMENT
+    INTERVIEW
+    OFFER
+    REJECT
+    GHOSTED
+  }
+  class ApplicationTracker <<Subject>> {
+    - repo : ApplicationRepository
+    - listeners : List<ApplicationListener>
+    + log(a : Application) : void
+    + updateStatus(id : String, e : StatusEvent) : Application
+    + followUpsDue(today : LocalDate) : List<Application>
+    + addListener(l : ApplicationListener) : void
+    - notifyChanged(a : Application) : void
+  }
+  interface ApplicationListener <<Observer>> {
+    + onApplicationChanged(a : Application) : void
+  }
+  class DashboardService {
+    - goals : Goals
+    + stats(today : LocalDate) : DashboardStats
+    - streak(apps : List<Application>) : int
+  }
+  class DashboardStats {
+    - appliedToday : int
+    - appliedThisWeek : int
+    - responseRate : double
+    - interviews : int
+    - followUpsDue : int
+    - streakDays : int
+  }
+  class Goals {
+    - dailyTarget : int
+    - weeklyTarget : int
+  }
+}
+
+package "persistence (SQLite via JDBC)" {
+  interface "Repository<T>" as Repository {
+    + findById(id : String) : Optional<T>
+    + findAll() : List<T>
+    + save(item : T) : void
+    + delete(id : String) : void
+  }
+  interface VaultRepository
+  interface ResumeRepository
+  interface PostingRepository
+  interface ApplicationRepository
+  abstract class "SqliteRepository<T>" as SqliteRepository {
+    # db : Database
+    # {abstract} toRow(item : T) : Map<String, Object>
+    # {abstract} fromRow(rs : ResultSet) : T
+  }
+  class Database {
+    - url : String
+    + connection() : Connection
+  }
+}
+
+package "agent (see 1/3)" {
+  interface AgentEventListener
+  interface QuestionHandler
+}
+
+MainWindow "1" *-- "1" VaultView
+MainWindow "1" *-- "1" PostingView
+MainWindow "1" *-- "1" TailorView
+MainWindow "1" *-- "1" TrackerView
+MainWindow "1" *-- "1" DashboardView
+MainWindow --> CoopPilotFacade
+CliRunner --> CoopPilotFacade
+
+TailorView ..|> AgentEventListener
+TailorView ..|> QuestionHandler
+CliRunner ..|> AgentEventListener
+CliRunner ..|> QuestionHandler
+DashboardView ..|> ApplicationListener
+
+CoopPilotFacade --> ApplicationTracker
+CoopPilotFacade --> DashboardService
+note right of CoopPilotFacade
+  Also holds: AgentController, VaultService,
+  ResumeLibrary, FitScorer, KeywordScanner,
+  RevisionHistory (one per open resume),
+  CondenseStrategy, ExportService, LlmTasks.
+end note
+
+Application "1" --> "1" ApplicationState : current >
+ApplicationState <|-- ToApplyState
+ApplicationState <|-- AppliedState
+ApplicationState <|-- AssessmentState
+ApplicationState <|-- InterviewState
+ApplicationState <|-- OfferState
+ApplicationState <|-- RejectedState
+ApplicationState <|-- GhostedState
+Application ..> StatusEvent
+ApplicationTracker "1" --> "*" Application : manages >
+ApplicationTracker "1" o-- "*" ApplicationListener : notifies >
+ApplicationTracker --> ApplicationRepository
+DashboardService --> ApplicationTracker
+DashboardService --> Goals
+DashboardService ..> DashboardStats : <<creates>>
+
+Repository <|-- VaultRepository
+Repository <|-- ResumeRepository
+Repository <|-- PostingRepository
+Repository <|-- ApplicationRepository
+Repository <|.. SqliteRepository
+SqliteRepository --> Database
+@enduml
