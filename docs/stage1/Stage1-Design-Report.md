@@ -1,11 +1,11 @@
 # CoopPilot — An AI Agent for Tailoring Co-op Applications
 
 **EECS 3311 Software Design — Fall 2026 — Course Project, Stage 1 (Design)**
-**Author:** Sina [full name] — Student # [number] (solo project)
+**Author:** Sina Akhavansafar — Student # 221 497 433 (solo project)
 **Language / platform:** Java 21, Spring Boot 3 + Thymeleaf (web GUI), picocli (CLI), SQLite (Spring JDBC)
 **LLM:** Anthropic Claude via the Messages API with tool use
 
-> All diagrams were made with **UMLet**. The editable sources are the `.uxf` files in [`diagrams/`](diagrams/); the PNGs shown below are exported from them.
+> All diagrams were made with **UMLet**. The editable sources are the `.uxf` files in [`diagrams/`](diagrams/); the PNGs shown below are rendered from them.
 
 ## Contents
 

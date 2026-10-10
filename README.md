@@ -10,7 +10,7 @@ An AI agent that tailors one-page LaTeX resumes and cover letters to co-op job p
 
 ## Diagrams
 
-All UML diagrams are made with [UMLet](https://www.umlet.com). The sources are the `.uxf` files in `docs/stage1/diagrams/`; the report shows PNGs exported from them.
+All UML diagrams are made with [UMLet](https://www.umlet.com). The sources are the `.uxf` files in `docs/stage1/diagrams/`; the report shows PNGs rendered from them.
 
 To re-export every diagram from the command line (UMLet standalone):
 
