@@ -1,0 +1,1078 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="15.1">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>1548</x>
+      <y>18</y>
+      <w>1282</w>
+      <h>890</h>
+    </coordinates>
+    <panel_attributes>agent
+layer=-1
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>28</x>
+      <y>288</y>
+      <w>1512</w>
+      <h>775</h>
+    </coordinates>
+    <panel_attributes>agent.tools
+layer=-1
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>2838</x>
+      <y>711</y>
+      <w>1280</w>
+      <h>687</h>
+    </coordinates>
+    <panel_attributes>llm
+layer=-1
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1946</x>
+      <y>73</y>
+      <w>330</w>
+      <h>150</h>
+    </coordinates>
+    <panel_attributes>*AgentController*
+--
+- llm : LLMClient
+- tools : ToolRegistry
+- prompts : PromptBuilder
+- maxSteps : int
+--
++ run(goal : AgentGoal, q : QuestionHandler,
+      l : AgentEventListener) : AgentResult
+- step(s : AgentSession) : LlmResponse
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>2426</x>
+      <y>598</y>
+      <w>220</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>*AgentGoal*
+--
+- type : GoalType
+- posting : Posting
+- constraints : List&lt;String&gt;
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>2582</x>
+      <y>796</y>
+      <w>120</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>«enumeration»
+*GoalType*
+--
+TAILOR_RESUME
+FIT_ONE_PAGE
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1800</x>
+      <y>283</y>
+      <w>330</w>
+      <h>240</h>
+    </coordinates>
+    <panel_attributes>«Subject»
+*AgentSession*
+--
+- goal : AgentGoal
+- messages : List&lt;Message&gt;
+- draft : Resume
+- toolLog : List&lt;ToolCall&gt;
+- stepCount : int
+- questionHandler : QuestionHandler
+- listeners : List&lt;AgentEventListener&gt;
+--
++ addMessage(m : Message) : void
++ updateDraft(r : Resume) : void
++ addListener(l : AgentEventListener) : void
++ notifyToolCalled(c : ToolCall) : void
++ notifyFinished(r : AgentResult) : void
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1570</x>
+      <y>608</y>
+      <w>150</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>*Message*
+--
+- role : Role
+- content : String
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>2162</x>
+      <y>353</y>
+      <w>190</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>*AgentResult*
+--
+- status : ResultStatus
+- resume : Resume
+- summary : String
+- steps : int
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>2678</x>
+      <y>593</y>
+      <w>130</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>«enumeration»
+*ResultStatus*
+--
+COMPLETED
+STEP_LIMIT
+FAILED
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>2384</x>
+      <y>348</y>
+      <w>350</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>*PromptBuilder*
+--
+- rules : List&lt;String&gt;
+--
++ buildSystemPrompt(g : AgentGoal) : String
++ buildRequest(s : AgentSession,
+      schemas : List&lt;ToolSchema&gt;) : LlmRequest
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1752</x>
+      <y>573</y>
+      <w>280</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes>«interface»
+«Observer»
+/AgentEventListener/
+--
+
+--
++ onToolCalled(c : ToolCall) : void
++ onToolResult(r : ToolResult) : void
++ onFinished(r : AgentResult) : void
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>2064</x>
+      <y>598</y>
+      <w>330</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>«interface»
+/QuestionHandler/
+--
+
+--
++ ask(question : String) : Optional&lt;String&gt;
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>386</x>
+      <y>343</y>
+      <w>420</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>*ToolRegistry*
+--
+- tools : Map&lt;String, Tool&gt;
+--
++ register(t : Tool) : void
++ schemas() : List&lt;ToolSchema&gt;
++ execute(c : ToolCall, s : AgentSession) : ToolResult
+- validateArgs(t : Tool, args : JsonNode) : List&lt;String&gt;
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>386</x>
+      <y>573</y>
+      <w>420</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes>«interface»
+/Tool/
+--
+
+--
++ name() : String
++ description() : String
++ schema() : ToolSchema
++ execute(args : JsonNode, s : AgentSession) : ToolResult
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1328</x>
+      <y>796</y>
+      <w>190</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>*ToolSchema*
+--
+- name : String
+- description : String
+- inputSchema : JsonNode
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>127</x>
+      <y>598</y>
+      <w>150</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>*ToolCall*
+--
+- id : String
+- name : String
+- args : JsonNode
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>50</x>
+      <y>796</y>
+      <w>150</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>*ToolResult*
+--
+- ok : boolean
+- content : String
+- error : String
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1112</x>
+      <y>826</y>
+      <w>150</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>*ParsePostingTool*
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>266</x>
+      <y>826</y>
+      <w>150</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>*SearchVaultTool*
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>890</x>
+      <y>826</y>
+      <w>190</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>*FindSimilarResumeTool*
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>708</x>
+      <y>826</y>
+      <w>150</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>*KeywordScanTool*
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>516</x>
+      <y>826</y>
+      <w>160</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>*ComposeResumeTool*
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>158</x>
+      <y>1011</y>
+      <w>150</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>*EstimatePageTool*
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>362</x>
+      <y>1011</y>
+      <w>130</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>*CondenseTool*
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1235</x>
+      <y>1011</y>
+      <w>120</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>*AskUserTool*
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>619</x>
+      <y>1011</y>
+      <w>140</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>*SaveResumeTool*
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>3598</x>
+      <y>966</y>
+      <w>320</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>«interface»
+«Target»
+/LLMClient/
+--
+
+--
++ complete(req : LlmRequest) : LlmResponse
++ modelName() : String
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>3354</x>
+      <y>1136</y>
+      <w>390</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes>«Adapter»
+*ClaudeAdapter*
+--
+- sdk : AnthropicClient
+- model : String
+--
++ complete(req : LlmRequest) : LlmResponse
+- toProvider(req : LlmRequest) : MessageCreateParams
+- fromProvider(m : ProviderMessage) : LlmResponse
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>3776</x>
+      <y>1151</y>
+      <w>320</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>«Adapter»
+*OpenAiCompatibleAdapter*
+--
+- baseUrl : String
+- model : String
+--
++ complete(req : LlmRequest) : LlmResponse
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>3474</x>
+      <y>1326</y>
+      <w>150</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>«external SDK»
+*AnthropicClient*
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>3112</x>
+      <y>1156</y>
+      <w>210</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>*LlmRequest*
+--
+- system : String
+- messages : List&lt;Message&gt;
+- tools : List&lt;ToolSchema&gt;
+- maxTokens : int
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>2860</x>
+      <y>1151</y>
+      <w>220</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>*LlmResponse*
+--
+- text : String
+- toolCalls : List&lt;ToolCall&gt;
+- stopReason : String
+--
++ hasToolCalls() : boolean
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>2977</x>
+      <y>766</y>
+      <w>300</w>
+      <h>150</h>
+    </coordinates>
+    <panel_attributes>«Template Method»
+/LlmTask&lt;T&gt;/
+--
+# llm : LLMClient
+- maxRetries : int
+--
++ run() : T {final}
+# buildRequest() : LlmRequest {abstract}
+# parse(r : LlmResponse) : T {abstract}
+# validate(result : T) : List&lt;String&gt;
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>2860</x>
+      <y>1011</y>
+      <w>170</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>*PostingAnalysisTask*
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>3416</x>
+      <y>1011</y>
+      <w>150</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>*CoverLetterTask*
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>3062</x>
+      <y>1011</y>
+      <w>130</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>*RevisionTask*
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>3224</x>
+      <y>1011</y>
+      <w>160</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>*SmartCondenseTask*
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>2852</x>
+      <y>63</y>
+      <w>340</w>
+      <h>170</h>
+    </coordinates>
+    <panel_attributes>Each tool delegates to a deterministic service
+(class diagram 2/3):
+SearchVaultTool -&gt; VaultService
+FindSimilarResumeTool -&gt; ResumeLibrary
+KeywordScanTool -&gt; KeywordScanner
+ComposeResumeTool -&gt; LatexAssembler
+EstimatePageTool -&gt; PageEstimator
+CondenseTool -&gt; CondenseStrategy
+SaveResumeTool -&gt; ResumeRepository
+AskUserTool -&gt; VaultService.fileAnswer()
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>2023</x>
+      <y>213</y>
+      <w>55</w>
+      <h>79</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+«create»
+fontsize=11</panel_attributes>
+    <additional_attributes>10;69;45;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>2143</x>
+      <y>213</y>
+      <w>95</w>
+      <h>149</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+«return»
+fontsize=11</panel_attributes>
+    <additional_attributes>85;139;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>2243</x>
+      <y>213</y>
+      <w>239</w>
+      <h>144</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>229;134;125;70;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>796</x>
+      <y>166</y>
+      <w>1160</w>
+      <h>210</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m1=1
+m2=1
+fontsize=11</panel_attributes>
+    <additional_attributes>1150;10;10;200</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>2266</x>
+      <y>173</y>
+      <w>1421</w>
+      <h>802</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m1=1
+m2=1
+fontsize=11</panel_attributes>
+    <additional_attributes>1411;792;484;110;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>2550</x>
+      <y>678</y>
+      <w>78</w>
+      <h>127</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>68;117;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>2120</x>
+      <y>502</y>
+      <w>345</w>
+      <h>105</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m1=1
+fontsize=11</panel_attributes>
+    <additional_attributes>335;95;290;71;26;21;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1680</x>
+      <y>513</y>
+      <w>133</w>
+      <h>104</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+m1=1
+m2=*
+fontsize=11</panel_attributes>
+    <additional_attributes>123;10;56;60;10;94</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1903</x>
+      <y>513</y>
+      <w>35</w>
+      <h>69</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m1=1
+m2=*
+notifies
+fontsize=11</panel_attributes>
+    <additional_attributes>25;10;10;59</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>2087</x>
+      <y>513</y>
+      <w>103</w>
+      <h>94</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>93;84;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>2292</x>
+      <y>443</y>
+      <w>403</w>
+      <h>159</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>393;149;370;130;76;80;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>586</x>
+      <y>453</y>
+      <w>20</w>
+      <h>129</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m1=1
+m2=1..*
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;10;119</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>264</x>
+      <y>453</y>
+      <w>244</w>
+      <h>154</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;144;234;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>796</x>
+      <y>656</y>
+      <w>592</w>
+      <h>149</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>582;139;508;65;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>151</x>
+      <y>681</y>
+      <w>244</w>
+      <h>124</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;114;73;40;142;32;234;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>796</x>
+      <y>666</y>
+      <w>390</w>
+      <h>169</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;300;55;380;159</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>342</x>
+      <y>703</y>
+      <w>124</w>
+      <h>132</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>114;10;98;18;10;122</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>796</x>
+      <y>692</y>
+      <w>185</w>
+      <h>143</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;78;29;175;133</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>672</x>
+      <y>703</y>
+      <w>110</w>
+      <h>132</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;20;18;100;122</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>586</x>
+      <y>703</y>
+      <w>20</w>
+      <h>132</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;10;122</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>223</x>
+      <y>681</y>
+      <w>172</w>
+      <h>339</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>162;10;70;32;27;40;10;329</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>420</x>
+      <y>703</y>
+      <w>92</w>
+      <h>317</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>82;10;72;18;10;307</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>796</x>
+      <y>657</y>
+      <w>508</w>
+      <h>363</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;482;64;498;353</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>490</x>
+      <y>703</y>
+      <w>184</w>
+      <h>317</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>19;10;10;18;10;213;174;307</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1200</x>
+      <y>846</y>
+      <w>1669</w>
+      <h>183</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>1659;173;112;70;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1319</x>
+      <y>678</y>
+      <w>811</w>
+      <h>342</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>801;10;10;332</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>3620</x>
+      <y>1076</y>
+      <w>78</w>
+      <h>69</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>68;10;10;59</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>3807</x>
+      <y>1076</y>
+      <w>84</w>
+      <h>84</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;74;74</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>3293</x>
+      <y>1070</y>
+      <w>314</w>
+      <h>95</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;85;45;66;289;16;304;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>3058</x>
+      <y>1070</y>
+      <w>549</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;80;38;66;524;16;539;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>3539</x>
+      <y>1266</y>
+      <w>20</w>
+      <h>69</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+adapts
+fontsize=11</panel_attributes>
+    <additional_attributes>10;59;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>24</x>
+      <y>668</y>
+      <w>2845</w>
+      <h>542</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+m1=1
+m2=*
+fontsize=11</panel_attributes>
+    <additional_attributes>2835;532;118;418;10;248;10;53;102;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>3267</x>
+      <y>872</y>
+      <w>340</w>
+      <h>109</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>330;99;315;94;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>2949</x>
+      <y>906</y>
+      <w>114</w>
+      <h>114</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>104;10;10;104</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>3267</x>
+      <y>900</y>
+      <w>212</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;133;66;202;110</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>3117</x>
+      <y>906</y>
+      <w>20</w>
+      <h>114</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;10;104</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>3188</x>
+      <y>906</y>
+      <w>112</w>
+      <h>114</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;102;104</additional_attributes>
+  </element>
+</diagram>

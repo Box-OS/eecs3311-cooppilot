@@ -1,0 +1,709 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="15.1">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>20</x>
+      <y>10</y>
+      <w>340</w>
+      <h>25</h>
+    </coordinates>
+    <panel_attributes>*SD08 — Import Resume into Vault (F01)*
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>88</x>
+      <y>154</y>
+      <w>200</w>
+      <h>19</h>
+    </coordinates>
+    <panel_attributes>choose .tex, click Import
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>278</x>
+      <y>183</y>
+      <w>200</w>
+      <h>19</h>
+    </coordinates>
+    <panel_attributes>POST /vault/import (file)
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>478</x>
+      <y>212</y>
+      <w>160</w>
+      <h>19</h>
+    </coordinates>
+    <panel_attributes>importResume(latex)
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>688</x>
+      <y>241</y>
+      <w>110</w>
+      <h>19</h>
+    </coordinates>
+    <panel_attributes>parse(latex)
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>938</x>
+      <y>307</y>
+      <w>280</w>
+      <h>19</h>
+    </coordinates>
+    <panel_attributes>parseEntry(cmd); malformed -&gt; warning
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLFrame</id>
+    <coordinates>
+      <x>840</x>
+      <y>271</y>
+      <w>240</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>loop [each heading command]
+layer=-1
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>688</x>
+      <y>362</y>
+      <w>230</w>
+      <h>19</h>
+    </coordinates>
+    <panel_attributes>ParseResult(blocks, warnings)
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>688</x>
+      <y>455</y>
+      <w>100</w>
+      <h>19</h>
+    </coordinates>
+    <panel_attributes>save(block)
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>688</x>
+      <y>484</y>
+      <w>130</w>
+      <h>19</h>
+    </coordinates>
+    <panel_attributes>addEntry(entry)
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>1228</x>
+      <y>513</y>
+      <w>100</w>
+      <h>19</h>
+    </coordinates>
+    <panel_attributes>save(entry)
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLFrame</id>
+    <coordinates>
+      <x>632</x>
+      <y>424</y>
+      <w>1006</w>
+      <h>127</h>
+    </coordinates>
+    <panel_attributes>loop [each block]
+layer=-1
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>478</x>
+      <y>594</y>
+      <w>210</w>
+      <h>19</h>
+    </coordinates>
+    <panel_attributes>error: unsupported template
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLFrame</id>
+    <coordinates>
+      <x>620</x>
+      <y>392</y>
+      <w>1030</w>
+      <h>240</h>
+    </coordinates>
+    <panel_attributes>alt [blocks found]
+layer=-1
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>626</x>
+      <y>572</y>
+      <w>110</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>[none found]
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>278</x>
+      <y>643</y>
+      <w>180</w>
+      <h>19</h>
+    </coordinates>
+    <panel_attributes>view "vault" + warnings
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>760</x>
+      <y>679</y>
+      <w>150</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>Add entry manually
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>88</x>
+      <y>714</y>
+      <w>130</w>
+      <h>19</h>
+    </coordinates>
+    <panel_attributes>fill form, Save
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>278</x>
+      <y>743</y>
+      <w>160</w>
+      <h>19</h>
+    </coordinates>
+    <panel_attributes>POST /vault/entries
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>478</x>
+      <y>772</y>
+      <w>160</w>
+      <h>19</h>
+    </coordinates>
+    <panel_attributes>addVaultEntry(entry)
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>688</x>
+      <y>801</y>
+      <w>130</w>
+      <h>19</h>
+    </coordinates>
+    <panel_attributes>addEntry(entry)
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>1258</x>
+      <y>835</y>
+      <w>180</w>
+      <h>19</h>
+    </coordinates>
+    <panel_attributes>reject duplicate skill
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>1228</x>
+      <y>870</y>
+      <w>100</w>
+      <h>19</h>
+    </coordinates>
+    <panel_attributes>save(entry)
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLActor</id>
+    <coordinates>
+      <x>45</x>
+      <y>50</y>
+      <w>70</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>Student
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>225</x>
+      <y>70</y>
+      <w>90</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>«boundary»
+vault.html
+(browser)
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>405</x>
+      <y>90</y>
+      <w>130</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>«control»
+VaultController
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>615</x>
+      <y>90</y>
+      <w>130</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>«control»
+CoopPilotFacade
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>830</x>
+      <y>100</y>
+      <w>140</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>LatexResumeParser
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1165</x>
+      <y>100</y>
+      <w>110</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>VaultService
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1360</x>
+      <y>90</y>
+      <w>140</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>«database»
+ResumeRepository
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1525</x>
+      <y>90</y>
+      <w>130</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>«database»
+VaultRepository
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>70</x>
+      <y>162</y>
+      <w>210</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>200;10;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>260</x>
+      <y>191</y>
+      <w>220</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>210;10;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>460</x>
+      <y>220</y>
+      <w>230</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>220;10;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>670</x>
+      <y>249</y>
+      <w>240</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>230;10;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>890</x>
+      <y>299</y>
+      <w>50</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>10;30;40;30;40;10;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>670</x>
+      <y>370</y>
+      <w>240</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;230;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>670</x>
+      <y>463</y>
+      <w>770</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>760;10;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>670</x>
+      <y>492</y>
+      <w>560</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>550;10;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1210</x>
+      <y>521</y>
+      <w>390</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>380;10;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>460</x>
+      <y>602</y>
+      <w>230</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;220;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>610</x>
+      <y>559</y>
+      <w>1050</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;1040;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>260</x>
+      <y>651</y>
+      <w>220</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;210;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>10</x>
+      <y>679</y>
+      <w>1650</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;1640;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>70</x>
+      <y>722</y>
+      <w>210</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>200;10;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>260</x>
+      <y>751</y>
+      <w>220</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>210;10;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>460</x>
+      <y>780</y>
+      <w>230</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>220;10;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>670</x>
+      <y>809</y>
+      <w>560</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>550;10;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1210</x>
+      <y>827</y>
+      <w>50</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>10;30;40;30;40;10;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1210</x>
+      <y>878</y>
+      <w>390</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>380;10;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>70</x>
+      <y>120</y>
+      <w>20</w>
+      <h>810</h>
+    </coordinates>
+    <panel_attributes>lt=.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;10;800</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>260</x>
+      <y>120</y>
+      <w>20</w>
+      <h>810</h>
+    </coordinates>
+    <panel_attributes>lt=.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;10;800</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>460</x>
+      <y>120</y>
+      <w>20</w>
+      <h>810</h>
+    </coordinates>
+    <panel_attributes>lt=.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;10;800</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>670</x>
+      <y>120</y>
+      <w>20</w>
+      <h>810</h>
+    </coordinates>
+    <panel_attributes>lt=.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;10;800</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>890</x>
+      <y>120</y>
+      <w>20</w>
+      <h>810</h>
+    </coordinates>
+    <panel_attributes>lt=.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;10;800</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1210</x>
+      <y>120</y>
+      <w>20</w>
+      <h>810</h>
+    </coordinates>
+    <panel_attributes>lt=.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;10;800</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1420</x>
+      <y>120</y>
+      <w>20</w>
+      <h>810</h>
+    </coordinates>
+    <panel_attributes>lt=.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;10;800</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1580</x>
+      <y>120</y>
+      <w>20</w>
+      <h>810</h>
+    </coordinates>
+    <panel_attributes>lt=.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;10;800</additional_attributes>
+  </element>
+</diagram>

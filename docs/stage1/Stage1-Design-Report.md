@@ -2,10 +2,10 @@
 
 **EECS 3311 Software Design — Fall 2026 — Course Project, Stage 1 (Design)**
 **Author:** Sina [full name] — Student # [number] (solo project)
-**Language / platform:** Java 21, JavaFX (GUI), picocli (CLI), SQLite (JDBC)
+**Language / platform:** Java 21, Spring Boot 3 + Thymeleaf (web GUI), picocli (CLI), SQLite (Spring JDBC)
 **LLM:** Anthropic Claude via the Messages API with tool use
 
-> All diagrams are in [`diagrams/`](diagrams/) as PlantUML sources (`.puml`) and rendered PNGs.
+> All diagrams were made with **UMLet**. The editable sources are the `.uxf` files in [`diagrams/`](diagrams/); the PNGs shown below are exported from them.
 
 ## Contents
 
@@ -74,9 +74,11 @@ Hard-coding every path leads to a large, brittle decision tree. In CoopPilot the
 ### 1.6 How the AI interacts with the rest of the system
 
 ```
-GUI (JavaFX views) ─┐
-                    ├─> CoopPilotFacade ─> AgentController ──(LlmRequest)──> LLMClient ──> Claude API
-CLI (picocli)  ─────┘          │                 │   ^                         (Adapter)
+Browser (Thymeleaf pages)
+   │  HTTP + SSE
+Spring MVC controllers ─┐
+                        ├─> CoopPilotFacade ─> AgentController ──(LlmRequest)──> LLMClient ──> Claude API
+CLI (picocli)  ─────────┘          │                 │   ^                         (Adapter)
                                │                 │   └──(LlmResponse: tool calls)
                                │                 v
                                │            ToolRegistry ──> Tools ──> deterministic services
@@ -90,11 +92,12 @@ CLI (picocli)  ─────┘          │                 │   ^          
 - Each tool returns a `ToolResult` that is appended to the `AgentSession` and sent back to the LLM on the next step (a reason–act–observe loop).
 - The loop stops when the LLM calls `save_resume` and returns a final answer, or when `maxSteps` is reached.
 - Single-shot LLM jobs (posting analysis, cover letter, revision) go through `LlmTask<T>` subclasses, which share retry and output-validation logic.
-- Both the GUI and the CLI call the same `CoopPilotFacade`, so every feature works in both. The CLI's `--json` mode prints a machine-readable result, which Stage 3 will use to drive the agent from KUMA (a Python SDK).
+- The web GUI is a Spring Boot application with server-rendered Thymeleaf pages. Spring MVC controllers handle each page and call the same `CoopPilotFacade` as the CLI, so every feature works in both. While the agent runs, progress and questions reach the browser through Server-Sent Events (SSE); this is the only part of the GUI that needs a small amount of JavaScript.
+- The CLI's `--json` mode prints a machine-readable result, which Stage 3 will use to drive the agent from KUMA (a Python SDK).
 
 ### 1.7 Technology stack
 
-Java 21 · JavaFX 21 · picocli · Jackson (JSON) · SQLite via JDBC · Anthropic Java SDK · JUnit 5 + Mockito (Stage 3) · Maven.
+Java 21 · Spring Boot 3 (Spring MVC, dependency injection) · Thymeleaf · picocli · Jackson (JSON) · SQLite via Spring JDBC (`JdbcTemplate`) · Anthropic Java SDK · JUnit 5 + Mockito (Stage 3) · Maven · UMLet (diagrams).
 
 ---
 
@@ -105,7 +108,7 @@ Type legend: **D** = deterministic, **AI** = LLM-based, **H** = hybrid.
 ### F01 — Experience Vault and Resume Import (D)
 
 - **Description:** Stores the student's experience as structured `VaultEntry` items (project, work, course, activity, skill, planned) with tags and a usage scope (`ALL`, `LETTERS_ONLY`, `CONTEXT_ONLY`). Imports an existing Jake's-template LaTeX resume and splits it into reusable `ResumeBlock`s. This is the agent's long-term memory.
-- **User interaction:** *Vault* tab → "Import .tex", or "Add entry" form; list with search and tag filters. CLI: `coop vault import resume.tex`, `coop vault add`.
+- **User interaction:** *Vault* page → "Import .tex", or "Add entry" form; list with search and tag filters. CLI: `coop vault import resume.tex`, `coop vault add`.
 - **Input:** a LaTeX file, or entry fields (title, kind, use, date, tags, body).
 - **Output:** saved blocks and vault entries, plus a list of parse warnings.
 - **Workflow:** `LatexResumeParser` scans `\resumeSubheading` / `\resumeProjectHeading` commands → builds blocks → `VaultService` creates matching entries → repositories save them.
@@ -114,7 +117,7 @@ Type legend: **D** = deterministic, **AI** = LLM-based, **H** = hybrid.
 ### F02 — Job Posting Import and Analysis (H)
 
 - **Description:** Turns raw posting text into a structured `PostingAnalysis`: company, role, term, deadline, must-haves, nice-to-haves, ATS keywords with aliases, required documents, and a "soft-skill focus" flag.
-- **User interaction:** *Posting* tab → paste text (or load a `.txt`/`.json` export) → "Analyze". CLI: `coop analyze posting.txt`.
+- **User interaction:** *Posting* page → paste text (or load a `.txt`/`.json` export) → "Analyze". CLI: `coop analyze posting.txt`.
 - **Input:** posting text.
 - **Output:** a saved `Posting` with its `PostingAnalysis`, shown as editable fields.
 - **Workflow:** `PostingAnalysisTask.run()` builds a prompt asking for strict JSON → LLM → parse → validate (required fields present, keywords non-empty) → save.
@@ -123,7 +126,7 @@ Type legend: **D** = deterministic, **AI** = LLM-based, **H** = hybrid.
 ### F03 — Fit Analysis and Skill-Gap Detection (H)
 
 - **Description:** Scores how well the student fits the posting (0–100), lists matched requirements and gaps, finds the closest saved resume, and recommends a strategy: **REUSE**, **TWEAK** or **GENERATE**.
-- **User interaction:** *Posting* tab → fit panel appears after analysis (score, gap list, recommended strategy).
+- **User interaction:** *Posting* page → fit panel appears after analysis (score, gap list, recommended strategy).
 - **Input:** `PostingAnalysis` and the vault's skills.
 - **Output:** a `FitReport`.
 - **Workflow:** `FitScorer.score()` matches must-haves and keywords against vault skills (deterministic). `ResumeLibrary.findClosest()` ranks saved resumes. The facade picks the strategy from the thresholds (≥ 75% → reuse). The LLM's role is the posting analysis from F02, which feeds the scorer.
@@ -141,7 +144,7 @@ Type legend: **D** = deterministic, **AI** = LLM-based, **H** = hybrid.
 ### F05 — Agentic Resume Tailoring (AI)
 
 - **Description:** The core agent. Given the goal "tailor a resume for posting P", the LLM plans and executes a sequence of tool calls (find similar resume, keyword scan, search vault, compose resume, estimate page, condense, ask user, save) until it produces a one-page tailored resume.
-- **User interaction:** *Tailor* tab → "Tailor resume". A live step log shows each tool the agent calls. CLI: `coop tailor --posting p.txt [--json]`.
+- **User interaction:** *Tailor* page → "Tailor resume". A live step log (pushed over SSE) shows each tool the agent calls. CLI: `coop tailor --posting p.txt [--json]`.
 - **Input:** posting ID, vault, saved resumes and blocks, LaTeX template.
 - **Output:** a saved `Resume` named `CV_Company_Role`, an `AgentResult` (status, summary, step count) and the tool log.
 - **Workflow:** see SD01. `AgentController.run()` loops: build request → `LLMClient.complete()` → for each tool call, `ToolRegistry.execute()` → append the result → repeat. The system prompt carries the rules: only vault facts, unknown numbers as placeholders like `[N=5]`, reverse-chronological experience, one page.
@@ -150,11 +153,11 @@ Type legend: **D** = deterministic, **AI** = LLM-based, **H** = hybrid.
 ### F06 — Clarifying Questions and Vault Learning (H)
 
 - **Description:** When the agent needs a fact that is not in the vault (a framework, a date, a team size), it calls `ask_user` instead of guessing. The answer is rewritten into a clean vault entry, so the agent never has to ask again (memory).
-- **User interaction:** a dialog in the GUI; a stdin prompt in the CLI (`--no-input` skips questions).
+- **User interaction:** a dialog on the *Tailor* page (question pushed over SSE, answer POSTed back); a stdin prompt in the CLI (`--no-input` skips questions).
 - **Input:** the agent's question; the student's answer, or a skip.
 - **Output:** a `ToolResult` for the agent, plus a new or updated `VaultEntry`.
-- **Workflow:** see SD02. `AskUserTool` → `QuestionHandler.ask()` → `VaultService.fileAnswer()` → save.
-- **Error cases:** student skips → the tool returns `UNKNOWN` and the agent must omit the fact or use a placeholder; the agent asks the same question twice → `AskUserTool` returns the earlier answer from the session.
+- **Workflow:** see SD02. `AskUserTool` → `QuestionHandler.ask()` (`WebQuestionHandler` waits for the browser's answer) → `VaultService.fileAnswer()` → save.
+- **Error cases:** student skips, or no answer within 5 minutes → the tool returns `UNKNOWN` and the agent must omit the fact or use a placeholder; the agent asks the same question twice → `AskUserTool` returns the earlier answer from the session.
 
 ### F07 — One-Page Fitting (Estimate and Condense) (H)
 
@@ -168,7 +171,7 @@ Type legend: **D** = deterministic, **AI** = LLM-based, **H** = hybrid.
 ### F08 — Natural-Language Revision with Version History (H)
 
 - **Description:** The student types a change ("make the Tim Hortons bullet about teamwork", "drop the oldest project"). The LLM rewrites the resume using only vault facts. Every change, AI or manual, is a command that can be undone and redone, with a "What changed" diff.
-- **User interaction:** an "Adjust" chat box on the *Tailor* tab; Undo/Redo buttons; pencil icons for manual bullet edits.
+- **User interaction:** an "Adjust" chat box on the *Tailor* page; Undo/Redo buttons; pencil icons for manual bullet edits.
 - **Input:** a resume and an instruction (or a manual edit).
 - **Output:** a revised `Resume`, a diff and an over-page warning.
 - **Workflow:** see SD04. `RevisionHistory.execute(new AiRevisionCommand(...))` → `RevisionTask.run()` → validate → push to the undo stack.
@@ -177,7 +180,7 @@ Type legend: **D** = deterministic, **AI** = LLM-based, **H** = hybrid.
 ### F09 — Cover Letter Drafting (AI)
 
 - **Description:** Writes a cover letter for the posting, grounded in the tailored resume and the vault entries marked `ALL` or `LETTERS_ONLY`. It states the term length the posting asks for.
-- **User interaction:** *Tailor* tab → "Write cover letter" → editable text area → export. CLI: `coop letter --posting ID --resume NAME`.
+- **User interaction:** *Tailor* page → "Write cover letter" → editable text area → export. CLI: `coop letter --posting ID --resume NAME`.
 - **Input:** posting, resume, relevant vault entries.
 - **Output:** a `CoverLetter` saved as `CL_Company_Role`.
 - **Workflow:** see SD05. `VaultService.search()` → `CoverLetterTask.run()` → validate (company and role named, 250–400 words, no `CONTEXT_ONLY` facts) → save.
@@ -186,7 +189,7 @@ Type legend: **D** = deterministic, **AI** = LLM-based, **H** = hybrid.
 ### F10 — Resume Library, Reuse and Export (D)
 
 - **Description:** Keeps all saved resumes grouped by role family. For a new posting it suggests the closest saved resume (skill overlap 65% + role-family similarity 35%) and offers "Use as-is" when the match is ≥ 75%. Exports `.tex` files with consistent names (`CV_Company_Role`, `CL_Company_Role`) for compiling in Overleaf.
-- **User interaction:** *Library* panel with family groups; "Use as-is" and "Export" buttons. CLI: `coop export NAME --dir out/`.
+- **User interaction:** *Library* panel with family groups; "Use as-is" and "Export" buttons (export downloads the `.tex`). CLI: `coop export NAME --dir out/`.
 - **Input:** posting analysis; resume and target folder.
 - **Output:** a renamed resume copy; a written `.tex` path.
 - **Workflow:** see SD06.
@@ -195,7 +198,7 @@ Type legend: **D** = deterministic, **AI** = LLM-based, **H** = hybrid.
 ### F11 — Application Tracking with Status Lifecycle (D)
 
 - **Description:** Logs each application (company, role, resume and cover letter used, date, link) and moves it through a lifecycle: *To apply → Applied → Assessment → Interview → Offer / Rejected / Ghosted*. Illegal transitions are blocked. Setting *Applied* schedules a follow-up date (+10 days).
-- **User interaction:** *Tracker* tab table with a status dropdown; "Log application" after tailoring. CLI: `coop track APP_ID interview`.
+- **User interaction:** *Tracker* page table with a status dropdown; "Log application" after tailoring. CLI: `coop track APP_ID interview`.
 - **Input:** application fields; status events.
 - **Output:** updated `Application`; follow-ups-due list.
 - **Workflow:** see SD07. `ApplicationTracker.updateStatus()` → `Application.handle(event)` → the current `ApplicationState` decides the transition → save → notify listeners.
@@ -203,11 +206,11 @@ Type legend: **D** = deterministic, **AI** = LLM-based, **H** = hybrid.
 
 ### F12 — Progress Dashboard and Goals (D)
 
-- **Description:** Shows daily and weekly application goals and progress, total applied, response rate, interviews, follow-ups due and the daily-goal streak. Updates live whenever an application changes.
-- **User interaction:** *Dashboard* tab with tiles and a weekly bar chart; goals editable inline. CLI: `coop stats`.
+- **Description:** Shows daily and weekly application goals and progress, total applied, response rate, interviews, follow-ups due and the daily-goal streak. Always reflects the latest application changes.
+- **User interaction:** *Dashboard* page with tiles and a weekly bar chart; goals editable inline. CLI: `coop stats`.
 - **Input:** all applications, goals, today's date.
 - **Output:** `DashboardStats`.
-- **Workflow:** `DashboardView` observes `ApplicationTracker`; on change it asks `DashboardService.stats(today)` to recompute.
+- **Workflow:** `DashboardService` observes `ApplicationTracker` and invalidates its cached stats on every change; `DashboardController` calls `CoopPilotFacade.dashboard()` → `DashboardService.stats(today)`, which recomputes when needed.
 - **Error cases:** no applications → zeros and an empty-state message; goal ≤ 0 → rejected.
 
 ---
@@ -224,19 +227,19 @@ For readability, the class diagram is split into three views that share class na
 
 ![Class diagram 2](diagrams/class-2-domain-services.png)
 
-### 3.3 GUI/CLI, facade, application tracking and persistence
+### 3.3 Web (Spring MVC), CLI, facade, application tracking and persistence
 
-![Class diagram 3](diagrams/class-3-ui-facade-tracking.png)
+![Class diagram 3](diagrams/class-3-web-tracking.png)
 
 ### 3.4 Design principles applied
 
 | Principle | Where |
 |---|---|
 | **Abstraction / interfaces** | `LLMClient`, `Tool`, `CondenseStrategy`, `ResumeEditCommand`, `Repository<T>`, `QuestionHandler` |
-| **Dependency inversion** | `AgentController` depends on `LLMClient` and `Tool`, never on the Anthropic SDK or concrete tools; services depend on repository interfaces, not SQLite |
-| **Separation of concerns** | Layers: UI → facade → agent / services → domain → persistence. The LLM decides *what* to do; deterministic services decide *how* and enforce the rules |
+| **Dependency inversion** | `AgentController` depends on `LLMClient` and `Tool`, never on the Anthropic SDK or concrete tools; services depend on repository interfaces, not SQLite. Spring's dependency injection (`AppConfig`) wires the concrete classes in one place |
+| **Separation of concerns** | Layers: web controllers / CLI → facade → agent / services → domain → persistence. The LLM decides *what* to do; deterministic services decide *how* and enforce the rules |
 | **High cohesion** | Each service does one job (`KeywordScanner` only scans, `PageEstimator` only estimates, `LatexAssembler` only renders) |
-| **Low coupling** | GUI and CLI only know `CoopPilotFacade`; tools only know the service they wrap |
+| **Low coupling** | Web controllers and the CLI only know `CoopPilotFacade`; tools only know the service they wrap |
 | **Encapsulation** | `Application` state can only change through `handle(event)`; `RevisionHistory` owns its stacks |
 | **Polymorphism** | `ToolRegistry` executes any `Tool`; `ApplicationState` subclasses define their own transitions |
 
@@ -248,7 +251,7 @@ Seven patterns are used. Each one solves a specific problem in this application.
 
 ### 4.1 Strategy — interchangeable condense algorithms
 
-- **Problem:** fitting a resume to one page can be done cheaply with fixed rules or more cleverly with the LLM. The agent, the GUI buttons and the CLI all need to call "condense" without knowing which algorithm runs.
+- **Problem:** fitting a resume to one page can be done cheaply with fixed rules or more cleverly with the LLM. The agent, the web page buttons and the CLI all need to call "condense" without knowing which algorithm runs.
 - **Participants:** `CondenseStrategy` (strategy interface); `RuleBasedCondense`, `LlmCondense` (concrete strategies); `CondenseTool` and `CoopPilotFacade` (contexts).
 - **Why appropriate:** the algorithms share one signature but differ in cost and behaviour, and the choice happens at run time (the button pressed, or the mode argument the agent passes).
 - **Without it:** `if (mode == QUICK) ... else ...` branches would be repeated in the tool, the facade and the CLI, and adding a third algorithm (e.g. "drop oldest first") would mean editing all of them.
@@ -269,10 +272,10 @@ Seven patterns are used. Each one solves a specific problem in this application.
 
 ### 4.4 Observer — live progress and dashboard updates
 
-- **Problem:** (a) while the agent runs, the GUI shows a live step log and the CLI prints progress, but `AgentController` must not know about either UI; (b) the dashboard must refresh whenever any application changes.
-- **Participants:** subjects `AgentController` and `ApplicationTracker`; observer interfaces `AgentEventListener` and `ApplicationListener`; concrete observers `TailorView`, `CliRunner`, `DashboardView`.
+- **Problem:** (a) while the agent runs, the browser shows a live step log and the CLI prints progress, but the agent core must not know about either UI; (b) the dashboard statistics must stay correct whenever any application changes.
+- **Participants:** subjects `AgentSession` (one per agent run) and `ApplicationTracker`; observer interfaces `AgentEventListener` and `ApplicationListener`; concrete observers `SseProgressPublisher` (pushes each step to the browser as an SSE event), `CliRunner` (prints to stderr) and `DashboardService` (invalidates its cached stats).
 - **Why appropriate:** one-to-many notification with no compile-time dependency from the core on the UI.
-- **Without it:** the controller would hold direct references to GUI widgets (breaking the CLI) or the dashboard would need polling.
+- **Without it:** the agent loop would call web or console code directly (breaking whichever UI it was not written for), and the dashboard would recompute everything on every page load.
 
 ### 4.5 State — application lifecycle
 
@@ -281,12 +284,12 @@ Seven patterns are used. Each one solves a specific problem in this application.
 - **Why appropriate:** each state holds its own transition rules and entry actions. Unsupported events fall through to the base class, which throws `IllegalStateTransitionException`.
 - **Without it:** a large `switch(status)` with nested conditions would be duplicated wherever status changes, and adding a status (e.g. "Second interview") would touch all of them.
 
-### 4.6 Facade — one entry point for GUI and CLI
+### 4.6 Facade — one entry point for the web UI and CLI
 
 - **Problem:** a user action like "tailor a resume" involves the agent, vault, library, repositories and listeners. Two different UIs need the same features.
-- **Participants:** `CoopPilotFacade` (facade); subsystems `AgentController`, `VaultService`, `ResumeLibrary`, `FitScorer`, `KeywordScanner`, `RevisionHistory`, `ApplicationTracker`, `DashboardService`, `ExportService`; clients `MainWindow` views and `CliRunner`.
+- **Participants:** `CoopPilotFacade` (facade); subsystems `AgentController`, `VaultService`, `ResumeLibrary`, `FitScorer`, `KeywordScanner`, `RevisionHistory`, `ApplicationTracker`, `DashboardService`, `ExportService`; clients the Spring MVC controllers (`VaultController`, `PostingController`, `TailorController`, `TrackerController`, `DashboardController`) and `CliRunner`.
 - **Why appropriate:** keeps the UIs thin and identical in capability. The CLI's `--json` mode becomes a cheap test entry point for Stage 3.
-- **Without it:** orchestration logic would be duplicated in the JavaFX controllers and CLI commands and would drift apart.
+- **Without it:** orchestration logic would be duplicated in the web controllers and CLI commands and would drift apart.
 
 ### 4.7 Template Method — single-shot LLM tasks
 
@@ -295,7 +298,7 @@ Seven patterns are used. Each one solves a specific problem in this application.
 - **Why appropriate:** the retry and validation policy, which guards against malformed or hallucinated output, is written once and cannot be skipped by a subclass.
 - **Without it:** each task would re-implement retries slightly differently, and one forgotten validation would let invented facts through.
 
-*Also used, not counted:* **MVC** in the JavaFX GUI (views, facade-backed controllers, domain model) and the **Repository** pattern for persistence.
+*Also used, not counted:* **MVC** through Spring MVC (Thymeleaf views, `@Controller` classes, model attributes), the **Repository** pattern for persistence, and **dependency injection** via Spring (`AppConfig`).
 
 ---
 
@@ -305,7 +308,7 @@ Seven patterns are used. Each one solves a specific problem in this application.
 
 **Actors:**
 
-- **Student** (primary) — uses the GUI or CLI.
+- **Student** (primary) — uses the web UI (in a browser) or the CLI.
 - **LLM Service (Claude API)** (secondary, external) — performs reasoning and text generation.
 - **Local file system** (external) — source of imported `.tex` files and destination of exports compiled in Overleaf.
 
@@ -387,7 +390,7 @@ The `<<include>>` from UC04 to UC05 shows that every tailoring run ends by fitti
 | **Actors** | Student |
 | **Goal** | Give the agent a missing fact so it does not guess |
 | **Preconditions** | UC04 running; agent called `ask_user` |
-| **Trigger** | A question dialog (GUI) or prompt (CLI) appears |
+| **Trigger** | A question dialog (web page) or prompt (CLI) appears |
 | **Main success scenario** | 1. System shows the agent's question. 2. Student answers. 3. System files the answer into the vault (new or updated entry). 4. Agent continues with the answer. |
 | **Alternative / exception flows** | 2a. Student skips → agent receives `UNKNOWN` and must omit the detail or use a placeholder. |
 | **Postconditions** | Vault updated (main flow) |
@@ -427,7 +430,7 @@ The `<<include>>` from UC04 to UC05 shows that every tailoring run ends by fitti
 | **Goal** | Reuse a close saved resume and get `.tex` files for Overleaf |
 | **Preconditions** | At least one saved resume |
 | **Trigger** | Student clicks "Use as-is" or "Export" |
-| **Main success scenario** | 1. System ranks saved resumes against the posting. 2. If the best match is ≥ 75%, system copies it as `CV_Company_Role`. 3. Student clicks Export. 4. System writes the `.tex` (and the cover letter, if any) to the chosen folder. |
+| **Main success scenario** | 1. System ranks saved resumes against the posting. 2. If the best match is ≥ 75%, system copies it as `CV_Company_Role`. 3. Student clicks Export. 4. System writes the `.tex` (and the cover letter, if any) to the export folder and the browser downloads it. |
 | **Alternative / exception flows** | 2a. No match ≥ 75% → suggest UC04. 4a. Write error → message with path. |
 | **Postconditions** | Resume copy saved; files written |
 | **Related features** | F10 |
@@ -452,7 +455,7 @@ The `<<include>>` from UC04 to UC05 shows that every tailoring run ends by fitti
 | **Actors** | Student |
 | **Goal** | See progress against daily and weekly goals |
 | **Preconditions** | — |
-| **Trigger** | Student opens the Dashboard tab, or an application changes |
+| **Trigger** | Student opens the Dashboard page |
 | **Main success scenario** | 1. System computes today/week counts, response rate, interviews, follow-ups due and streak. 2. System shows tiles and a weekly chart. 3. Student edits a goal; tiles update. |
 | **Alternative / exception flows** | 1a. No applications → empty state. 3a. Goal ≤ 0 → rejected. |
 | **Postconditions** | Goals saved if edited |
@@ -466,7 +469,7 @@ All diagrams use the classes and methods from Section 3.
 
 ### SD01 — Tailor Resume with Agent (F05, F07)
 
-Shows the reason–act–observe loop. Inside the loop, each iteration runs **one** tool call chosen by the LLM. The `alt` branch shows a typical sequence of choices unrolled (find similar resume → keyword scan → vault search → compose → estimate → condense); a different posting can produce a different sequence.
+Shows the reason–act–observe loop. The request returns immediately with a session ID; the agent runs on a background thread and its progress reaches the browser as SSE events. Inside the loop, each iteration runs **one** tool call chosen by the LLM; the `Tool` lifeline stands for whichever tool was chosen (a typical run: find similar resume → keyword scan → vault search → compose → estimate page → condense → save). A different posting can produce a different sequence.
 
 ![SD01](diagrams/sd01-tailor-resume.png)
 
@@ -508,18 +511,18 @@ Shows the reason–act–observe loop. Inside the loop, each iteration runs **on
 
 | Feature | Description | Type | Related use case | Classes | Key methods | Sequence diagram | Design pattern(s) |
 |---|---|---|---|---|---|---|---|
-| F01 | Experience vault and resume import | D | UC01 | VaultView, CoopPilotFacade, LatexResumeParser, VaultService, VaultEntry, ResumeBlock, VaultRepository, ResumeRepository | `importResume()`, `parse()`, `parseEntry()`, `addEntry()`, `save()` | SD08 | Facade, Repository |
-| F02 | Posting import and analysis | H | UC02 | PostingView, CoopPilotFacade, PostingAnalysisTask, LLMClient, ClaudeAdapter, Posting, PostingAnalysis, PostingRepository | `importPosting()`, `run()`, `buildRequest()`, `parse()`, `validate()`, `complete()` | SD03 | Template Method, Adapter, Facade |
-| F03 | Fit analysis and skill gaps | H | UC03 | CoopPilotFacade, FitScorer, VaultService, ResumeLibrary, FitReport, ResumeMatch | `analyzeFit()`, `score()`, `skills()`, `findClosest()` | SD03 | Facade |
+| F01 | Experience vault and resume import | D | UC01 | VaultController, CoopPilotFacade, LatexResumeParser, VaultService, VaultEntry, ResumeBlock, VaultRepository, ResumeRepository | `importResume()`, `parse()`, `parseEntry()`, `addEntry()`, `save()` | SD08 | Facade, Repository |
+| F02 | Posting import and analysis | H | UC02 | PostingController, CoopPilotFacade, PostingAnalysisTask, LLMClient, ClaudeAdapter, Posting, PostingAnalysis, PostingRepository | `importPosting()`, `run()`, `buildRequest()`, `parse()`, `validate()`, `complete()` | SD03 | Template Method, Adapter, Facade |
+| F03 | Fit analysis and skill gaps | H | UC03 | PostingController, CoopPilotFacade, FitScorer, VaultService, ResumeLibrary, FitReport, ResumeMatch | `analyzeFit()`, `score()`, `skills()`, `findClosest()` | SD03 | Facade |
 | F04 | ATS keyword coverage | D | UC03 | KeywordScanner, KeywordReport, Keyword, KeywordScanTool | `scan()`, `coverage()` | SD03, SD01 | — (wrapped as a Tool) |
-| F05 | Agentic resume tailoring | AI | UC04 | TailorView, CoopPilotFacade, AgentController, AgentSession, PromptBuilder, LLMClient, ToolRegistry, Tool + 9 tools, LatexAssembler, ResumeRepository | `tailorResume()`, `run()`, `buildRequest()`, `complete()`, `execute()`, `validateArgs()`, `assemble()` | SD01, SD09 | Observer, Adapter, Facade |
-| F06 | Clarifying questions and vault learning | H | UC06 | AskUserTool, QuestionHandler, TailorView, CliRunner, VaultService, VaultRepository | `ask()`, `fileAnswer()`, `save()` | SD02, SD09 | (interface polymorphism: GUI/CLI handlers) |
+| F05 | Agentic resume tailoring | AI | UC04 | TailorController, AgentSessionManager, SseProgressPublisher, CoopPilotFacade, AgentController, AgentSession, PromptBuilder, LLMClient, ToolRegistry, Tool + 9 tools, LatexAssembler, ResumeRepository | `startTailoring()`, `start()`, `tailorResume()`, `run()`, `buildRequest()`, `complete()`, `execute()`, `validateArgs()`, `assemble()` | SD01, SD09 | Observer, Adapter, Facade |
+| F06 | Clarifying questions and vault learning | H | UC06 | AskUserTool, QuestionHandler, WebQuestionHandler, SseProgressPublisher, TailorController, CliRunner, VaultService, VaultRepository | `ask()`, `sendQuestion()`, `answer()`, `fileAnswer()`, `save()` | SD02, SD09 | (interface polymorphism: web/CLI handlers) |
 | F07 | One-page fitting | H | UC05 | PageEstimator, CondenseStrategy, RuleBasedCondense, LlmCondense, SmartCondenseTask, EstimatePageTool, CondenseTool | `estimate()`, `fitsOnePage()`, `condense()` | SD01 | Strategy, Template Method |
-| F08 | Natural-language revision with undo | H | UC07 | TailorView, CoopPilotFacade, RevisionHistory, ResumeEditCommand, AiRevisionCommand, ReplaceBulletCommand, RemoveBlockCommand, RevisionTask | `revise()`, `execute()`, `undo()`, `redo()`, `run()` | SD04 | Command, Template Method |
-| F09 | Cover letter drafting | AI | UC08 | CoopPilotFacade, VaultService, CoverLetterTask, LLMClient, ExportService, CoverLetter | `draftCoverLetter()`, `search()`, `run()`, `validate()`, `fileName()` | SD05 | Template Method, Adapter |
-| F10 | Resume library, reuse and export | D | UC09 | ResumeLibrary, ResumeRepository, ExportService, LatexAssembler, ResumeMatch | `suggestReuse()`, `findClosest()`, `groupByFamily()`, `exportLatex()` | SD06 | Facade, Repository |
-| F11 | Application tracking lifecycle | D | UC10 | TrackerView, ApplicationTracker, Application, ApplicationState (+7 states), ApplicationRepository | `updateStatus()`, `handle()`, `inviteInterview()`, `setState()` | SD07 | State, Observer |
-| F12 | Progress dashboard and goals | D | UC11 | DashboardView, DashboardService, DashboardStats, Goals, ApplicationTracker | `onApplicationChanged()`, `stats()`, `followUpsDue()` | SD07 | Observer |
+| F08 | Natural-language revision with undo | H | UC07 | TailorController, CoopPilotFacade, RevisionHistory, ResumeEditCommand, AiRevisionCommand, ReplaceBulletCommand, RemoveBlockCommand, RevisionTask | `revise()`, `execute()`, `undo()`, `redo()`, `run()` | SD04 | Command, Template Method |
+| F09 | Cover letter drafting | AI | UC08 | TailorController, CoopPilotFacade, VaultService, CoverLetterTask, LLMClient, ExportService, CoverLetter | `draftCoverLetter()`, `search()`, `run()`, `validate()`, `fileName()` | SD05 | Template Method, Adapter |
+| F10 | Resume library, reuse and export | D | UC09 | TailorController, CoopPilotFacade, ResumeLibrary, ResumeRepository, ExportService, LatexAssembler, ResumeMatch | `suggestReuse()`, `findClosest()`, `groupByFamily()`, `exportLatex()` | SD06 | Facade, Repository |
+| F11 | Application tracking lifecycle | D | UC10 | TrackerController, CoopPilotFacade, ApplicationTracker, Application, ApplicationState (+7 states), ApplicationRepository | `updateStatus()`, `handle()`, `inviteInterview()`, `setState()` | SD07 | State, Observer |
+| F12 | Progress dashboard and goals | D | UC11 | DashboardController, CoopPilotFacade, DashboardService, DashboardStats, Goals, ApplicationTracker | `onApplicationChanged()`, `stats()`, `followUpsDue()` | SD07 | Observer |
 
 ---
 
@@ -527,12 +530,12 @@ Shows the reason–act–observe loop. Inside the loop, each iteration runs **on
 
 ### F01 — Experience Vault and Resume Import
 **Use case:** UC01 · **Sequence diagram:** SD08
-**Classes:** `VaultView` (collects file/entry input), `CoopPilotFacade` (coordinates), `LatexResumeParser` (turns LaTeX into `ResumeBlock`s), `VaultService` (vault rules, e.g. duplicate skills), `VaultRepository` / `ResumeRepository` (storage).
-**Execution:** `VaultView.onImportResume()` calls `CoopPilotFacade.importResume(latex)`. The facade calls `LatexResumeParser.parse()`, which calls `parseEntry()` per heading and collects warnings. Each block is saved, and a matching `VaultEntry` is created through `VaultService.addEntry()`.
+**Classes:** `VaultController` + `vault.html` (collect the file/entry input), `CoopPilotFacade` (coordinates), `LatexResumeParser` (turns LaTeX into `ResumeBlock`s), `VaultService` (vault rules, e.g. duplicate skills), `VaultRepository` / `ResumeRepository` (storage).
+**Execution:** the upload form posts to `VaultController.importResume(file)`, which calls `CoopPilotFacade.importResume(latex)`. The facade calls `LatexResumeParser.parse()`, which calls `parseEntry()` per heading and collects warnings. Each block is saved, and a matching `VaultEntry` is created through `VaultService.addEntry()`.
 
 ### F02 — Posting Import and Analysis
 **Use case:** UC02 · **Sequence diagram:** SD03
-**Classes:** `PostingView`, `CoopPilotFacade`, `PostingAnalysisTask` (prompt + parse + validate), `LLMClient`/`ClaudeAdapter`, `Posting`, `PostingAnalysis`, `PostingRepository`.
+**Classes:** `PostingController` + `posting.html`, `CoopPilotFacade`, `PostingAnalysisTask` (prompt + parse + validate), `LLMClient`/`ClaudeAdapter`, `Posting`, `PostingAnalysis`, `PostingRepository`.
 **Execution:** `importPosting(text)` creates a `PostingAnalysisTask` and calls `run()`. The inherited template runs `buildRequest()` → `llm.complete()` → `parse()` → `validate()`, retrying on failure. The result is attached to a new `Posting` and saved.
 
 ### F03 — Fit Analysis and Skill Gaps
@@ -543,17 +546,17 @@ Shows the reason–act–observe loop. Inside the loop, each iteration runs **on
 ### F04 — ATS Keyword Coverage
 **Use case:** UC03 · **Sequence diagrams:** SD03, SD01
 **Classes:** `KeywordScanner`, `KeywordReport`, `Keyword`; wrapped by `KeywordScanTool` for the agent.
-**Execution:** `KeywordScanner.scan(resume, analysis)` strips LaTeX, then matches each `Keyword` and its aliases. Keywords not found are checked against the vault to separate "known but not worded" from "missing". The GUI calls it after every change; the agent calls it through the tool.
+**Execution:** `KeywordScanner.scan(resume, analysis)` strips LaTeX, then matches each `Keyword` and its aliases. Keywords not found are checked against the vault to separate "known but not worded" from "missing". The web UI calls it (through the facade) after every change; the agent calls it through the tool.
 
 ### F05 — Agentic Resume Tailoring
 **Use case:** UC04 · **Sequence diagram:** SD01
-**Classes:** `TailorView` (trigger + live log via `AgentEventListener`), `CoopPilotFacade`, `AgentController` (loop), `AgentSession` (messages, draft, tool log), `PromptBuilder` (system prompt with rules + tool schemas), `LLMClient`, `ToolRegistry` (argument validation + dispatch), the nine `Tool` implementations, and the services they wrap.
-**Execution:** `tailorResume()` builds an `AgentGoal` and calls `AgentController.run()`. Each step, `PromptBuilder.buildRequest()` packs the session and `ToolRegistry.schemas()`; `LLMClient.complete()` returns tool calls; `ToolRegistry.execute()` validates and runs each one, and the `ToolResult` is appended to the session. Listeners are notified at each call. The loop ends when the LLM saves the resume and stops calling tools, or at `maxSteps`.
+**Classes:** `TailorController` + `tailor.html` (trigger), `AgentSessionManager` (runs the agent on a background thread), `SseProgressPublisher` (live log via `AgentEventListener`), `CoopPilotFacade`, `AgentController` (loop), `AgentSession` (messages, draft, tool log), `PromptBuilder` (system prompt with rules + tool schemas), `LLMClient`, `ToolRegistry` (argument validation + dispatch), the nine `Tool` implementations, and the services they wrap.
+**Execution:** `TailorController.startTailoring()` asks `AgentSessionManager.start()` to run `CoopPilotFacade.tailorResume()` on a background thread, and the page opens an SSE stream (`events()`). `tailorResume()` builds an `AgentGoal` and calls `AgentController.run()`. Each step, `PromptBuilder.buildRequest()` packs the session and `ToolRegistry.schemas()`; `LLMClient.complete()` returns tool calls; `ToolRegistry.execute()` validates and runs each one, and the `ToolResult` is appended to the session. The session notifies its listeners at each call, and `SseProgressPublisher` forwards them to the browser. The loop ends when the LLM saves the resume and stops calling tools, or at `maxSteps`.
 
 ### F06 — Clarifying Questions and Vault Learning
 **Use case:** UC06 · **Sequence diagram:** SD02
-**Classes:** `AskUserTool`, `QuestionHandler` (implemented by `TailorView` and `CliRunner`), `VaultService`, `VaultRepository`.
-**Execution:** when the LLM calls `ask_user`, `AskUserTool.execute()` calls `session.questionHandler.ask(question)`. An answer goes to `VaultService.fileAnswer()`, which updates the matching entry or creates one, and back to the agent as a `ToolResult`. A skip returns `UNKNOWN`.
+**Classes:** `AskUserTool`, `QuestionHandler` (implemented by `WebQuestionHandler` and `CliRunner`), `SseProgressPublisher`, `TailorController`, `VaultService`, `VaultRepository`.
+**Execution:** when the LLM calls `ask_user`, `AskUserTool.execute()` calls `session.questionHandler.ask(question)`. On the web, `WebQuestionHandler` pushes the question over SSE and waits (up to 5 minutes) until the browser POSTs the answer to `TailorController.answer()`. An answer goes to `VaultService.fileAnswer()`, which updates the matching entry or creates one, and back to the agent as a `ToolResult`. A skip returns `UNKNOWN`.
 
 ### F07 — One-Page Fitting
 **Use case:** UC05 · **Sequence diagram:** SD01
@@ -577,13 +580,13 @@ Shows the reason–act–observe loop. Inside the loop, each iteration runs **on
 
 ### F11 — Application Tracking Lifecycle
 **Use case:** UC10 · **Sequence diagram:** SD07
-**Classes:** `TrackerView`, `ApplicationTracker` (subject), `Application` (context), `ApplicationState` + concrete states, `ApplicationRepository`.
+**Classes:** `TrackerController` + `tracker.html`, `ApplicationTracker` (subject), `Application` (context), `ApplicationState` + concrete states, `ApplicationRepository`.
 **Execution:** `updateStatus(id, event)` loads the application and calls `handle(event)`, which forwards to the current state's method (e.g. `inviteInterview()`). Allowed transitions call `setState(...)`; others throw. The tracker saves the application and calls `notifyChanged()`.
 
 ### F12 — Progress Dashboard and Goals
 **Use case:** UC11 · **Sequence diagram:** SD07
-**Classes:** `DashboardView` (`ApplicationListener`), `DashboardService`, `DashboardStats`, `Goals`, `ApplicationTracker`.
-**Execution:** `DashboardView.onApplicationChanged()` calls `CoopPilotFacade.dashboard()`, which calls `DashboardService.stats(today)`. The service computes counts, the streak and `followUpsDue()`, and returns `DashboardStats` for the view to render.
+**Classes:** `DashboardController` + `dashboard.html`, `DashboardService` (`ApplicationListener`), `DashboardStats`, `Goals`, `ApplicationTracker`.
+**Execution:** whenever an application changes, `ApplicationTracker` notifies `DashboardService.onApplicationChanged()`, which invalidates its cached stats. When the student opens the page, `DashboardController.dashboard()` calls `CoopPilotFacade.dashboard()` → `DashboardService.stats(today)`, which recomputes counts, the streak and `followUpsDue()` if needed and returns `DashboardStats` for the Thymeleaf view.
 
 ---
 
@@ -592,10 +595,11 @@ Shows the reason–act–observe loop. Inside the loop, each iteration runs **on
 1. **The LLM plans; deterministic code enforces.** Ordering, no-bold rules, file naming and page budget live in `LatexAssembler`, `PageEstimator` and `ExportService`, not in the prompt. Even if the LLM misbehaves, the output cannot break these rules.
 2. **Tools are the only way the LLM can act.** `ToolRegistry.validateArgs()` rejects malformed calls before anything runs. This makes behaviours like "never runs a tool with invalid arguments" checkable in Stage 3.
 3. **Ask, don't guess.** A dedicated `ask_user` tool plus vault learning turns missing facts into memory, instead of placeholders or hallucinations.
-4. **One facade, two UIs.** The GUI and CLI are thin. The CLI's `--json` output gives Stage 3 a stable way to drive the agent from KUMA (Python) and capture the tool log for behavioural checks.
+4. **One facade, two UIs.** The web controllers and CLI are thin. The CLI's `--json` output gives Stage 3 a stable way to drive the agent from KUMA (Python) and capture the tool log for behavioural checks.
 5. **The LLM is behind an interface.** `MockLlmClient` makes deterministic components and the agent loop unit-testable without network calls; the Adapter lets the model be swapped if cost or quality requires it.
 6. **Bounded agent loop.** `maxSteps` (default 15) and retry limits keep cost predictable and give a clear `STEP_LIMIT` outcome instead of an endless loop.
+7. **Server-rendered web UI.** Spring Boot + Thymeleaf keeps almost all code in Java: pages are HTML templates filled by Java controllers. The agent runs on a background thread so the request never blocks, and SSE pushes steps and questions to the page with a few lines of JavaScript. Spring's dependency injection wires the concrete `LLMClient`, tools and repositories in `AppConfig`, which keeps the rest of the code depending only on interfaces.
 
 ### AI assistance in Stage 1
 
-*(To be completed by the author.)* I used Claude (Cowork) to help draft and format this report and the PlantUML diagrams from my design decisions and requirements; I reviewed and edited the result. This interaction will be included in the Stage 2 AI–human collaboration log.
+*(To be completed by the author.)* I used Claude (Cowork) to help draft and format this report and generate the UMLet diagram files from my design decisions and requirements; I reviewed and edited the result. This interaction will be included in the Stage 2 AI–human collaboration log.

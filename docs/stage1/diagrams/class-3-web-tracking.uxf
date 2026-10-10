@@ -1,0 +1,1176 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="15.1">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>28</x>
+      <y>18</y>
+      <w>1952</w>
+      <h>1093</h>
+    </coordinates>
+    <panel_attributes>ui.web (Spring MVC + Thymeleaf)
+layer=-1
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>1988</x>
+      <y>281</y>
+      <w>394</w>
+      <h>247</h>
+    </coordinates>
+    <panel_attributes>ui.cli (picocli)
+layer=-1
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>2124</x>
+      <y>526</y>
+      <w>836</w>
+      <h>575</h>
+    </coordinates>
+    <panel_attributes>app
+layer=-1
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>1364</x>
+      <y>1179</y>
+      <w>396</w>
+      <h>127</h>
+    </coordinates>
+    <panel_attributes>agent (see 1/3)
+layer=-1
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>2968</x>
+      <y>879</y>
+      <w>1156</w>
+      <h>817</h>
+    </coordinates>
+    <panel_attributes>tracking
+layer=-1
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>1768</x>
+      <y>1134</y>
+      <w>1192</w>
+      <h>437</h>
+    </coordinates>
+    <panel_attributes>persistence (SQLite, Spring JDBC)
+layer=-1
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1276</x>
+      <y>118</y>
+      <w>320</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>«@Controller»
+*VaultController*
+--
+
+--
++ vaultPage(m : Model) : String
++ importResume(f : MultipartFile) : String
++ addEntry(form : EntryForm) : String
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1628</x>
+      <y>123</y>
+      <w>330</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>«@Controller»
+*PostingController*
+--
+
+--
++ analyze(text : String, m : Model) : String
++ fitPage(id : String, m : Model) : String
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>50</x>
+      <y>73</y>
+      <w>450</w>
+      <h>210</h>
+    </coordinates>
+    <panel_attributes>«@Controller»
+*TailorController*
+--
+
+--
++ startTailoring(postingId : String) : String
++ events(sessionId : String) : SseEmitter
++ resumePage(resumeId : String, m : Model) : String
++ answer(sessionId : String, text : String) : ResponseEntity
++ useAsIs(postingId : String) : String
++ revise(resumeId : String, instruction : String) : String
++ undo(resumeId : String) : String
++ coverLetter(postingId : String, resumeId : String) : String
++ export(resumeId : String) : ResponseEntity&lt;Resource&gt;
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>532</x>
+      <y>118</y>
+      <w>420</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>«@Controller»
+*TrackerController*
+--
+
+--
++ list(m : Model) : String
++ logApplication(form : AppForm) : String
++ changeStatus(appId : String, e : StatusEvent) : String
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>984</x>
+      <y>123</y>
+      <w>260</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>«@Controller»
+*DashboardController*
+--
+
+--
++ dashboard(m : Model) : String
++ updateGoals(g : Goals) : String
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1364</x>
+      <y>351</y>
+      <w>400</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes>«@Component»
+*AgentSessionManager*
+--
+- sessions : Map&lt;String, RunningSession&gt;
+- executor : ExecutorService
+--
++ start(postingId : String) : String
++ publisher(sessionId : String) : SseProgressPublisher
++ questions(sessionId : String) : WebQuestionHandler
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1331</x>
+      <y>949</y>
+      <w>280</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes>«Observer»
+*SseProgressPublisher*
+--
+- emitter : SseEmitter
+--
++ onToolCalled(c : ToolCall) : void
++ onToolResult(r : ToolResult) : void
++ onFinished(r : AgentResult) : void
++ sendQuestion(q : String) : void
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1498</x>
+      <y>671</y>
+      <w>330</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>*WebQuestionHandler*
+--
+- publisher : SseProgressPublisher
+- pending : CompletableFuture&lt;String&gt;
+- timeout : Duration
+--
++ ask(question : String) : Optional&lt;String&gt;
++ answer(text : String) : void
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>2010</x>
+      <y>336</y>
+      <w>350</w>
+      <h>170</h>
+    </coordinates>
+    <panel_attributes>«CommandLineRunner»
+*CliRunner*
+--
+- jsonOutput : boolean
+--
++ run(args : String...) : void
++ tailor(postingFile : Path) : int
++ analyze(postingFile : Path) : int
++ track(appId : String, e : StatusEvent) : int
++ ask(question : String) : Optional&lt;String&gt;
++ onToolCalled(c : ToolCall) : void
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>2146</x>
+      <y>686</y>
+      <w>240</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>«@SpringBootApplication»
+*CoopPilotApplication*
+--
+
+--
++ main(args : String[]) : void
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>2168</x>
+      <y>959</y>
+      <w>440</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>«@Configuration»
+*AppConfig*
+--
+
+--
++ llmClient(props : LlmProperties) : LLMClient
++ toolRegistry(tools : List&lt;Tool&gt;) : ToolRegistry
++ condenseStrategies() : Map&lt;CondenseMode, CondenseStrategy&gt;
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>2418</x>
+      <y>581</y>
+      <w>520</w>
+      <h>300</h>
+    </coordinates>
+    <panel_attributes>«Facade, @Service»
+*CoopPilotFacade*
+--
+
+--
++ importResume(latex : String) : ParseResult
++ addVaultEntry(e : VaultEntry) : void
++ importPosting(text : String) : Posting
++ analyzeFit(postingId : String) : FitReport
++ tailorResume(postingId : String, q : QuestionHandler,
+      l : AgentEventListener) : AgentResult
++ condense(resumeId : String, mode : CondenseMode) : Resume
++ revise(resumeId : String, instruction : String) : Resume
++ undo(resumeId : String) : Resume
++ draftCoverLetter(postingId : String, resumeId : String) : CoverLetter
++ suggestReuse(postingId : String) : Optional&lt;Resume&gt;
++ export(resumeId : String) : Path
++ logApplication(postingId : String, resumeId : String) : Application
++ updateStatus(appId : String, e : StatusEvent) : Application
++ dashboard() : DashboardStats
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1386</x>
+      <y>1234</y>
+      <w>170</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>«interface»
+/AgentEventListener/
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1588</x>
+      <y>1234</y>
+      <w>150</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>«interface»
+/QuestionHandler/
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>2993</x>
+      <y>1154</y>
+      <w>300</w>
+      <h>210</h>
+    </coordinates>
+    <panel_attributes>*Application*
+--
+- id : String
+- company : String
+- role : String
+- appliedOn : LocalDate
+- followUpOn : LocalDate
+- resumeName : String
+- coverLetterName : String
+- state : ApplicationState
+--
++ handle(e : StatusEvent) : void
+~ setState(s : ApplicationState) : void
++ statusName() : String
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>3318</x>
+      <y>1414</y>
+      <w>330</w>
+      <h>180</h>
+    </coordinates>
+    <panel_attributes>«State»
+/ApplicationState/
+--
+
+--
++ submit(a : Application) : void
++ receiveAssessment(a : Application) : void
++ inviteInterview(a : Application) : void
++ offer(a : Application) : void
++ reject(a : Application) : void
++ markGhosted(a : Application) : void
+# illegal(event : String) : void
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>3083</x>
+      <y>1429</y>
+      <w>120</w>
+      <h>150</h>
+    </coordinates>
+    <panel_attributes>«enumeration»
+*StatusEvent*
+--
+SUBMIT
+ASSESSMENT
+INTERVIEW
+OFFER
+REJECT
+GHOSTED
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>2990</x>
+      <y>934</y>
+      <w>430</w>
+      <h>170</h>
+    </coordinates>
+    <panel_attributes>«Subject»
+*ApplicationTracker*
+--
+- repo : ApplicationRepository
+- listeners : List&lt;ApplicationListener&gt;
+--
++ log(a : Application) : void
++ updateStatus(id : String, e : StatusEvent) : Application
++ followUpsDue(today : LocalDate) : List&lt;Application&gt;
++ addListener(l : ApplicationListener) : void
+- notifyChanged(a : Application) : void
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>3325</x>
+      <y>1204</y>
+      <w>350</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>«interface»
+«Observer»
+/ApplicationListener/
+--
+
+--
++ onApplicationChanged(a : Application) : void
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>3533</x>
+      <y>959</y>
+      <w>350</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>*DashboardService*
+--
+- goals : Goals
+- cached : DashboardStats
+--
++ stats(today : LocalDate) : DashboardStats
++ onApplicationChanged(a : Application) : void
+- streak(apps : List&lt;Application&gt;) : int
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>3909</x>
+      <y>1194</y>
+      <w>190</w>
+      <h>130</h>
+    </coordinates>
+    <panel_attributes>*DashboardStats*
+--
+- appliedToday : int
+- appliedThisWeek : int
+- responseRate : double
+- interviews : int
+- followUpsDue : int
+- streakDays : int
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>3707</x>
+      <y>1224</y>
+      <w>170</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>*Goals*
+--
+- dailyTarget : int
+- weeklyTarget : int
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>2990</x>
+      <y>1644</y>
+      <w>130</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>*ToApplyState*
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>3152</x>
+      <y>1644</y>
+      <w>130</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>*AppliedState*
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>3314</x>
+      <y>1644</y>
+      <w>150</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>*AssessmentState*
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>3496</x>
+      <y>1644</y>
+      <w>140</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>*InterviewState*
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>3668</x>
+      <y>1644</y>
+      <w>110</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>*OfferState*
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>3810</x>
+      <y>1644</y>
+      <w>130</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>*RejectedState*
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>3972</x>
+      <y>1644</y>
+      <w>130</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>*GhostedState*
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>2270</x>
+      <y>1189</y>
+      <w>280</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes>«interface»
+/Repository&lt;T&gt;/
+--
+
+--
++ findById(id : String) : Optional&lt;T&gt;
++ findAll() : List&lt;T&gt;
++ save(item : T) : void
++ delete(id : String) : void
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>2566</x>
+      <y>1479</y>
+      <w>150</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>«interface»
+/VaultRepository/
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>2192</x>
+      <y>1479</y>
+      <w>150</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>«interface»
+/ResumeRepository/
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>2374</x>
+      <y>1479</y>
+      <w>160</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>«interface»
+/PostingRepository/
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>2748</x>
+      <y>1479</y>
+      <w>190</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>«interface»
+/ApplicationRepository/
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1790</x>
+      <y>1459</y>
+      <w>370</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>/SqliteRepository&lt;T&gt;/
+--
+# jdbc : JdbcTemplate
+--
+# toRow(item : T) : Map&lt;String, Object&gt; {abstract}
+# fromRow(rs : ResultSet) : T {abstract}
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>2002</x>
+      <y>118</y>
+      <w>430</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>Thymeleaf views (boundary): vault.html, posting.html,
+tailor.html, tracker.html, dashboard.html.
+tailor.html listens to /tailor/{id}/events (SSE)
+for live agent steps and questions.
+CoopPilotFacade also holds: AgentController, VaultService,
+ResumeLibrary, FitScorer, KeywordScanner, RevisionHistory,
+CondenseStrategy, ExportService and the LlmTasks.
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1526</x>
+      <y>228</y>
+      <w>1128</w>
+      <h>362</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>1118;352;1052;63;86;55;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1883</x>
+      <y>223</y>
+      <w>793</w>
+      <h>367</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>783;357;761;68;103;60;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>490</x>
+      <y>266</y>
+      <w>883</w>
+      <h>137</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>873;127;26;17;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>490</x>
+      <y>266</y>
+      <w>2023</w>
+      <h>324</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>2013;314;1952;262;1900;25;26;17;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>860</x>
+      <y>228</y>
+      <w>1702</w>
+      <h>362</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>1692;352;1648;300;1586;63;108;55;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1180</x>
+      <y>223</y>
+      <w>1431</w>
+      <h>367</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>1421;357;1394;305;1332;68;80;60;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1462</x>
+      <y>481</y>
+      <w>62</w>
+      <h>477</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+«create»
+fontsize=11</panel_attributes>
+    <additional_attributes>10;467;20;55;52;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1576</x>
+      <y>481</y>
+      <w>78</w>
+      <h>200</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+«create»
+fontsize=11</panel_attributes>
+    <additional_attributes>68;190;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1754</x>
+      <y>463</y>
+      <w>722</w>
+      <h>128</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>712;118;648;73;226;65;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1461</x>
+      <y>1079</y>
+      <w>20</w>
+      <h>164</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;154;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1507</x>
+      <y>781</y>
+      <w>126</w>
+      <h>177</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>10;167;116;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1653</x>
+      <y>781</y>
+      <w>20</w>
+      <h>462</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;452;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>2335</x>
+      <y>496</y>
+      <w>141</w>
+      <h>95</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>131;85;67;40;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1482</x>
+      <y>496</y>
+      <w>624</w>
+      <h>747</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;737;90;648;506;615;583;40;614;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1673</x>
+      <y>496</y>
+      <w>471</w>
+      <h>747</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;737;87;648;371;615;443;40;461;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>2274</x>
+      <y>766</y>
+      <w>98</w>
+      <h>202</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+loads
+fontsize=11</panel_attributes>
+    <additional_attributes>88;192;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>2928</x>
+      <y>862</y>
+      <w>132</w>
+      <h>81</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>122;71;40;27;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>2928</x>
+      <y>775</y>
+      <w>665</w>
+      <h>193</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>655;183;508;114;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>3278</x>
+      <y>1354</y>
+      <w>90</w>
+      <h>69</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m1=1
+m2=1
+current
+fontsize=11</panel_attributes>
+    <additional_attributes>80;59;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>3133</x>
+      <y>1354</y>
+      <w>20</w>
+      <h>84</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;74;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>3084</x>
+      <y>1554</y>
+      <w>243</w>
+      <h>99</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>233;10;10;89</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>3231</x>
+      <y>1584</y>
+      <w>107</w>
+      <h>69</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>97;10;10;59</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>3387</x>
+      <y>1584</y>
+      <w>51</w>
+      <h>69</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>41;10;10;59</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>3521</x>
+      <y>1584</y>
+      <w>47</w>
+      <h>69</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;37;59</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>3612</x>
+      <y>1584</y>
+      <w>98</w>
+      <h>69</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;88;59</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>3638</x>
+      <y>1559</y>
+      <w>211</w>
+      <h>94</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;201;84</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>3638</x>
+      <y>1540</y>
+      <w>358</w>
+      <h>113</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;348;103</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>3160</x>
+      <y>1094</y>
+      <w>33</w>
+      <h>69</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m1=*
+m2=1
+manages
+fontsize=11</panel_attributes>
+    <additional_attributes>10;59;23;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>3299</x>
+      <y>1094</y>
+      <w>144</w>
+      <h>119</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m1=1
+m2=*
+notifies
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;134;109</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>2842</x>
+      <y>1094</y>
+      <w>218</w>
+      <h>394</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>10;384;135;50;208;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>3537</x>
+      <y>1069</y>
+      <w>129</w>
+      <h>144</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;134;119;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>3786</x>
+      <y>1069</y>
+      <w>165</w>
+      <h>134</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+«create»
+fontsize=11</panel_attributes>
+    <additional_attributes>155;124;107;75;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>3718</x>
+      <y>1069</y>
+      <w>71</w>
+      <h>164</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>61;154;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>2465</x>
+      <y>1319</y>
+      <w>163</w>
+      <h>169</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;153;159</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>2271</x>
+      <y>1319</y>
+      <w>108</w>
+      <h>169</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>98;10;10;159</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>2412</x>
+      <y>1319</y>
+      <w>47</w>
+      <h>169</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;37;159</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>2540</x>
+      <y>1317</y>
+      <w>283</w>
+      <h>171</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;192;97;273;161</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>2044</x>
+      <y>1319</y>
+      <w>252</w>
+      <h>149</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>242;10;10;139</additional_attributes>
+  </element>
+</diagram>

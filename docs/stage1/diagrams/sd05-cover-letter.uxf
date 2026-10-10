@@ -1,0 +1,707 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="15.1">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>20</x>
+      <y>10</y>
+      <w>290</w>
+      <h>25</h>
+    </coordinates>
+    <panel_attributes>*SD05 — Draft Cover Letter (F09)*
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>88</x>
+      <y>154</y>
+      <w>200</w>
+      <h>19</h>
+    </coordinates>
+    <panel_attributes>click "Write cover letter"
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>288</x>
+      <y>183</y>
+      <w>110</w>
+      <h>19</h>
+    </coordinates>
+    <panel_attributes>POST /letters
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>438</x>
+      <y>212</y>
+      <w>280</w>
+      <h>19</h>
+    </coordinates>
+    <panel_attributes>draftCoverLetter(postingId, resumeId)
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>718</x>
+      <y>241</y>
+      <w>180</w>
+      <h>19</h>
+    </coordinates>
+    <panel_attributes>search(keywords, tags)
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>718</x>
+      <y>270</y>
+      <w>230</w>
+      <h>19</h>
+    </coordinates>
+    <panel_attributes>entries (use != CONTEXT_ONLY)
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>718</x>
+      <y>299</y>
+      <w>60</w>
+      <h>19</h>
+    </coordinates>
+    <panel_attributes>run()
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>1088</x>
+      <y>328</y>
+      <w>190</w>
+      <h>19</h>
+    </coordinates>
+    <panel_attributes>complete(buildRequest())
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>1088</x>
+      <y>357</y>
+      <w>100</w>
+      <h>19</h>
+    </coordinates>
+    <panel_attributes>letter text
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>1118</x>
+      <y>391</y>
+      <w>230</w>
+      <h>34</h>
+    </coordinates>
+    <panel_attributes>validate: company, role, term,
+250-400 words
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>718</x>
+      <y>472</y>
+      <w>100</w>
+      <h>19</h>
+    </coordinates>
+    <panel_attributes>CoverLetter
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>718</x>
+      <y>501</y>
+      <w>230</w>
+      <h>19</h>
+    </coordinates>
+    <panel_attributes>fileName("CL", company, role)
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>718</x>
+      <y>530</y>
+      <w>160</w>
+      <h>19</h>
+    </coordinates>
+    <panel_attributes>"CL_RBC_DataAnalyst"
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>718</x>
+      <y>559</y>
+      <w>110</w>
+      <h>19</h>
+    </coordinates>
+    <panel_attributes>save(letter)
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>438</x>
+      <y>588</y>
+      <w>100</w>
+      <h>19</h>
+    </coordinates>
+    <panel_attributes>CoverLetter
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>718</x>
+      <y>649</y>
+      <w>140</w>
+      <h>19</h>
+    </coordinates>
+    <panel_attributes>LlmTaskException
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>438</x>
+      <y>678</y>
+      <w>150</w>
+      <h>19</h>
+    </coordinates>
+    <panel_attributes>error + last draft
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLFrame</id>
+    <coordinates>
+      <x>370</x>
+      <y>441</y>
+      <w>1320</w>
+      <h>275</h>
+    </coordinates>
+    <panel_attributes>alt [valid]
+layer=-1
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>376</x>
+      <y>627</y>
+      <w>180</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>[invalid after retries]
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>288</x>
+      <y>727</y>
+      <w>110</w>
+      <h>19</h>
+    </coordinates>
+    <panel_attributes>view "letter"
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>88</x>
+      <y>756</y>
+      <w>130</w>
+      <h>19</h>
+    </coordinates>
+    <panel_attributes>editable letter
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLActor</id>
+    <coordinates>
+      <x>45</x>
+      <y>50</y>
+      <w>70</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>Student
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>230</x>
+      <y>70</y>
+      <w>100</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>«boundary»
+tailor.html
+(browser)
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>360</x>
+      <y>90</y>
+      <w>140</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>«control»
+TailorController
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>645</x>
+      <y>90</y>
+      <w>130</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>«control»
+CoopPilotFacade
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>875</x>
+      <y>100</y>
+      <w>110</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>VaultService
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1015</x>
+      <y>100</y>
+      <w>130</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>CoverLetterTask
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1305</x>
+      <y>100</y>
+      <w>90</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>LLMClient
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1425</x>
+      <y>100</y>
+      <w>110</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>ExportService
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1560</x>
+      <y>90</y>
+      <w>140</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>«database»
+ResumeRepository
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>70</x>
+      <y>162</y>
+      <w>220</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>210;10;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>270</x>
+      <y>191</y>
+      <w>170</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>160;10;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>420</x>
+      <y>220</y>
+      <w>300</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>290;10;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>700</x>
+      <y>249</y>
+      <w>240</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>230;10;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>700</x>
+      <y>278</y>
+      <w>240</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;230;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>700</x>
+      <y>307</y>
+      <w>390</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>380;10;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1070</x>
+      <y>336</y>
+      <w>290</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>280;10;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1070</x>
+      <y>365</y>
+      <w>290</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;280;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1070</x>
+      <y>383</y>
+      <w>50</w>
+      <h>54</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>10;44;40;44;40;10;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>700</x>
+      <y>480</y>
+      <w>390</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;380;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>700</x>
+      <y>509</y>
+      <w>790</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>780;10;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>700</x>
+      <y>538</y>
+      <w>790</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;780;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>700</x>
+      <y>567</y>
+      <w>940</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>930;10;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>420</x>
+      <y>596</y>
+      <w>300</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;290;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>700</x>
+      <y>657</y>
+      <w>390</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;380;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>420</x>
+      <y>686</y>
+      <w>300</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;290;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>360</x>
+      <y>614</y>
+      <w>1340</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;1330;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>270</x>
+      <y>735</y>
+      <w>170</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;160;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>70</x>
+      <y>764</y>
+      <w>220</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;210;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>70</x>
+      <y>120</y>
+      <w>20</w>
+      <h>696</h>
+    </coordinates>
+    <panel_attributes>lt=.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;10;686</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>270</x>
+      <y>120</y>
+      <w>20</w>
+      <h>696</h>
+    </coordinates>
+    <panel_attributes>lt=.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;10;686</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>420</x>
+      <y>120</y>
+      <w>20</w>
+      <h>696</h>
+    </coordinates>
+    <panel_attributes>lt=.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;10;686</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>700</x>
+      <y>120</y>
+      <w>20</w>
+      <h>696</h>
+    </coordinates>
+    <panel_attributes>lt=.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;10;686</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>920</x>
+      <y>120</y>
+      <w>20</w>
+      <h>696</h>
+    </coordinates>
+    <panel_attributes>lt=.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;10;686</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1070</x>
+      <y>120</y>
+      <w>20</w>
+      <h>696</h>
+    </coordinates>
+    <panel_attributes>lt=.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;10;686</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1340</x>
+      <y>120</y>
+      <w>20</w>
+      <h>696</h>
+    </coordinates>
+    <panel_attributes>lt=.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;10;686</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1470</x>
+      <y>120</y>
+      <w>20</w>
+      <h>696</h>
+    </coordinates>
+    <panel_attributes>lt=.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;10;686</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1620</x>
+      <y>120</y>
+      <w>20</w>
+      <h>696</h>
+    </coordinates>
+    <panel_attributes>lt=.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;10;686</additional_attributes>
+  </element>
+</diagram>

@@ -1,0 +1,907 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="15.1">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>605</x>
+      <y>1421</y>
+      <w>1364</w>
+      <h>897</h>
+    </coordinates>
+    <panel_attributes>domain
+layer=-1
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>45</x>
+      <y>18</y>
+      <w>1094</w>
+      <h>1405</h>
+    </coordinates>
+    <panel_attributes>service
+layer=-1
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>627</x>
+      <y>1932</y>
+      <w>220</w>
+      <h>150</h>
+    </coordinates>
+    <panel_attributes>*Posting*
+--
+- id : String
+- company : String
+- role : String
+- rawText : String
+- term : String
+- deadline : LocalDate
+- analysis : PostingAnalysis
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>897</x>
+      <y>2024</y>
+      <w>260</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>*PostingAnalysis*
+--
+- mustHaves : List&lt;String&gt;
+- niceToHaves : List&lt;String&gt;
+- keywords : List&lt;Keyword&gt;
+- documentsRequired : List&lt;String&gt;
+- softSkillFocus : boolean
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1277</x>
+      <y>2133</y>
+      <w>190</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>*Keyword*
+--
+- term : String
+- aliases : Set&lt;String&gt;
+- mustHave : boolean
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>652</x>
+      <y>1598</y>
+      <w>170</w>
+      <h>150</h>
+    </coordinates>
+    <panel_attributes>*VaultEntry*
+--
+- id : String
+- title : String
+- kind : EntryKind
+- use : EntryUse
+- date : String
+- tags : Set&lt;String&gt;
+- body : String
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>967</x>
+      <y>1608</y>
+      <w>120</w>
+      <h>150</h>
+    </coordinates>
+    <panel_attributes>«enumeration»
+*EntryKind*
+--
+PROJECT
+WORK
+COURSE
+ACTIVITY
+SKILL
+PLANNED
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>967</x>
+      <y>1476</y>
+      <w>120</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>«enumeration»
+*EntryUse*
+--
+ALL
+LETTERS_ONLY
+CONTEXT_ONLY
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1587</x>
+      <y>2014</y>
+      <w>190</w>
+      <h>150</h>
+    </coordinates>
+    <panel_attributes>*ResumeBlock*
+--
+- id : String
+- section : Section
+- title : String
+- startDate : YearMonth
+- endDate : YearMonth
+- bullets : List&lt;String&gt;
+- tags : Set&lt;String&gt;
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1827</x>
+      <y>2024</y>
+      <w>120</w>
+      <h>130</h>
+    </coordinates>
+    <panel_attributes>«enumeration»
+*Section*
+--
+EDUCATION
+EXPERIENCE
+PROJECTS
+LEADERSHIP
+SKILLS
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1207</x>
+      <y>1872</y>
+      <w>330</w>
+      <h>170</h>
+    </coordinates>
+    <panel_attributes>*Resume*
+--
+- id : String
+- name : String
+- family : String
+- blocks : List&lt;ResumeBlock&gt;
+- latex : String
+--
++ copy() : Resume
++ blocksIn(s : Section) : List&lt;ResumeBlock&gt;
++ hasPlaceholders() : boolean
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>652</x>
+      <y>1476</y>
+      <w>170</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>*CoverLetter*
+--
+- name : String
+- postingId : String
+- body : String
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>627</x>
+      <y>1780</y>
+      <w>220</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>*FitReport*
+--
+- score : int
+- matched : List&lt;String&gt;
+- gaps : List&lt;String&gt;
+- strategy : TailorStrategy
+- closest : ResumeMatch
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>957</x>
+      <y>1790</y>
+      <w>140</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>«enumeration»
+*TailorStrategy*
+--
+REUSE
+TWEAK
+GENERATE
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>942</x>
+      <y>1922</y>
+      <w>170</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>*ResumeMatch*
+--
+- resume : Resume
+- matchPercent : int
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>902</x>
+      <y>2176</y>
+      <w>250</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>*KeywordReport*
+--
+- backed : List&lt;Keyword&gt;
+- thin : List&lt;Keyword&gt;
+- knownNotWorded : List&lt;Keyword&gt;
+- missing : List&lt;Keyword&gt;
+--
++ coverage() : double
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>92</x>
+      <y>661</y>
+      <w>460</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>*VaultService*
+--
+- repo : VaultRepository
+--
++ search(query : String, tags : Set&lt;String&gt;) : List&lt;VaultEntry&gt;
++ addEntry(e : VaultEntry) : void
++ fileAnswer(question : String, answer : String) : VaultEntry
++ skills() : Set&lt;String&gt;
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>172</x>
+      <y>1311</y>
+      <w>300</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>*LatexResumeParser*
+--
+
+--
++ parse(latex : String) : ParseResult
+- parseEntry(cmd : String) : ResumeBlock
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>127</x>
+      <y>1159</y>
+      <w>390</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>*LatexAssembler*
+--
+- template : String
+--
++ assemble(r : Resume) : String
+- orderReverseChronological(
+      blocks : List&lt;ResumeBlock&gt;) : List&lt;ResumeBlock&gt;
+- stripBold(s : Section, text : String) : String
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>92</x>
+      <y>813</y>
+      <w>460</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>*FitScorer*
+--
+
+--
++ score(a : PostingAnalysis, skills : Set&lt;String&gt;) : FitReport
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>117</x>
+      <y>1047</y>
+      <w>410</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>*KeywordScanner*
+--
+- vault : VaultService
+--
++ scan(r : Resume, a : PostingAnalysis) : KeywordReport
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>187</x>
+      <y>397</y>
+      <w>270</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>*PageEstimator*
+--
+- linesPerPage : int
+--
++ estimate(r : Resume) : double
++ fitsOnePage(r : Resume) : boolean
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>157</x>
+      <y>73</y>
+      <w>330</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>«interface»
+«Strategy»
+/CondenseStrategy/
+--
+
+--
++ condense(r : Resume, a : PostingAnalysis,
+      p : PageEstimator) : Resume
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>627</x>
+      <y>185</y>
+      <w>220</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>*RuleBasedCondense*
+--
+- steps : List&lt;CondenseStep&gt;
+--
++ condense(...) : Resume
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>632</x>
+      <y>73</y>
+      <w>210</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>*LlmCondense*
+--
+- task : SmartCondenseTask
+--
++ condense(...) : Resume
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>107</x>
+      <y>925</y>
+      <w>430</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>*ResumeLibrary*
+--
+- repo : ResumeRepository
+--
++ findClosest(a : PostingAnalysis) : Optional&lt;ResumeMatch&gt;
++ groupByFamily() : Map&lt;String, List&lt;Resume&gt;&gt;
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>167</x>
+      <y>225</y>
+      <w>310</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes>«Invoker»
+*RevisionHistory*
+--
+- undoStack : Deque&lt;ResumeEditCommand&gt;
+- redoStack : Deque&lt;ResumeEditCommand&gt;
+--
++ execute(c : ResumeEditCommand) : Resume
++ undo() : Resume
++ redo() : Resume
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>652</x>
+      <y>297</y>
+      <w>170</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes>«interface»
+«Command»
+/ResumeEditCommand/
+--
+
+--
++ execute() : Resume
++ undo() : Resume
++ describe() : String
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>937</x>
+      <y>449</y>
+      <w>180</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>*AiRevisionCommand*
+--
+- before : Resume
+- after : Resume
+- instruction : String
+- task : RevisionTask
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>937</x>
+      <y>317</y>
+      <w>180</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>*ReplaceBulletCommand*
+--
+- blockId : String
+- index : int
+- oldText : String
+- newText : String
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>942</x>
+      <y>215</y>
+      <w>170</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>*RemoveBlockCommand*
+--
+- block : ResumeBlock
+- position : int
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>67</x>
+      <y>519</y>
+      <w>510</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>*ExportService*
+--
+- exportDir : Path
+--
++ fileName(prefix : String, company : String, role : String) : String
++ exportLatex(r : Resume) : Path
++ exportCoverLetter(c : CoverLetter) : Path
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>837</x>
+      <y>2026</y>
+      <w>69</w>
+      <h>33</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+m1=1
+m2=0..1
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;59;23</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1147</x>
+      <y>2109</y>
+      <w>139</w>
+      <h>53</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+m1=1
+m2=*
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;129;43</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>812</x>
+      <y>1665</y>
+      <w>164</w>
+      <h>25</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>154;15;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>812</x>
+      <y>1546</y>
+      <w>164</w>
+      <h>94</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>154;10;10;84</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1767</x>
+      <y>2079</y>
+      <w>69</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>59;10;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1527</x>
+      <y>2017</y>
+      <w>69</w>
+      <h>41</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m1=1
+m2=1..*
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;59;31</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>837</x>
+      <y>1830</y>
+      <w>129</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>119;10;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>837</x>
+      <y>1875</y>
+      <w>114</w>
+      <h>58</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m1=0..1
+fontsize=11</panel_attributes>
+    <additional_attributes>104;48;60;31;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1102</x>
+      <y>1947</y>
+      <w>114</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>104;10;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1142</x>
+      <y>2183</y>
+      <w>145</w>
+      <h>41</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m1=*
+fontsize=11</panel_attributes>
+    <additional_attributes>135;10;10;31</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>513</x>
+      <y>771</y>
+      <w>148</w>
+      <h>853</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m1=*
+m2=1
+manages
+fontsize=11</panel_attributes>
+    <additional_attributes>138;843;92;811;64;26;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>326</x>
+      <y>1391</y>
+      <w>1293</w>
+      <h>939</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+«create»
+fontsize=11</panel_attributes>
+    <additional_attributes>1283;773;1211;848;831;929;571;929;279;907;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>507</x>
+      <y>1267</y>
+      <w>786</w>
+      <h>1055</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>776;775;700;850;650;1045;390;1045;98;920;70;28;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>494</x>
+      <y>883</y>
+      <w>148</w>
+      <h>906</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+«create»
+fontsize=11</panel_attributes>
+    <additional_attributes>138;896;111;881;83;26;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>494</x>
+      <y>1117</y>
+      <w>417</w>
+      <h>1090</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+«create»
+fontsize=11</panel_attributes>
+    <additional_attributes>407;1080;111;989;83;26;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>10</x>
+      <y>771</y>
+      <w>124</w>
+      <h>286</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=11</panel_attributes>
+    <additional_attributes>93;10;35;26;10;42;10;244;35;260;114;276</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>447</x>
+      <y>464</y>
+      <w>906</w>
+      <h>1417</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>896;1407;710;824;130;39;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>10</x>
+      <y>168</y>
+      <w>186</w>
+      <h>254</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>176;244;35;213;10;197;10;57;35;41;146;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>477</x>
+      <y>159</y>
+      <w>159</w>
+      <h>51</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;149;41</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>477</x>
+      <y>108</y>
+      <w>164</w>
+      <h>27</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;17;154;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>500</x>
+      <y>1005</y>
+      <w>451</w>
+      <h>1103</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+«create»
+fontsize=11</panel_attributes>
+    <additional_attributes>441;985;397;1003;347;1093;105;1093;77;26;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>467</x>
+      <y>311</y>
+      <w>194</w>
+      <h>51</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m1=1
+m2=*
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;184;41</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>812</x>
+      <y>395</y>
+      <w>134</w>
+      <h>73</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;124;63</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>812</x>
+      <y>357</y>
+      <w>134</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;10;124;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>812</x>
+      <y>273</y>
+      <w>139</w>
+      <h>69</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>10;59;85;28;129;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>510</x>
+      <y>619</y>
+      <w>834</w>
+      <h>1262</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>824;1252;647;841;95;195;67;26;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>510</x>
+      <y>619</y>
+      <w>170</w>
+      <h>866</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+fontsize=11</panel_attributes>
+    <additional_attributes>160;856;95;812;67;26;10;10</additional_attributes>
+  </element>
+</diagram>
