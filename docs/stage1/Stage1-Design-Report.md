@@ -601,5 +601,4 @@ Shows the reason–act–observe loop. The request returns immediately with a se
 7. **Server-rendered web UI.** Spring Boot + Thymeleaf keeps almost all code in Java: pages are HTML templates filled by Java controllers. The agent runs on a background thread so the request never blocks, and SSE pushes steps and questions to the page with a few lines of JavaScript. Spring's dependency injection wires the concrete `LLMClient`, tools and repositories in `AppConfig`, which keeps the rest of the code depending only on interfaces.
 
 ### AI assistance in Stage 1
-
-*(To be completed by the author.)* I used Claude (Cowork) to help draft and format this report and generate the UMLet diagram files from my design decisions and requirements; I reviewed and edited the result. This interaction will be included in the Stage 2 AI–human collaboration log.
+I used Claude (Cowork) to help draft and format this report and generate the UMLet diagram files from my design decisions and requirements; I reviewed and edited the result. This interaction will be included in the Stage 2 AI–human collaboration log.
