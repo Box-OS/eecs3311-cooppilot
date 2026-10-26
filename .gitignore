@@ -1,0 +1,21 @@
+# Local secrets: never commit real API keys
+application-local.properties
+.env
+.env.*
+!.env.example
+config.local.json
+
+# Local data (SQLite database, personal resume/vault exports)
+*.db
+*.db-journal
+data/
+private/
+
+# Build output
+target/
+
+# IDE / OS
+.idea/
+*.iml
+.vscode/
+.DS_Store
