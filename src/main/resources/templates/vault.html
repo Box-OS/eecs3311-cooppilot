@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Experience vault · CoopPilot</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 960px; margin: 2rem auto; padding: 0 1rem; }
+        section { border: 1px solid #ccc; border-radius: 6px; padding: 1rem; margin-bottom: 1rem; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: .35rem; border-bottom: 1px solid #eee; vertical-align: top; }
+        .msg { color: #155724; } .err { color: #a00; } .warn { color: #8a6d00; }
+        pre { white-space: pre-wrap; margin: 0; font-family: inherit; }
+        label { display: block; margin: .3rem 0; }
+    </style>
+</head>
+<body>
+<p><a href="/">← Home</a></p>
+<h1>Experience vault</h1>
+
+<p class="msg" th:if="${message}" th:text="${message}"></p>
+<p class="err" th:if="${error}" th:text="${error}"></p>
+<ul class="warn" th:if="${warnings != null and !warnings.isEmpty()}">
+    <li th:each="w : ${warnings}" th:text="${w}"></li>
+</ul>
+
+<section>
+    <h2>Import a LaTeX resume</h2>
+    <form method="post" action="/vault/import" enctype="multipart/form-data">
+        <label>Resume (.tex, Jake's template) <input type="file" name="file" accept=".tex"></label>
+        <label>Save as <input name="name" placeholder="CV_General"></label>
+        <button type="submit">Import</button>
+    </form>
+</section>
+
+<section>
+    <h2>Add an entry</h2>
+    <form method="post" action="/vault/entries">
+        <label>Title <input name="title" required></label>
+        <label>Kind
+            <select name="kind"><option th:each="k : ${kinds}" th:value="${k}" th:text="${k}"></option></select>
+        </label>
+        <label>Use
+            <select name="use"><option th:each="u : ${uses}" th:value="${u}" th:text="${u}"></option></select>
+        </label>
+        <label>Date <input name="date" placeholder="2025-09 to present"></label>
+        <label>Tags <input name="tags" placeholder="java, spring boot"></label>
+        <label>Details <textarea name="body" rows="3" cols="60"></textarea></label>
+        <button type="submit">Save entry</button>
+    </form>
+</section>
+
+<section>
+    <h2>Entries (<span th:text="${entries.size()}">0</span>)</h2>
+    <form method="get" action="/vault">
+        <input name="q" th:value="${q}" placeholder="Search title, details or tags">
+        <button type="submit">Search</button>
+    </form>
+    <table>
+        <tr><th>Kind</th><th>Title</th><th>Use</th><th>Date</th><th>Tags</th><th>Details</th></tr>
+        <tr th:each="e : ${entries}">
+            <td th:text="${e.kind}"></td>
+            <td th:text="${e.title}"></td>
+            <td th:text="${e.use}"></td>
+            <td th:text="${e.date}"></td>
+            <td th:text="${#strings.setJoin(e.tags, ', ')}"></td>
+            <td><pre th:text="${e.body}"></pre></td>
+        </tr>
+    </table>
+</section>
+
+<section>
+    <h2>Resume library (<span th:text="${resumes.size()}">0</span>)</h2>
+    <ul>
+        <li th:each="r : ${resumes}">
+            <strong th:text="${r.name}"></strong> · <span th:text="${r.kind}"></span> ·
+            <span th:text="${r.blocks.size()}"></span> blocks
+        </li>
+    </ul>
+</section>
+</body>
+</html>
