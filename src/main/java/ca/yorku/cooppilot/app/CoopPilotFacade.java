@@ -1,13 +1,19 @@
 package ca.yorku.cooppilot.app;
 
+import ca.yorku.cooppilot.domain.FitReport;
+import ca.yorku.cooppilot.domain.KeywordReport;
 import ca.yorku.cooppilot.domain.Posting;
+import ca.yorku.cooppilot.domain.PostingAnalysis;
 import ca.yorku.cooppilot.domain.Resume;
 import ca.yorku.cooppilot.domain.VaultEntry;
 import ca.yorku.cooppilot.llm.LLMClient;
 import ca.yorku.cooppilot.llm.PostingAnalysisTask;
 import ca.yorku.cooppilot.persistence.PostingRepository;
 import ca.yorku.cooppilot.persistence.ResumeRepository;
+import ca.yorku.cooppilot.service.FitScorer;
+import ca.yorku.cooppilot.service.KeywordScanner;
 import ca.yorku.cooppilot.service.LatexResumeParser;
+import ca.yorku.cooppilot.service.ResumeLibrary;
 import ca.yorku.cooppilot.service.ParseResult;
 import ca.yorku.cooppilot.service.VaultService;
 import org.springframework.stereotype.Service;
@@ -26,14 +32,39 @@ public class CoopPilotFacade {
     private final ResumeRepository resumes;
     private final PostingRepository postings;
     private final LLMClient llm;
+    private final FitScorer fitScorer;
+    private final KeywordScanner keywordScanner;
+    private final ResumeLibrary library;
 
     public CoopPilotFacade(LatexResumeParser parser, VaultService vault, ResumeRepository resumes,
-                           PostingRepository postings, LLMClient llm) {
+                           PostingRepository postings, LLMClient llm, FitScorer fitScorer,
+                           KeywordScanner keywordScanner, ResumeLibrary library) {
         this.parser = parser;
         this.vault = vault;
         this.resumes = resumes;
         this.postings = postings;
         this.llm = llm;
+        this.fitScorer = fitScorer;
+        this.keywordScanner = keywordScanner;
+        this.library = library;
+    }
+
+    /** F03: fit score, gaps, closest saved resume and the recommended strategy. */
+    public FitReport analyzeFit(String postingId) {
+        PostingAnalysis a = analysisOf(postingId);
+        return fitScorer.score(a, vault.skills(), library.findClosest(a));
+    }
+
+    /** F04: literal keyword coverage of one resume against one posting. */
+    public KeywordReport scanKeywords(String resumeId, String postingId) {
+        Resume r = library.byId(resumeId)
+                .orElseThrow(() -> new IllegalArgumentException("No resume with id " + resumeId));
+        return keywordScanner.scan(r, analysisOf(postingId));
+    }
+
+    private PostingAnalysis analysisOf(String postingId) {
+        return posting(postingId).getAnalysis()
+                .orElseThrow(() -> new IllegalStateException("Analyze the posting first."));
     }
 
     /** F02: stores a pasted posting. Company/role may be blank; analysis fills them in. */
