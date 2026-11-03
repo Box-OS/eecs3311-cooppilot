@@ -16,3 +16,13 @@ CREATE TABLE IF NOT EXISTS resumes (
     blocks TEXT NOT NULL DEFAULT '[]',
     latex  TEXT NOT NULL DEFAULT ''
 );
+
+CREATE TABLE IF NOT EXISTS postings (
+    id       TEXT PRIMARY KEY,
+    company  TEXT NOT NULL DEFAULT '',
+    role     TEXT NOT NULL DEFAULT '',
+    raw_text TEXT NOT NULL,
+    term     TEXT NOT NULL DEFAULT '',
+    deadline TEXT,
+    analysis TEXT
+);

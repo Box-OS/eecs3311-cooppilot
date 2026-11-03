@@ -1,7 +1,11 @@
 package ca.yorku.cooppilot.app;
 
+import ca.yorku.cooppilot.domain.Posting;
 import ca.yorku.cooppilot.domain.Resume;
 import ca.yorku.cooppilot.domain.VaultEntry;
+import ca.yorku.cooppilot.llm.LLMClient;
+import ca.yorku.cooppilot.llm.PostingAnalysisTask;
+import ca.yorku.cooppilot.persistence.PostingRepository;
 import ca.yorku.cooppilot.persistence.ResumeRepository;
 import ca.yorku.cooppilot.service.LatexResumeParser;
 import ca.yorku.cooppilot.service.ParseResult;
@@ -20,11 +24,44 @@ public class CoopPilotFacade {
     private final LatexResumeParser parser;
     private final VaultService vault;
     private final ResumeRepository resumes;
+    private final PostingRepository postings;
+    private final LLMClient llm;
 
-    public CoopPilotFacade(LatexResumeParser parser, VaultService vault, ResumeRepository resumes) {
+    public CoopPilotFacade(LatexResumeParser parser, VaultService vault, ResumeRepository resumes,
+                           PostingRepository postings, LLMClient llm) {
         this.parser = parser;
         this.vault = vault;
         this.resumes = resumes;
+        this.postings = postings;
+        this.llm = llm;
+    }
+
+    /** F02: stores a pasted posting. Company/role may be blank; analysis fills them in. */
+    public Posting importPosting(String text, String company, String role) {
+        Posting p = new Posting(null, company, role, text, "", null);
+        postings.save(p);
+        return p;
+    }
+
+    /** F02: runs the LLM analysis (with validation and retries) and saves the result on the posting. */
+    public Posting analyzePosting(String postingId) {
+        Posting p = posting(postingId);
+        PostingAnalysisTask.Result r = new PostingAnalysisTask(llm, p).run();
+        p.setAnalysis(r.analysis());
+        if (p.getCompany().isBlank()) p.setCompany(r.company());
+        if (p.getRole().isBlank()) p.setRole(r.role());
+        if (p.getTerm().isBlank()) p.setTerm(r.term());
+        postings.save(p);
+        return p;
+    }
+
+    public Posting posting(String postingId) {
+        return postings.findById(postingId)
+                .orElseThrow(() -> new IllegalArgumentException("No posting with id " + postingId));
+    }
+
+    public List<Posting> postings() {
+        return postings.findAll();
     }
 
     /** Result of an import for the UI: the parse, the saved resume, and how many vault entries were new. */

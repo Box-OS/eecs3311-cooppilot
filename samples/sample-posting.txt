@@ -1,0 +1,19 @@
+Northwind Labs — Software Developer Co-op (Winter 2027, 4 months)
+Toronto, ON (hybrid)
+
+About the role
+Join our platform team building internal tools for logistics customers. You will build REST APIs
+in Java with Spring Boot, write SQL against PostgreSQL, and ship small React features.
+
+Required
+- Currently enrolled in Computer Science, Software or Computer Engineering
+- Experience with Java or another object-oriented language
+- Familiarity with SQL and relational databases
+- Experience using Git
+- Strong communication skills
+
+Nice to have
+- Spring Boot, React, Docker
+- Exposure to CI/CD (GitHub Actions)
+
+Documents: Resume, Cover Letter, Unofficial Transcript
