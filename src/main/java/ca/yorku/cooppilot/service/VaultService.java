@@ -77,6 +77,39 @@ public class VaultService {
         return out;
     }
 
+    /**
+     * F06: files the student's answer so the agent never has to ask again. If {@code topic} names an
+     * existing entry, the fact is added to its details; otherwise a new entry is created.
+     */
+    public VaultEntry fileAnswer(String question, String answer, String topic, EntryKind kindIfNew) {
+        String fact = "- " + question.trim().replaceAll("\\?$", "") + ": " + answer.trim();
+        Optional<VaultEntry> target = topic == null || topic.isBlank() ? Optional.empty()
+                : repo.findAll().stream().filter(e -> norm(e.getTitle()).contains(norm(topic))
+                        || norm(topic).contains(norm(e.getTitle()))).findFirst();
+        if (target.isPresent()) {
+            VaultEntry e = target.get();
+            e.setBody(e.getBody().isBlank() ? fact : e.getBody() + "\n" + fact);
+            repo.save(e);
+            return e;
+        }
+        String title = topic == null || topic.isBlank() ? question.trim() : topic.trim();
+        return addEntry(new VaultEntry(null, title, kindIfNew == null ? EntryKind.ACTIVITY : kindIfNew,
+                EntryUse.ALL, "", Set.of(), fact));
+    }
+
+    /** An answer already filed for this exact question, if any (memory lookup before asking). */
+    public Optional<String> knownAnswer(String question) {
+        String q = "- " + question.trim().replaceAll("\\?$", "") + ": ";
+        for (VaultEntry e : repo.findAll()) {
+            for (String line : e.getBody().split("\n")) {
+                if (line.toLowerCase(Locale.ROOT).startsWith(q.toLowerCase(Locale.ROOT))) {
+                    return Optional.of(line.substring(q.length()));
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
     /** Creates vault entries for imported resume blocks and skills (F01). Returns how many were new. */
     public int importFromResume(ParseResult parsed) {
         int before = repo.findAll().size();
