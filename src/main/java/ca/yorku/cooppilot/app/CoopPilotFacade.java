@@ -1,5 +1,10 @@
 package ca.yorku.cooppilot.app;
 
+import ca.yorku.cooppilot.agent.AgentController;
+import ca.yorku.cooppilot.agent.AgentEventListener;
+import ca.yorku.cooppilot.agent.AgentGoal;
+import ca.yorku.cooppilot.agent.AgentResult;
+import ca.yorku.cooppilot.agent.QuestionHandler;
 import ca.yorku.cooppilot.domain.FitReport;
 import ca.yorku.cooppilot.domain.KeywordReport;
 import ca.yorku.cooppilot.domain.Posting;
@@ -35,10 +40,12 @@ public class CoopPilotFacade {
     private final FitScorer fitScorer;
     private final KeywordScanner keywordScanner;
     private final ResumeLibrary library;
+    private final AgentController agent;
 
     public CoopPilotFacade(LatexResumeParser parser, VaultService vault, ResumeRepository resumes,
                            PostingRepository postings, LLMClient llm, FitScorer fitScorer,
-                           KeywordScanner keywordScanner, ResumeLibrary library) {
+                           KeywordScanner keywordScanner, ResumeLibrary library, AgentController agent) {
+        this.agent = agent;
         this.parser = parser;
         this.vault = vault;
         this.resumes = resumes;
@@ -47,6 +54,14 @@ public class CoopPilotFacade {
         this.fitScorer = fitScorer;
         this.keywordScanner = keywordScanner;
         this.library = library;
+    }
+
+    /** F05: runs the tailoring agent for an analyzed posting; progress goes to the listener. */
+    public AgentResult tailorResume(String postingId, QuestionHandler questions, AgentEventListener listener) {
+        Posting p = posting(postingId);
+        if (!p.isAnalyzed()) throw new IllegalStateException("Analyze the posting first.");
+        AgentGoal goal = new AgentGoal(AgentGoal.GoalType.TAILOR_RESUME, p, List.of());
+        return agent.run(goal, questions, listener);
     }
 
     /** F03: fit score, gaps, closest saved resume and the recommended strategy. */
