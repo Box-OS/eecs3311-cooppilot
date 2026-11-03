@@ -7,11 +7,16 @@ import ca.yorku.cooppilot.agent.tools.ToolRegistry;
 import ca.yorku.cooppilot.llm.ClaudeAdapter;
 import ca.yorku.cooppilot.llm.LLMClient;
 import ca.yorku.cooppilot.llm.MockLlmClient;
+import ca.yorku.cooppilot.service.CondenseStrategy;
+import ca.yorku.cooppilot.service.LlmCondense;
+import ca.yorku.cooppilot.service.RuleBasedCondense;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 /** Wires the concrete classes in one place (dependency inversion): everything else depends on interfaces. */
 @Configuration
@@ -38,5 +43,14 @@ public class AppConfig {
                                            @Value("${cooppilot.agent.max-steps:15}") int maxSteps,
                                            @Value("${cooppilot.llm.max-tokens:2048}") int maxTokens) {
         return new AgentController(llm, tools, prompts, maxSteps, maxTokens);
+    }
+
+    /** Strategy pattern: the condense algorithms selectable by mode. */
+    @Bean
+    public Map<CondenseStrategy.Mode, CondenseStrategy> condenseStrategies(RuleBasedCondense rules, LlmCondense smart) {
+        Map<CondenseStrategy.Mode, CondenseStrategy> m = new EnumMap<>(CondenseStrategy.Mode.class);
+        m.put(CondenseStrategy.Mode.RULES, rules);
+        m.put(CondenseStrategy.Mode.SMART, smart);
+        return m;
     }
 }

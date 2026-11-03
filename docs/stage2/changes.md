@@ -13,3 +13,9 @@ Running log, one entry per change: Original design → Implemented change → Re
 - **Implemented:** `Message(role, content, toolCalls, toolCallId, error)` with roles USER / ASSISTANT / TOOL.
 - **Reason:** the reason–act–observe loop must send the model's tool calls and each tool's result back on the next step.
 - **Impact:** `AgentSession.messages` and `LlmRequest` now hold the full tool conversation; diagram 1 attribute list updated.
+
+## C03 — Condense strategies report what they cut; LlmCondense falls back to the rules
+- **Original:** `CondenseStrategy.condense(r, a, p) : Resume` with `RuleBasedCondense` and `LlmCondense`.
+- **Implemented:** same interface plus `lastReport()`; `LlmCondense` applies a validated `SmartCondenseTask` plan and, if the resume is still over one page, finishes with `RuleBasedCondense`.
+- **Reason:** the agent and the student need to see what was removed; an LLM plan can undershoot, and the result must always fit.
+- **Impact:** Strategy pattern unchanged (`CondenseTool` picks the strategy by mode from a `Map<Mode, CondenseStrategy>` bean); `save_resume` now refuses drafts over one page.
