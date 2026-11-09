@@ -1,15 +1,20 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>CoopPilot</title>
-</head>
+<head th:replace="~{fragments :: head('Home')}"></head>
 <body>
-<h1>CoopPilot</h1>
-<p>AI agent for tailoring co-op resumes and cover letters.</p>
-<p>LLM provider: <strong th:text="${provider}">mock</strong></p>
-<nav>
-    <a href="/vault">Experience vault</a>
-</nav>
+<header th:replace="~{fragments :: nav('home')}"></header>
+<main>
+    <h1>CoopPilot</h1>
+    <p class="muted">An AI agent that tailors one-page LaTeX resumes and cover letters to co-op postings using only your real experience, and tracks your applications.
+        LLM provider: <strong th:text="${provider}">mock</strong></p>
+    <div class="grid">
+        <a class="card" href="/vault" style="text-decoration:none;color:inherit"><h2>1 · Vault</h2><p class="muted small">Import your LaTeX resume and add experiences (F01).</p></a>
+        <a class="card" href="/postings" style="text-decoration:none;color:inherit"><h2>2 · Postings</h2><p class="muted small">Paste a posting, analyze it, see your fit and keyword gaps (F02–F04).</p></a>
+        <a class="card" href="/postings" style="text-decoration:none;color:inherit"><h2>3 · Tailor</h2><p class="muted small">Let the agent build a one-page resume, asking you when a fact is missing (F05–F07).</p></a>
+        <a class="card" href="/resumes" style="text-decoration:none;color:inherit"><h2>4 · Resumes</h2><p class="muted small">Revise in plain English with undo, write the cover letter, download .tex (F08–F10).</p></a>
+        <a class="card" href="/tracker" style="text-decoration:none;color:inherit"><h2>5 · Track</h2><p class="muted small">Log applications and move them through their statuses (F11).</p></a>
+        <a class="card" href="/dashboard" style="text-decoration:none;color:inherit"><h2>6 · Dashboard</h2><p class="muted small">Progress against your daily and weekly goals (F12).</p></a>
+    </div>
+</main>
 </body>
 </html>

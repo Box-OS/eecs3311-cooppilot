@@ -39,3 +39,14 @@ java -jar target/cooppilot-0.1.0.jar --cli shell        # interactive; undo/redo
 ```
 
 Add `--json` to any command for machine-readable output.
+
+### Web GUI pages
+
+| Page | Features |
+|---|---|
+| `/vault` | F01 import a LaTeX resume, add/search vault entries |
+| `/postings`, `/postings/{id}` | F02 import + analyze, F03 fit and strategy, F04 keyword scan, F10 use as-is |
+| `/tailor/{run}` | F05 live agent steps (Server-Sent Events), F06 answer the agent's questions, F07 one-page fitting |
+| `/resumes`, `/resumes/{id}` | F08 revise in plain English + undo/redo, F09 cover letter, F10 library + `.tex` download |
+| `/tracker` | F11 log applications, move them through their statuses |
+| `/dashboard` | F12 goals, today/this week, response rate, streak, last 7 days |

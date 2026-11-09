@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments :: head('Resume')}"></head>
+<body>
+<header th:replace="~{fragments :: nav('resumes')}"></header>
+<main>
+    <h1 th:text="${resume.name}">CV</h1>
+    <div th:replace="~{fragments :: flash}"></div>
+    <div class="grid">
+        <section class="card">
+            <h2>Ask for a change (F08)</h2>
+            <form method="post" th:action="@{/resumes/{id}/revise(id=${resume.id})}">
+                <textarea name="instruction" rows="3" required placeholder="e.g. Make the tutoring bullet focus on Java"></textarea>
+                <button style="margin-top:.4rem">Revise</button>
+            </form>
+            <div class="row" style="margin-top:.6rem">
+                <form method="post" th:action="@{/resumes/{id}/undo(id=${resume.id})}"><button class="ghost" title="Undo">↶ Undo</button></form>
+                <form method="post" th:action="@{/resumes/{id}/redo(id=${resume.id})}"><button class="ghost" title="Redo">↷ Redo</button></form>
+                <a class="btn ghost" th:href="@{/resumes/{id}/download(id=${resume.id})}">Download .tex</a>
+            </div>
+            <ol class="small muted" th:unless="${log.isEmpty()}"><li th:each="l : ${log}" th:text="${l}"></li></ol>
+        </section>
+        <section class="card">
+            <h2>Cover letter (F09)</h2>
+            <p class="muted small" th:if="${postings.isEmpty()}">Analyze a posting first.</p>
+            <form method="post" th:unless="${postings.isEmpty()}" th:action="@{/resumes/{id}/letter(id=${resume.id})}">
+                <label>For posting
+                    <select name="postingId"><option th:each="p : ${postings}" th:value="${p.id}" th:text="${p.company + ' — ' + p.role}"
+                                                     th:selected="${p.id == selectedPosting}"></option></select></label>
+                <button>Write cover letter</button>
+            </form>
+            <p class="small" th:if="${resume.hasPlaceholders()}"><span class="chip thin">Contains [placeholders]</span> fill them in before sending.</p>
+        </section>
+    </div>
+    <section class="card">
+        <h2>Blocks</h2>
+        <div th:each="b : ${resume.blocks}" style="margin-bottom:.7rem">
+            <strong th:text="${b.title}"></strong> <span class="muted small" th:text="${b.section} + (${b.subtitle.isBlank()} ? '' : ' · ' + ${b.subtitle})"></span>
+            <ul class="small"><li th:each="t : ${b.bullets}" th:text="${t}"></li></ul>
+        </div>
+    </section>
+    <section class="card">
+        <h2>LaTeX</h2>
+        <pre th:text="${resume.latex}"></pre>
+    </section>
+</main>
+</body>
+</html>

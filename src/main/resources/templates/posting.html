@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments :: head('Posting')}"></head>
+<body>
+<header th:replace="~{fragments :: nav('postings')}"></header>
+<main>
+    <h1><span th:text="${posting.company.isBlank() ? 'Posting' : posting.company}"></span>
+        <span class="muted" th:text="${posting.role.isBlank() ? '' : '— ' + posting.role}"></span></h1>
+    <div th:replace="~{fragments :: flash}"></div>
+
+    <section class="card" th:unless="${posting.analyzed}">
+        <p>This posting has not been analyzed yet.</p>
+        <form method="post" th:action="@{/postings/{id}/analyze(id=${posting.id})}"><button>Analyze with the LLM</button></form>
+    </section>
+
+    <th:block th:if="${posting.analyzed}" th:with="a=${posting.analysis.get()}">
+        <div class="grid">
+            <section class="card">
+                <h2>Fit (F03)</h2>
+                <div class="stat" th:text="${fit.score()} + '/100'">0</div>
+                <div class="stat-label">Recommended: <strong th:text="${fit.strategy()}"></strong></div>
+                <p class="small" th:if="${fit.closestResume().isPresent()}">Closest saved resume:
+                    <a th:href="@{/resumes/{id}(id=${fit.closest().resume().id})}" th:text="${fit.closest().resume().name}"></a>
+                    (<span th:text="${fit.closest().matchPercent()}"></span>% match)</p>
+                <p class="small muted" th:unless="${fit.closestResume().isPresent()}">No placeholder-free saved resume to reuse.</p>
+                <p class="small"><strong>Gaps:</strong> <span th:if="${fit.gaps().isEmpty()}">none</span>
+                    <span class="chip miss" th:each="g : ${fit.gaps()}" th:text="${g}"></span></p>
+            </section>
+            <section class="card">
+                <h2>Next step</h2>
+                <form method="post" th:action="@{/postings/{id}/tailor(id=${posting.id})}">
+                    <button>Tailor with the agent (F05)</button>
+                </form>
+                <form method="post" th:if="${fit.closestResume().isPresent()}" th:action="@{/postings/{id}/reuse(id=${posting.id})}" style="margin-top:.6rem">
+                    <input type="hidden" name="resumeId" th:value="${fit.closest().resume().id}">
+                    <button class="ghost">Use <span th:text="${fit.closest().resume().name}"></span> as-is (F10)</button>
+                </form>
+                <p class="small muted" th:if="${a.requiresCoverLetter()}">This posting asks for a cover letter.</p>
+                <p class="small" th:if="${a.softSkillFocus()}"><span class="chip thin">Soft-skill focus</span></p>
+            </section>
+        </div>
+        <section class="card">
+            <h2>Requirements (F02)</h2>
+            <p class="small"><strong>Must-have:</strong> <span th:text="${#strings.listJoin(a.mustHaves(), '; ')}"></span></p>
+            <p class="small"><strong>Nice to have:</strong> <span th:text="${#strings.listJoin(a.niceToHaves(), '; ')}"></span></p>
+            <p class="small"><strong>Documents:</strong> <span th:text="${#strings.listJoin(a.documentsRequired(), ', ')}"></span></p>
+        </section>
+        <section class="card" th:if="${scan != null}">
+            <div class="row" style="justify-content:space-between">
+                <h2>Keyword scan (F04): <span th:text="${scanResume.name}"></span> — <span th:text="${#numbers.formatDecimal(scan.coverage() * 100, 1, 0)} + '%'"></span></h2>
+                <form method="get" th:action="@{/postings/{id}(id=${posting.id})}" class="row">
+                    <select name="scan"><option th:each="r : ${resumes}" th:value="${r.id}" th:text="${r.name}" th:selected="${r.id == scanResume.id}"></option></select>
+                    <button class="ghost">Scan</button>
+                </form>
+            </div>
+            <p class="small">
+                <span class="chip ok" th:each="k : ${scan.backed()}" th:text="${k.term()}" title="on the resume, backed by experience"></span>
+                <span class="chip thin" th:each="k : ${scan.thin()}" th:text="${k.term()}" title="only in the skills line"></span>
+                <span class="chip known" th:each="k : ${scan.knownNotWorded()}" th:text="${k.term()}" title="you have it, not worded on the resume"></span>
+                <span class="chip miss" th:each="k : ${scan.missing()}" th:text="${k.term()}" title="no evidence in your vault"></span>
+            </p>
+            <p class="small muted">Green: backed · amber: skills line only · blue dashed: you have it, not worded · grey: no evidence</p>
+        </section>
+    </th:block>
+    <section class="card">
+        <h2>Posting text</h2>
+        <pre th:text="${posting.rawText}"></pre>
+    </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments :: head('Tailoring')}"></head>
+<body>
+<header th:replace="~{fragments :: nav('postings')}"></header>
+<main>
+    <h1>Tailoring agent <span class="muted small" id="status">running…</span></h1>
+    <p class="small"><a th:href="@{/postings/{id}(id=${postingId})}">← back to the posting</a></p>
+    <section class="card" id="question" hidden>
+        <h2>The agent needs to know</h2>
+        <p id="qtext"></p>
+        <form id="qform" class="row">
+            <input id="qanswer" style="flex:1" placeholder="Your answer (leave empty to skip)">
+            <button>Send</button>
+        </form>
+    </section>
+    <section class="card" id="done" hidden>
+        <h2>Result</h2>
+        <p id="summary"></p>
+        <a id="resumeLink" class="btn" href="#" hidden>Open the tailored resume</a>
+    </section>
+    <section class="card">
+        <h2>Steps</h2>
+        <ol id="steps" class="small"></ol>
+    </section>
+</main>
+<script th:inline="javascript">
+    const runId = /*[[${runId}]]*/ "";
+    const steps = document.getElementById("steps");
+    const add = (html) => { const li = document.createElement("li"); li.innerHTML = html; steps.appendChild(li); return li; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
+    const es = new EventSource("/tailor/" + runId + "/events");
+    es.addEventListener("thinking", e => add("<em class='muted'>" + esc(JSON.parse(e.data).text) + "</em>"));
+    es.addEventListener("tool", e => { const d = JSON.parse(e.data); add("<strong>→ " + esc(d.name) + "</strong> <code class='muted'>" + esc(d.args) + "</code>"); });
+    es.addEventListener("result", e => { const d = JSON.parse(e.data);
+        const li = add((d.ok ? "✓ " : "<span style='color:#b42318'>✗</span> ") + "<details><summary>" + esc(d.name) + " result</summary><pre>" + esc(d.text) + "</pre></details>"); });
+    es.addEventListener("question", e => { document.getElementById("qtext").textContent = JSON.parse(e.data).question;
+        document.getElementById("question").hidden = false; document.getElementById("qanswer").focus(); });
+    es.addEventListener("done", e => { const d = JSON.parse(e.data); es.close();
+        document.getElementById("status").textContent = d.status + " · " + d.steps + " steps";
+        document.getElementById("summary").textContent = d.summary;
+        if (d.resumeId) { const a = document.getElementById("resumeLink"); a.href = "/resumes/" + d.resumeId + "?posting=" + /*[[${postingId}]]*/ ""; a.hidden = false;
+            a.textContent = "Open " + d.resumeName; }
+        document.getElementById("done").hidden = false; document.getElementById("question").hidden = true; });
+    es.addEventListener("error", e => { if (e.data) { document.getElementById("status").textContent = "error: " + JSON.parse(e.data).message; es.close(); } });
+    document.getElementById("qform").addEventListener("submit", ev => { ev.preventDefault();
+        const body = new URLSearchParams({ answer: document.getElementById("qanswer").value });
+        fetch("/tailor/" + runId + "/answer", { method: "POST", body }).then(() => {
+            add("<span class='muted'>You answered: " + esc(document.getElementById("qanswer").value || "(skipped)") + "</span>");
+            document.getElementById("qanswer").value = ""; document.getElementById("question").hidden = true; }); });
+</script>
+</body>
+</html>

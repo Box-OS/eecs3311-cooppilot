@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments :: head('Postings')}"></head>
+<body>
+<header th:replace="~{fragments :: nav('postings')}"></header>
+<main>
+    <h1>Postings</h1>
+    <div th:replace="~{fragments :: flash}"></div>
+    <section class="card">
+        <h2>Add a posting</h2>
+        <form method="post" action="/postings">
+            <div class="row">
+                <label>Company <input name="company" placeholder="optional, read from the text"></label>
+                <label>Role <input name="role" placeholder="optional"></label>
+            </div>
+            <label>Posting text <textarea name="text" rows="8" required placeholder="Paste the whole posting"></textarea></label>
+            <label class="row"><input type="checkbox" name="analyze" value="true" checked> Analyze with the LLM now</label>
+            <button type="submit">Add posting</button>
+        </form>
+    </section>
+    <section class="card">
+        <h2>All postings</h2>
+        <p class="muted" th:if="${postings.isEmpty()}">No postings yet.</p>
+        <table th:unless="${postings.isEmpty()}">
+            <tr><th>Company</th><th>Role</th><th>Term</th><th>Status</th></tr>
+            <tr th:each="p : ${postings}">
+                <td><a th:href="@{/postings/{id}(id=${p.id})}" th:text="${p.company.isBlank() ? '(unnamed)' : p.company}"></a></td>
+                <td th:text="${p.role}"></td>
+                <td th:text="${p.term}"></td>
+                <td th:text="${p.analyzed ? 'analyzed' : 'not analyzed'}"></td>
+            </tr>
+        </table>
+    </section>
+</main>
+</body>
+</html>

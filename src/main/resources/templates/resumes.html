@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments :: head('Resumes')}"></head>
+<body>
+<header th:replace="~{fragments :: nav('resumes')}"></header>
+<main>
+    <h1>Resume library</h1>
+    <div th:replace="~{fragments :: flash}"></div>
+    <p class="muted" th:if="${groups.isEmpty()}">No resumes yet. <a href="/vault">Import one</a>.</p>
+    <section class="card" th:each="g : ${groups}">
+        <h2 th:text="${g.key}">family</h2>
+        <table>
+            <tr><th>Name</th><th>Kind</th><th>Blocks</th><th></th></tr>
+            <tr th:each="r : ${g.value}">
+                <td><a th:href="@{/resumes/{id}(id=${r.id})}" th:text="${r.name}"></a>
+                    <span class="chip thin" th:if="${r.hasPlaceholders()}">placeholders</span></td>
+                <td th:text="${r.kind}"></td>
+                <td th:text="${r.blocks.size()}"></td>
+                <td><a th:href="@{/resumes/{id}/download(id=${r.id})}">.tex</a></td>
+            </tr>
+        </table>
+    </section>
+    <section class="card" th:unless="${letters.isEmpty()}">
+        <h2>Cover letters</h2>
+        <ul><li th:each="c : ${letters}"><a th:href="@{/letters/{n}(n=${c.name()})}" th:text="${c.name()}"></a></li></ul>
+    </section>
+</main>
+</body>
+</html>

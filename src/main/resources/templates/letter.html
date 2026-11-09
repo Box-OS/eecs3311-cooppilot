@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments :: head('Cover letter')}"></head>
+<body>
+<header th:replace="~{fragments :: nav('resumes')}"></header>
+<main>
+    <h1 th:text="${letter.name()}">CL</h1>
+    <p class="muted small"><span th:text="${letter.wordCount()}"></span> words ·
+        <a th:href="@{/letters/{n}/download(n=${letter.name()})}">Download .txt</a></p>
+    <section class="card"><div style="white-space:pre-line;line-height:1.55" th:text="${letter.body()}"></div></section>
+</main>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments :: head('Tracker')}"></head>
+<body>
+<header th:replace="~{fragments :: nav('tracker')}"></header>
+<main>
+    <h1>Applications</h1>
+    <div th:replace="~{fragments :: flash}"></div>
+    <section class="card">
+        <h2>Log an application</h2>
+        <form method="post" action="/tracker" class="row">
+            <select name="postingId"><option value="">(no posting)</option>
+                <option th:each="p : ${postings}" th:value="${p.id}" th:text="${p.company + ' — ' + p.role}"></option></select>
+            <input name="company" placeholder="Company (if no posting)">
+            <input name="role" placeholder="Role">
+            <select name="resumeName"><option value="">(resume)</option>
+                <option th:each="r : ${resumes}" th:value="${r.name}" th:text="${r.name}"></option></select>
+            <button>Log</button>
+        </form>
+    </section>
+    <section class="card">
+        <p class="muted" th:if="${apps.isEmpty()}">No applications yet.</p>
+        <table th:unless="${apps.isEmpty()}">
+            <tr><th>Company</th><th>Role</th><th>Status</th><th>Applied</th><th>Follow up</th><th>Move to</th></tr>
+            <tr th:each="a : ${apps}">
+                <td th:text="${a.company}"></td>
+                <td class="small" th:text="${a.role}"></td>
+                <td><span class="chip" th:text="${a.status}"></span></td>
+                <td class="small" th:text="${a.appliedOn}"></td>
+                <td class="small" th:text="${a.followUpOn}"></td>
+                <td>
+                    <form method="post" th:action="@{/tracker/{id}/status(id=${a.id})}" class="row" th:unless="${a.state.terminal}">
+                        <select name="status"><option th:each="s : ${a.state.allowedNext()}" th:value="${s}" th:text="${s}"></option></select>
+                        <input name="note" placeholder="note" size="10">
+                        <button class="ghost">Move</button>
+                    </form>
+                    <span class="muted small" th:if="${a.state.terminal}">final</span>
+                </td>
+            </tr>
+        </table>
+    </section>
+</main>
+</body>
+</html>

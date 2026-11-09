@@ -65,8 +65,9 @@ public abstract class ApplicationState {
         return next.contains(target);
     }
 
+    /** Legal next statuses, in lifecycle order (for menus). */
     public Set<Status> allowedNext() {
-        return Set.copyOf(next);
+        return java.util.Collections.unmodifiableSet(next.isEmpty() ? EnumSet.noneOf(Status.class) : EnumSet.copyOf(next));
     }
 
     public boolean isTerminal() {

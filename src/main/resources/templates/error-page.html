@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments :: head('Problem')}"></head>
+<body>
+<header th:replace="~{fragments :: nav('')}"></header>
+<main>
+    <h1>Something went wrong</h1>
+    <div class="err" th:text="${message}">error</div>
+    <p><a href="/">Home</a></p>
+</main>
+</body>
+</html>

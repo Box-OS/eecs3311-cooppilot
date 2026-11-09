@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments :: head('Dashboard')}"></head>
+<body>
+<header th:replace="~{fragments :: nav('dashboard')}"></header>
+<main>
+    <h1>Dashboard</h1>
+    <div th:replace="~{fragments :: flash}"></div>
+    <div class="grid">
+        <div class="card"><div class="stat" th:text="${s.appliedToday()} + ' / ' + ${s.goals().daily()}"></div>
+            <div class="stat-label">Today vs daily goal <span th:if="${s.dailyGoalMet()}" class="chip ok">Goal met</span></div></div>
+        <div class="card"><div class="stat" th:text="${s.appliedThisWeek()} + ' / ' + ${s.goals().weekly()}"></div>
+            <div class="stat-label">This week vs weekly goal <span th:if="${s.weeklyGoalMet()}" class="chip ok">Goal met</span></div></div>
+        <div class="card"><div class="stat" th:text="${s.totalApplied()}"></div><div class="stat-label">Applied in total</div></div>
+        <div class="card"><div class="stat" th:text="${s.responseRatePercent()} + '%'"></div><div class="stat-label">Response rate</div></div>
+        <div class="card"><div class="stat" th:text="${s.interviews()}"></div><div class="stat-label">Interviews · <span th:text="${s.offers()}"></span> offers</div></div>
+        <div class="card"><div class="stat" th:text="${s.followUpsDue()}"></div><div class="stat-label">Follow-ups due · streak <span th:text="${s.streakDays()}"></span> day(s)</div></div>
+    </div>
+    <section class="card">
+        <h2>Last 7 days</h2>
+        <div class="row" style="align-items:flex-end;height:150px;gap:.8rem">
+            <div th:each="d : ${s.lastSevenDays()}" style="text-align:center;flex:1">
+                <div class="small" th:text="${d.value}"></div>
+                <div th:style="'height:' + ${d.value * 110 / barMax} + 'px;background:' + (${d.value >= s.goals().daily() and s.goals().daily() > 0} ? '#127a3f' : '#2f5bea') + ';border-radius:4px 4px 0 0;min-height:2px'"></div>
+                <div class="small muted" th:text="${#temporals.format(d.key, 'EEE')}"></div>
+            </div>
+        </div>
+        <p class="small muted">Green bars met the daily goal.</p>
+    </section>
+    <section class="card">
+        <h2>Goals</h2>
+        <form method="post" action="/dashboard/goals" class="row">
+            <label>Daily <input type="number" min="0" name="daily" th:value="${s.goals().daily()}" style="width:5rem"></label>
+            <label>Weekly <input type="number" min="0" name="weekly" th:value="${s.goals().weekly()}" style="width:5rem"></label>
+            <button>Save</button>
+        </form>
+    </section>
+</main>
+</body>
+</html>
