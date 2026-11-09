@@ -4,6 +4,7 @@ import ca.yorku.cooppilot.agent.AgentSession;
 import ca.yorku.cooppilot.domain.Resume;
 import ca.yorku.cooppilot.domain.ResumeBlock;
 import ca.yorku.cooppilot.domain.Section;
+import ca.yorku.cooppilot.service.FactGuard;
 import ca.yorku.cooppilot.service.LatexAssembler;
 import ca.yorku.cooppilot.service.LatexText;
 import ca.yorku.cooppilot.service.ResumeLibrary;
@@ -27,9 +28,6 @@ import java.util.stream.Collectors;
  */
 @Component
 public class ComposeResumeTool extends AgentTool {
-
-    private static final Pattern NUMBER = Pattern.compile("\\d+(?:[.,]\\d+)?");
-    private static final Pattern PLACEHOLDER = Pattern.compile("\\[[A-Z]+=[^\\]]+]");
 
     private final ResumeLibrary library;
     private final VaultService vault;
@@ -107,14 +105,7 @@ public class ComposeResumeTool extends AgentTool {
 
     /** Numbers in the new text that appear nowhere in the old bullet or the student's material. */
     static List<String> inventedNumbers(String newText, String evidence) {
-        String plain = PLACEHOLDER.matcher(LatexText.plain(newText)).replaceAll(" ");
-        List<String> out = new ArrayList<>();
-        Matcher m = NUMBER.matcher(plain);
-        while (m.find()) {
-            String n = m.group();
-            if (!Pattern.compile("(?<![\\d.])" + Pattern.quote(n) + "(?![\\d])").matcher(evidence).find()) out.add(n);
-        }
-        return out;
+        return FactGuard.inventedNumbers(newText, evidence);
     }
 
     private String evidenceText(Resume base) {

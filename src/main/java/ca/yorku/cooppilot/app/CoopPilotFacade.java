@@ -21,6 +21,7 @@ import ca.yorku.cooppilot.service.LatexResumeParser;
 import ca.yorku.cooppilot.service.ResumeLibrary;
 import ca.yorku.cooppilot.service.ParseResult;
 import ca.yorku.cooppilot.service.VaultService;
+import ca.yorku.cooppilot.service.edit.ResumeEditor;
 import ca.yorku.cooppilot.tracking.Application;
 import ca.yorku.cooppilot.tracking.ApplicationTracker;
 import ca.yorku.cooppilot.tracking.DashboardService;
@@ -49,6 +50,13 @@ public class CoopPilotFacade {
     private final AgentController agent;
     private final ApplicationTracker tracker;
     private final DashboardService dashboard;
+    private ResumeEditor editor;
+
+    /** Setter injection keeps the constructor from growing for every feature. */
+    @org.springframework.beans.factory.annotation.Autowired
+    void setEditor(ResumeEditor editor) {
+        this.editor = editor;
+    }
 
     public CoopPilotFacade(LatexResumeParser parser, VaultService vault, ResumeRepository resumes,
                            PostingRepository postings, LLMClient llm, FitScorer fitScorer,
@@ -65,6 +73,37 @@ public class CoopPilotFacade {
         this.fitScorer = fitScorer;
         this.keywordScanner = keywordScanner;
         this.library = library;
+    }
+
+    /** F08: plain-English revision ("make the tutor bullet focus on Java"); undoable. */
+    public Resume reviseResume(String resumeId, String instruction) {
+        return editor.revise(resumeId, instruction);
+    }
+
+    /** F08: manual bullet edit; undoable. */
+    public Resume replaceBullet(String resumeId, String blockId, int index, String text) {
+        return editor.replaceBullet(resumeId, blockId, index, text);
+    }
+
+    /** F08: remove an entry; undoable. */
+    public Resume removeBlock(String resumeId, String blockId) {
+        return editor.removeBlock(resumeId, blockId);
+    }
+
+    public String undo(String resumeId) {
+        return editor.undo(resumeId);
+    }
+
+    public String redo(String resumeId) {
+        return editor.redo(resumeId);
+    }
+
+    public List<String> revisionLog(String resumeId) {
+        return editor.log(resumeId);
+    }
+
+    public Resume resume(String resumeId) {
+        return library.byId(resumeId).orElseThrow(() -> new IllegalArgumentException("No resume with id " + resumeId));
     }
 
     /** F11: logs an application (starts in TO_APPLY). Company/role default to the posting's. */
