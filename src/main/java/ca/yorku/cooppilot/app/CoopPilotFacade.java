@@ -146,6 +146,42 @@ public class CoopPilotFacade {
         return letters.findAll();
     }
 
+    /**
+     * F10: reuse a saved resume unchanged for a posting when it already covers it (>= 75% match):
+     * saved as a copy named CV_Company_Role.
+     */
+    public Resume reuseResume(String postingId, String resumeId) {
+        Posting p = posting(postingId);
+        return library.reuseAs(resumeId, export.fileName("CV", p.getCompany(), p.getRole()));
+    }
+
+    /** F10: the library grouped by role family. */
+    public java.util.Map<String, List<Resume>> resumeLibrary() {
+        return library.groupByFamily();
+    }
+
+    public void renameResume(String resumeId, String newName) {
+        library.rename(resumeId, newName);
+    }
+
+    public void setResumeFamily(String resumeId, String family) {
+        library.setFamily(resumeId, family);
+    }
+
+    public void deleteResume(String resumeId) {
+        library.delete(resumeId);
+    }
+
+    /** F10: writes the resume's .tex to the export folder. */
+    public java.nio.file.Path exportResume(String resumeId) {
+        return export.writeTex(resume(resumeId));
+    }
+
+    /** F10: writes a cover letter to the export folder. */
+    public java.nio.file.Path exportCoverLetter(String name) {
+        return export.writeLetter(coverLetter(name).orElseThrow(() -> new IllegalArgumentException("No cover letter " + name)));
+    }
+
     /** F11: logs an application (starts in TO_APPLY). Company/role default to the posting's. */
     public Application logApplication(String postingId, String company, String role, String resumeName) {
         if (postingId != null && !postingId.isBlank()) {

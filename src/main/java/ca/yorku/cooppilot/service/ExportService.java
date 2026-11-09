@@ -1,15 +1,71 @@
 package ca.yorku.cooppilot.service;
 
+import ca.yorku.cooppilot.domain.CoverLetter;
+import ca.yorku.cooppilot.domain.Resume;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/** File naming (CV_Company_Role / CL_Company_Role) and, later, writing .tex files. */
+/** F10: file naming (CV_Company_Role / CL_Company_Role) and writing .tex / .txt files to the export folder. */
 @Service
 public class ExportService {
+
+    private final Path exportDir;
+
+    public ExportService() {
+        this(Path.of("exports"));
+    }
+
+    @Autowired
+    public ExportService(@Value("${cooppilot.export-dir:exports}") String exportDir) {
+        this(Path.of(exportDir));
+    }
+
+    public ExportService(Path exportDir) {
+        this.exportDir = exportDir;
+    }
+
+    /** Writes the resume's LaTeX to exports/<name>.tex (ready to compile in Overleaf) and returns the path. */
+    public Path writeTex(Resume r) {
+        if (r.getLatex() == null || r.getLatex().isBlank()) throw new IllegalStateException(r.getName() + " has no LaTeX");
+        return write(safe(r.getName()) + ".tex", r.getLatex());
+    }
+
+    /** Writes a cover letter to exports/<name>.txt. */
+    public Path writeLetter(CoverLetter c) {
+        return write(safe(c.name()) + ".txt", c.body());
+    }
+
+    public Path exportDir() {
+        return exportDir;
+    }
+
+    private Path write(String fileName, String content) {
+        try {
+            Files.createDirectories(exportDir);
+            Path out = exportDir.resolve(fileName);
+            Files.writeString(out, content, StandardCharsets.UTF_8);
+            return out;
+        } catch (IOException e) {
+            throw new UncheckedIOException("could not write " + fileName, e);
+        }
+    }
+
+    /** Keeps file names to letters, digits, _ and -, so a name can never escape the export folder. */
+    static String safe(String name) {
+        String s = name == null ? "" : name.replaceAll("[^A-Za-z0-9_-]", "");
+        return s.isEmpty() ? "resume" : s;
+    }
 
     private static final Set<String> COMPANY_SUFFIXES = Set.of("canada", "usa", "group", "inc", "inc.", "ltd", "ltd.", "corp", "corporation");
     private static final Set<String> ROLE_FILLER = Set.of("co-op", "coop", "co", "op", "intern", "internship", "student",

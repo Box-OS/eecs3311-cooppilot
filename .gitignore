@@ -19,3 +19,6 @@ target/
 *.iml
 .vscode/
 .DS_Store
+
+# Exported resumes and letters
+exports/

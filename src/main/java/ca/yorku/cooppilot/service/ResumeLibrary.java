@@ -78,6 +78,38 @@ public class ResumeLibrary {
         return repo.findAll();
     }
 
+    /**
+     * "Use as is": copies a saved resume unchanged under a new name (e.g. CV_Company_Role) so the
+     * original stays intact. An existing resume with the target name is replaced.
+     */
+    public Resume reuseAs(String resumeId, String newName) {
+        Resume src = byId(resumeId).orElseThrow(() -> new IllegalArgumentException("No resume with id " + resumeId));
+        if (src.hasPlaceholders()) throw new IllegalStateException(src.getName() + " still has [placeholders]; fill them first");
+        String id = repo.findByName(newName).map(Resume::getId).filter(x -> !x.equals(src.getId())).orElse(null);
+        Resume copy = new Resume(id, newName, src.getFamily(), Resume.Kind.TAILORED,
+                src.getBlocks().stream().map(ca.yorku.cooppilot.domain.ResumeBlock::copy).toList(), src.getLatex());
+        repo.save(copy);
+        return copy;
+    }
+
+    public void rename(String resumeId, String newName) {
+        Resume r = byId(resumeId).orElseThrow(() -> new IllegalArgumentException("No resume with id " + resumeId));
+        if (newName == null || newName.isBlank()) throw new IllegalArgumentException("name must not be blank");
+        if (nameTaken(newName.trim(), Set.of(resumeId))) throw new IllegalArgumentException(newName + " is already used");
+        r.setName(newName.trim());
+        repo.save(r);
+    }
+
+    public void setFamily(String resumeId, String family) {
+        Resume r = byId(resumeId).orElseThrow(() -> new IllegalArgumentException("No resume with id " + resumeId));
+        r.setFamily(family == null ? "" : family.trim());
+        repo.save(r);
+    }
+
+    public void delete(String resumeId) {
+        repo.delete(resumeId);
+    }
+
     /** True when the name is already used by a different resume. */
     public boolean nameTaken(String name, Set<String> exceptIds) {
         return repo.findByName(name).filter(r -> !exceptIds.contains(r.getId())).isPresent();
