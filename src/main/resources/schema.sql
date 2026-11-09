@@ -45,3 +45,9 @@ CREATE TABLE IF NOT EXISTS settings (
     key   TEXT PRIMARY KEY,
     value TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS cover_letters (
+    id         TEXT PRIMARY KEY,
+    posting_id TEXT,
+    body       TEXT NOT NULL
+);

@@ -5,13 +5,17 @@ import ca.yorku.cooppilot.agent.AgentEventListener;
 import ca.yorku.cooppilot.agent.AgentGoal;
 import ca.yorku.cooppilot.agent.AgentResult;
 import ca.yorku.cooppilot.agent.QuestionHandler;
+import ca.yorku.cooppilot.domain.CoverLetter;
 import ca.yorku.cooppilot.domain.FitReport;
 import ca.yorku.cooppilot.domain.KeywordReport;
 import ca.yorku.cooppilot.domain.Posting;
 import ca.yorku.cooppilot.domain.PostingAnalysis;
 import ca.yorku.cooppilot.domain.Resume;
 import ca.yorku.cooppilot.domain.VaultEntry;
+import ca.yorku.cooppilot.llm.CoverLetterTask;
 import ca.yorku.cooppilot.llm.LLMClient;
+import ca.yorku.cooppilot.persistence.CoverLetterRepository;
+import ca.yorku.cooppilot.service.ExportService;
 import ca.yorku.cooppilot.llm.PostingAnalysisTask;
 import ca.yorku.cooppilot.persistence.PostingRepository;
 import ca.yorku.cooppilot.persistence.ResumeRepository;
@@ -51,6 +55,17 @@ public class CoopPilotFacade {
     private final ApplicationTracker tracker;
     private final DashboardService dashboard;
     private ResumeEditor editor;
+    private CoverLetterRepository letters;
+    private ExportService export;
+    private String studentName = "";
+
+    @org.springframework.beans.factory.annotation.Autowired
+    void setLetters(CoverLetterRepository letters, ExportService export,
+                    @org.springframework.beans.factory.annotation.Value("${cooppilot.student-name:}") String studentName) {
+        this.letters = letters;
+        this.export = export;
+        this.studentName = studentName;
+    }
 
     /** Setter injection keeps the constructor from growing for every feature. */
     @org.springframework.beans.factory.annotation.Autowired
@@ -104,6 +119,31 @@ public class CoopPilotFacade {
 
     public Resume resume(String resumeId) {
         return library.byId(resumeId).orElseThrow(() -> new IllegalArgumentException("No resume with id " + resumeId));
+    }
+
+    /**
+     * F09: drafts a cover letter for an analyzed posting from a resume (usually the tailored one) and
+     * the vault facts letters may use (ALL and LETTERS_ONLY; never CONTEXT_ONLY). Saved as CL_Company_Role.
+     */
+    public CoverLetter writeCoverLetter(String postingId, String resumeId) {
+        Posting p = posting(postingId);
+        if (!p.isAnalyzed()) throw new IllegalStateException("Analyze the posting first.");
+        Resume r = resume(resumeId);
+        String facts = vault.all().stream().filter(e -> e.getUse().allowedInLetter())
+                .map(e -> e.getTitle() + ": " + e.getBody().replace('\n', ' '))
+                .collect(java.util.stream.Collectors.joining("\n"));
+        String body = new CoverLetterTask(llm, p, r, facts, studentName).run();
+        CoverLetter letter = new CoverLetter(export.fileName("CL", p.getCompany(), p.getRole()), p.getId(), body);
+        letters.save(letter);
+        return letter;
+    }
+
+    public java.util.Optional<CoverLetter> coverLetter(String name) {
+        return letters.findByName(name);
+    }
+
+    public List<CoverLetter> coverLetters() {
+        return letters.findAll();
     }
 
     /** F11: logs an application (starts in TO_APPLY). Company/role default to the posting's. */
