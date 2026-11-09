@@ -23,3 +23,19 @@ Prerequisites: Java 21 and Maven 3.9+.
    Then set `cooppilot.llm.api-key=` to your Anthropic key. Without a key the app runs with `cooppilot.llm.provider=mock`.
 2. Build and test: `mvn test`
 3. Start the web GUI: `mvn spring-boot:run`, then open http://localhost:8080
+
+### Command line (CLI)
+
+Build once with `mvn package -DskipTests`, then run any command with `--cli` (no web server starts):
+
+```
+java -jar target/cooppilot-0.1.0.jar --cli --help
+java -jar target/cooppilot-0.1.0.jar --cli vault import samples/sample-resume.tex --name CV_General
+java -jar target/cooppilot-0.1.0.jar --cli posting add samples/sample-posting.txt --analyze
+java -jar target/cooppilot-0.1.0.jar --cli fit <postingId>
+java -jar target/cooppilot-0.1.0.jar --cli tailor <postingId>
+java -jar target/cooppilot-0.1.0.jar --cli dashboard --json
+java -jar target/cooppilot-0.1.0.jar --cli shell        # interactive; undo/redo work across commands
+```
+
+Add `--json` to any command for machine-readable output.
