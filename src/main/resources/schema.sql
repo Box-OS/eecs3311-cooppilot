@@ -26,3 +26,22 @@ CREATE TABLE IF NOT EXISTS postings (
     deadline TEXT,
     analysis TEXT
 );
+
+CREATE TABLE IF NOT EXISTS applications (
+    id                TEXT PRIMARY KEY,
+    company           TEXT NOT NULL,
+    role              TEXT NOT NULL DEFAULT '',
+    posting_id        TEXT,
+    resume_name       TEXT NOT NULL DEFAULT '',
+    cover_letter_name TEXT NOT NULL DEFAULT '',
+    status            TEXT NOT NULL,
+    applied_on        TEXT,
+    follow_up_on      TEXT,
+    notes             TEXT NOT NULL DEFAULT '',
+    history           TEXT NOT NULL DEFAULT '[]'
+);
+
+CREATE TABLE IF NOT EXISTS settings (
+    key   TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+);

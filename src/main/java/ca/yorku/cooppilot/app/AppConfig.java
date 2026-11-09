@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.time.Clock;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -52,5 +53,11 @@ public class AppConfig {
         m.put(CondenseStrategy.Mode.RULES, rules);
         m.put(CondenseStrategy.Mode.SMART, smart);
         return m;
+    }
+
+    /** Injected so date-based rules (follow-ups, streaks) can be tested with a fixed clock. */
+    @Bean
+    public Clock clock() {
+        return Clock.systemDefaultZone();
     }
 }

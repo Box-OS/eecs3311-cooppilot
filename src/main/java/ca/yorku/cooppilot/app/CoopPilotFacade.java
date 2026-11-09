@@ -21,6 +21,12 @@ import ca.yorku.cooppilot.service.LatexResumeParser;
 import ca.yorku.cooppilot.service.ResumeLibrary;
 import ca.yorku.cooppilot.service.ParseResult;
 import ca.yorku.cooppilot.service.VaultService;
+import ca.yorku.cooppilot.tracking.Application;
+import ca.yorku.cooppilot.tracking.ApplicationTracker;
+import ca.yorku.cooppilot.tracking.DashboardService;
+import ca.yorku.cooppilot.tracking.DashboardStats;
+import ca.yorku.cooppilot.tracking.Goals;
+import ca.yorku.cooppilot.tracking.Status;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -41,11 +47,16 @@ public class CoopPilotFacade {
     private final KeywordScanner keywordScanner;
     private final ResumeLibrary library;
     private final AgentController agent;
+    private final ApplicationTracker tracker;
+    private final DashboardService dashboard;
 
     public CoopPilotFacade(LatexResumeParser parser, VaultService vault, ResumeRepository resumes,
                            PostingRepository postings, LLMClient llm, FitScorer fitScorer,
-                           KeywordScanner keywordScanner, ResumeLibrary library, AgentController agent) {
+                           KeywordScanner keywordScanner, ResumeLibrary library, AgentController agent,
+                           ApplicationTracker tracker, DashboardService dashboard) {
         this.agent = agent;
+        this.tracker = tracker;
+        this.dashboard = dashboard;
         this.parser = parser;
         this.vault = vault;
         this.resumes = resumes;
@@ -54,6 +65,38 @@ public class CoopPilotFacade {
         this.fitScorer = fitScorer;
         this.keywordScanner = keywordScanner;
         this.library = library;
+    }
+
+    /** F11: logs an application (starts in TO_APPLY). Company/role default to the posting's. */
+    public Application logApplication(String postingId, String company, String role, String resumeName) {
+        if (postingId != null && !postingId.isBlank()) {
+            Posting p = posting(postingId);
+            if (company == null || company.isBlank()) company = p.getCompany();
+            if (role == null || role.isBlank()) role = p.getRole();
+        }
+        return tracker.create(company, role, postingId, resumeName);
+    }
+
+    /** F11: moves an application to a new status; illegal moves throw IllegalStateException. */
+    public Application changeStatus(String applicationId, Status target, String note) {
+        return tracker.transition(applicationId, target, note);
+    }
+
+    public List<Application> applications() {
+        return tracker.all();
+    }
+
+    public Application application(String id) {
+        return tracker.find(id);
+    }
+
+    /** F12. */
+    public DashboardStats dashboard() {
+        return dashboard.stats();
+    }
+
+    public void setGoals(int daily, int weekly) {
+        dashboard.setGoals(new Goals(daily, weekly));
     }
 
     /** F05: runs the tailoring agent for an analyzed posting; progress goes to the listener. */
