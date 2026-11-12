@@ -1,0 +1,1002 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="15.1">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>20</x>
+      <y>40</y>
+      <w>1110</w>
+      <h>754</h>
+    </coordinates>
+    <panel_attributes>domain
+layer=-1
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>50</x>
+      <y>80</y>
+      <w>330</w>
+      <h>182</h>
+    </coordinates>
+    <panel_attributes>*VaultEntry*
+--
+- id, title, date, body : String
+- kind : EntryKind
+- use : EntryUse
+- tags : Set&lt;String&gt;
+--
++ matches(q : String) : boolean
++ skillName() : String
++ skill(name) : VaultEntry {static}
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>410</x>
+      <y>80</y>
+      <w>330</w>
+      <h>102</h>
+    </coordinates>
+    <panel_attributes>«enumeration»
+*EntryKind*
+--
+PROJECT, WORK, COURSE,
+ACTIVITY, SKILL, PLANNED
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>770</x>
+      <y>80</y>
+      <w>330</w>
+      <h>134</h>
+    </coordinates>
+    <panel_attributes>«enumeration»
+*EntryUse*
+--
+ALL, LETTERS_ONLY, CONTEXT_ONLY
+--
++ allowedOnResume() : boolean
++ allowedInLetter() : boolean
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>410</x>
+      <y>212</y>
+      <w>330</w>
+      <h>166</h>
+    </coordinates>
+    <panel_attributes>*Resume*
+--
+- id, name, family, latex : String
+- kind : Kind {ORIGINAL, TAILORED, GENERATED}
+- blocks : List&lt;ResumeBlock&gt;
+--
++ copy() : Resume
++ blocksIn(s : Section) : List&lt;ResumeBlock&gt;
++ hasPlaceholders() : boolean
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>770</x>
+      <y>244</y>
+      <w>330</w>
+      <h>198</h>
+    </coordinates>
+    <panel_attributes>*ResumeBlock*
+--
+- id, title, subtitle, latex : String
+- section : Section
+- startDate, endDate : YearMonth
+- bullets : List&lt;String&gt;
+- tags : Set&lt;String&gt;
+--
++ isCurrent() : boolean
++ sortDate() : YearMonth
++ copy() : ResumeBlock
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>50</x>
+      <y>292</y>
+      <w>330</w>
+      <h>150</h>
+    </coordinates>
+    <panel_attributes>«enumeration»
+*Section*
+--
+EDUCATION, EXPERIENCE, PROJECTS,
+LEADERSHIP, SKILLS
+--
++ chronological() : boolean
++ allowsBold() : boolean
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>410</x>
+      <y>408</y>
+      <w>330</w>
+      <h>134</h>
+    </coordinates>
+    <panel_attributes>*Posting*
+--
+- id, company, role, rawText, term : String
+- deadline : LocalDate
+- analysis : PostingAnalysis
+--
++ isAnalyzed() : boolean
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>50</x>
+      <y>472</y>
+      <w>330</w>
+      <h>150</h>
+    </coordinates>
+    <panel_attributes>*PostingAnalysis* «record»
+--
+mustHaves, niceToHaves : List&lt;String&gt;
+keywords : List&lt;Keyword&gt;
+documentsRequired : List&lt;String&gt;
+softSkillFocus : boolean
+--
++ requiresCoverLetter() : boolean
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>770</x>
+      <y>472</y>
+      <w>330</w>
+      <h>134</h>
+    </coordinates>
+    <panel_attributes>*Keyword* «record»
+--
+term : String
+aliases : Set&lt;String&gt;
+mustHave : boolean
+--
++ appearsIn(text) : boolean
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>410</x>
+      <y>572</y>
+      <w>330</w>
+      <h>118</h>
+    </coordinates>
+    <panel_attributes>*FitReport* «record»
+--
+score : int
+matched, gaps : List&lt;String&gt;
+strategy : TailorStrategy
+closest : ResumeMatch
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>770</x>
+      <y>636</y>
+      <w>330</w>
+      <h>118</h>
+    </coordinates>
+    <panel_attributes>*KeywordReport* «record»
+--
+backed, thin, knownNotWorded,
+missing : List&lt;Keyword&gt;
+--
++ coverage() : double
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>50</x>
+      <y>652</y>
+      <w>330</w>
+      <h>102</h>
+    </coordinates>
+    <panel_attributes>*CoverLetter* «record»
+--
+name, postingId, body : String
+--
++ wordCount() : int
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>1190</x>
+      <y>40</y>
+      <w>1110</w>
+      <h>674</h>
+    </coordinates>
+    <panel_attributes>service
+layer=-1
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1220</x>
+      <y>80</y>
+      <w>330</w>
+      <h>182</h>
+    </coordinates>
+    <panel_attributes>*VaultService*
+--
+- repo : VaultRepository
+--
++ addEntry(e) : VaultEntry
++ search(q, tags) : List&lt;VaultEntry&gt;
++ skills() : Set&lt;String&gt;
++ importFromResume(p : ParseResult) : int
++ fileAnswer(q, a, topic, kind) : VaultEntry
++ knownAnswer(q) : Optional&lt;String&gt;
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1580</x>
+      <y>80</y>
+      <w>330</w>
+      <h>86</h>
+    </coordinates>
+    <panel_attributes>*LatexResumeParser*
+--
++ parse(latex : String) : ParseResult
+~ parseEntry(section, chunk, warnings)
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1940</x>
+      <y>80</y>
+      <w>330</w>
+      <h>102</h>
+    </coordinates>
+    <panel_attributes>*LatexAssembler*
+--
++ assemble(blocks, template) : String
++ orderReverseChronological(blocks) {static}
+~ stripBold(section, text) : String
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1580</x>
+      <y>196</y>
+      <w>330</w>
+      <h>118</h>
+    </coordinates>
+    <panel_attributes>*FitScorer*
+--
++ REUSE_THRESHOLD = 75
++ TWEAK_THRESHOLD = 45
+--
++ score(a, skills, closest) : FitReport
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1940</x>
+      <y>212</y>
+      <w>330</w>
+      <h>86</h>
+    </coordinates>
+    <panel_attributes>*KeywordScanner*
+--
++ scan(r : Resume, a : PostingAnalysis) :
+    KeywordReport
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1220</x>
+      <y>292</y>
+      <w>330</w>
+      <h>150</h>
+    </coordinates>
+    <panel_attributes>*ResumeLibrary*
+--
+- repo : ResumeRepository
+--
++ findClosest(a) : Optional&lt;ResumeMatch&gt;
++ reuseAs(id, newName) : Resume
++ groupByFamily() : Map&lt;String, List&lt;Resume&gt;&gt;
++ rename / setFamily / delete
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1940</x>
+      <y>328</y>
+      <w>330</w>
+      <h>134</h>
+    </coordinates>
+    <panel_attributes>*PageEstimator*
+--
+- linesPerPage : int
+--
++ estimate(r : Resume) : double
++ fitsOnePage(r) : boolean
++ blockLines(b) : double
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1580</x>
+      <y>344</y>
+      <w>330</w>
+      <h>118</h>
+    </coordinates>
+    <panel_attributes>«interface»
+*CondenseStrategy*
+«Strategy: Strategy»
+--
++ condense(r, a, pages) : Resume
++ lastReport() : String
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1220</x>
+      <y>472</y>
+      <w>330</w>
+      <h>86</h>
+    </coordinates>
+    <panel_attributes>*RuleBasedCondense*
+«Strategy: ConcreteStrategy»
+--
++ condense(r, a, pages) : Resume
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1580</x>
+      <y>492</y>
+      <w>330</w>
+      <h>134</h>
+    </coordinates>
+    <panel_attributes>*LlmCondense*
+«Strategy: ConcreteStrategy»
+--
+- llm : LLMClient
+- fallback : RuleBasedCondense
+--
++ condense(r, a, pages) : Resume
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1940</x>
+      <y>492</y>
+      <w>330</w>
+      <h>134</h>
+    </coordinates>
+    <panel_attributes>*ExportService*
+--
+- exportDir : Path
+--
++ fileName(prefix, company, role) : String
++ writeTex(r : Resume) : Path
++ writeLetter(c : CoverLetter) : Path
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1220</x>
+      <y>588</y>
+      <w>330</w>
+      <h>86</h>
+    </coordinates>
+    <panel_attributes>*FactGuard*
+--
++ inventedNumbers(newText, evidence) :
+    List&lt;String&gt; {static}
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>20</x>
+      <y>844</y>
+      <w>1110</w>
+      <h>446</h>
+    </coordinates>
+    <panel_attributes>service.edit
+layer=-1
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>50</x>
+      <y>884</y>
+      <w>330</w>
+      <h>134</h>
+    </coordinates>
+    <panel_attributes>«interface»
+*ResumeEditCommand*
+«Command: Command»
+--
++ execute()
++ undo()
++ description() : String
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>410</x>
+      <y>884</y>
+      <w>330</w>
+      <h>166</h>
+    </coordinates>
+    <panel_attributes>*RevisionHistory*
+«Command: Invoker»
+--
+- undo, redo : Deque&lt;ResumeEditCommand&gt;
+--
++ run(c : ResumeEditCommand)
++ undo() : String
++ redo() : String
++ log() : List&lt;String&gt;
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>770</x>
+      <y>884</y>
+      <w>330</w>
+      <h>182</h>
+    </coordinates>
+    <panel_attributes>*ResumeEditor*
+«Command: Client»
+--
+- open : Map&lt;String, Editing&gt;
+--
++ revise(id, instruction) : Resume
++ replaceBullet(id, block, i, text) : Resume
++ removeBlock(id, block) : Resume
++ condense(id, strategy, a, pages) : Resume
++ undo(id) / redo(id) : String
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>50</x>
+      <y>1048</y>
+      <w>330</w>
+      <h>86</h>
+    </coordinates>
+    <panel_attributes>*AiRevisionCommand*
+--
+- before, after : List&lt;ResumeBlock&gt;
+- taskFactory : Supplier&lt;RevisionTask&gt;
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>410</x>
+      <y>1080</y>
+      <w>330</w>
+      <h>102</h>
+    </coordinates>
+    <panel_attributes>*ReplaceBulletCommand*
+--
+- blockId : String
+- index : int
+- newText, oldText : String
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>770</x>
+      <y>1096</y>
+      <w>330</w>
+      <h>86</h>
+    </coordinates>
+    <panel_attributes>*RemoveBlockCommand*
+--
+- removed : ResumeBlock
+- position : int
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>50</x>
+      <y>1164</y>
+      <w>330</w>
+      <h>86</h>
+    </coordinates>
+    <panel_attributes>*CondenseCommand*
+--
+- strategy : CondenseStrategy
+- before, after : List&lt;ResumeBlock&gt;
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>1190</x>
+      <y>844</y>
+      <w>1110</w>
+      <h>330</h>
+    </coordinates>
+    <panel_attributes>persistence
+layer=-1
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1220</x>
+      <y>884</y>
+      <w>330</w>
+      <h>134</h>
+    </coordinates>
+    <panel_attributes>«interface»
+*Repository&lt;T&gt;*
+--
++ findById(id) : Optional&lt;T&gt;
++ findAll() : List&lt;T&gt;
++ save(item : T)
++ delete(id)
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1580</x>
+      <y>884</y>
+      <w>330</w>
+      <h>150</h>
+    </coordinates>
+    <panel_attributes>/*SqliteRepository&lt;T&gt;*/
+--
+# jdbc : JdbcTemplate
+- table : String
+--
+# toRow(item : T) : Map {abstract}
+# fromRow(rs) : T {abstract}
++ save(item) / findAll() / ...
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1940</x>
+      <y>884</y>
+      <w>330</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>*SqliteVaultRepository*
+--
++ findByKind(k) : List&lt;VaultEntry&gt;
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1940</x>
+      <y>984</y>
+      <w>330</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>*SqliteResumeRepository*
+--
++ findByName(n) : Optional&lt;Resume&gt;
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1220</x>
+      <y>1048</y>
+      <w>330</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>*SqlitePostingRepository*
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1580</x>
+      <y>1064</y>
+      <w>330</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>*CoverLetterRepository*
+--
++ findByName(n) / findByPosting(id)
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>370</x>
+      <y>121</y>
+      <w>50</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=10</panel_attributes>
+    <additional_attributes>40;10;10;50</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>370</x>
+      <y>137</y>
+      <w>410</w>
+      <h>44</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=10</panel_attributes>
+    <additional_attributes>400;10;10;34</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>730</x>
+      <y>285</y>
+      <w>50</w>
+      <h>68</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m1=*
+fontsize=10</panel_attributes>
+    <additional_attributes>40;58;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>370</x>
+      <y>333</y>
+      <w>410</w>
+      <h>44</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=10</panel_attributes>
+    <additional_attributes>10;34;400;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>370</x>
+      <y>465</y>
+      <w>50</w>
+      <h>92</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m1=0..1
+fontsize=10</panel_attributes>
+    <additional_attributes>10;82;40;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>370</x>
+      <y>529</y>
+      <w>410</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m1=*
+fontsize=10</panel_attributes>
+    <additional_attributes>400;10;10;18</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>370</x>
+      <y>161</y>
+      <w>860</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+fontsize=10</panel_attributes>
+    <additional_attributes>10;10;850;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1090</x>
+      <y>113</y>
+      <w>500</w>
+      <h>240</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+m1=«create»
+fontsize=10</panel_attributes>
+    <additional_attributes>10;230;490;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1540</x>
+      <y>393</y>
+      <w>50</w>
+      <h>132</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+fontsize=10</panel_attributes>
+    <additional_attributes>40;10;10;122</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1735</x>
+      <y>452</y>
+      <w>20</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+fontsize=10</panel_attributes>
+    <additional_attributes>10;10;10;40</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1540</x>
+      <y>505</y>
+      <w>50</w>
+      <h>64</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m1=fallback
+fontsize=10</panel_attributes>
+    <additional_attributes>10;10;40;54</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>730</x>
+      <y>957</y>
+      <w>50</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m1=1 per resume
+fontsize=10</panel_attributes>
+    <additional_attributes>10;10;40;18</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>370</x>
+      <y>941</y>
+      <w>50</w>
+      <h>36</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m1=*
+fontsize=10</panel_attributes>
+    <additional_attributes>10;10;40;26</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>205</x>
+      <y>1008</y>
+      <w>20</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+fontsize=10</panel_attributes>
+    <additional_attributes>10;10;10;40</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>370</x>
+      <y>941</y>
+      <w>50</w>
+      <h>200</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+fontsize=10</panel_attributes>
+    <additional_attributes>10;10;40;190</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>370</x>
+      <y>941</y>
+      <w>410</w>
+      <h>208</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+fontsize=10</panel_attributes>
+    <additional_attributes>10;10;400;198</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>205</x>
+      <y>1008</y>
+      <w>20</w>
+      <h>166</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+fontsize=10</panel_attributes>
+    <additional_attributes>10;10;10;156</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>370</x>
+      <y>393</y>
+      <w>1220</w>
+      <h>824</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=10</panel_attributes>
+    <additional_attributes>1210;10;10;814</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1540</x>
+      <y>941</y>
+      <w>50</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+fontsize=10</panel_attributes>
+    <additional_attributes>10;10;40;18</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1900</x>
+      <y>909</y>
+      <w>50</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-
+fontsize=10</panel_attributes>
+    <additional_attributes>10;50;40;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1900</x>
+      <y>949</y>
+      <w>50</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-
+fontsize=10</panel_attributes>
+    <additional_attributes>10;10;40;70</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1540</x>
+      <y>949</y>
+      <w>50</w>
+      <h>139</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-
+fontsize=10</panel_attributes>
+    <additional_attributes>40;10;10;129</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1735</x>
+      <y>1024</y>
+      <w>20</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-
+fontsize=10</panel_attributes>
+    <additional_attributes>10;10;10;40</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>730</x>
+      <y>285</y>
+      <w>500</w>
+      <h>92</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+fontsize=10</panel_attributes>
+    <additional_attributes>10;10;490;82</additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>20</x>
+      <y>-150</y>
+      <w>900</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>CoopPilot — Stage 2 class diagram 2/3: domain model, deterministic services, edits and persistence (as implemented).
+Patterns: Strategy (CondenseStrategy &lt;- RuleBasedCondense/LlmCondense), Command (ResumeEditCommand, RevisionHistory
+invoker, 4 concrete commands incl. new CondenseCommand), Repository + abstract SqliteRepository&lt;T&gt; (not counted).
+fontsize=11
+bg=yellow</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+</diagram>

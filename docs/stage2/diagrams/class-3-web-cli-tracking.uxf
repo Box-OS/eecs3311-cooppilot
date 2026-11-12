@@ -1,0 +1,677 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="15.1">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>20</x>
+      <y>40</y>
+      <w>750</w>
+      <h>390</h>
+    </coordinates>
+    <panel_attributes>app
+layer=-1
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>50</x>
+      <y>80</y>
+      <w>330</w>
+      <h>310</h>
+    </coordinates>
+    <panel_attributes>*CoopPilotFacade*
+«Facade»
+--
++ importResume(latex, name) : ImportOutcome
++ importPosting / analyzePosting(id) : Posting
++ analyzeFit(postingId) : FitReport
++ scanKeywords(resumeId, postingId) :
+    KeywordReport
++ tailorResume(postingId, q, l) : AgentResult
++ condenseResume(resumeId, postingId, mode) :
+    Resume
++ reviseResume / replaceBullet / removeBlock
++ undo(id) / redo(id) : String
++ writeCoverLetter(postingId, resumeId) :
+    CoverLetter
++ reuseResume / resumeLibrary / exportResume
++ logApplication / changeStatus / applications
++ dashboard() : DashboardStats / setGoals(d, w)
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>410</x>
+      <y>80</y>
+      <w>330</w>
+      <h>182</h>
+    </coordinates>
+    <panel_attributes>*AppConfig*
+«@Configuration»
+--
++ llmClient(provider, key, model) : LLMClient
++ toolRegistry(tools : List&lt;Tool&gt;) :
+    ToolRegistry
++ agentController(...) : AgentController
++ condenseStrategies(...) : Map&lt;Mode,
+    CondenseStrategy&gt;
++ clock() : Clock
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>410</x>
+      <y>292</y>
+      <w>330</w>
+      <h>86</h>
+    </coordinates>
+    <panel_attributes>*CoopPilotApplication*
+--
++ main(args) {static}
+(--cli: no web server, exit code)
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>830</x>
+      <y>40</y>
+      <w>1110</w>
+      <h>382</h>
+    </coordinates>
+    <panel_attributes>ui.web
+layer=-1
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>860</x>
+      <y>80</y>
+      <w>330</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>*VaultController*
+--
++ vaultPage / importResume / addEntry
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1220</x>
+      <y>80</y>
+      <w>330</w>
+      <h>86</h>
+    </coordinates>
+    <panel_attributes>*PostingController*
+--
++ list / add / analyze / detail
++ tailor(id) / reuse(id, resumeId)
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1580</x>
+      <y>80</y>
+      <w>330</w>
+      <h>102</h>
+    </coordinates>
+    <panel_attributes>*TailorController*
+--
++ page(runId)
++ events(runId) : SseEmitter
++ answer(runId, answer)
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>860</x>
+      <y>180</y>
+      <w>330</w>
+      <h>86</h>
+    </coordinates>
+    <panel_attributes>*ResumeController*
+--
++ library / detail / revise / condense
++ undo / redo / letter / download
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1220</x>
+      <y>196</y>
+      <w>330</w>
+      <h>86</h>
+    </coordinates>
+    <panel_attributes>*TrackerController*
+--
++ tracker / add / status
++ dashboard / goals
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1580</x>
+      <y>212</y>
+      <w>330</w>
+      <h>150</h>
+    </coordinates>
+    <panel_attributes>*AgentSessionManager*
+--
+- executor : ExecutorService
+- runs : Map&lt;String, WebRun&gt;
+--
++ start(postingId) : String
++ subscribe(runId) : SseEmitter
++ answer(runId, answer) : boolean
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>860</x>
+      <y>296</y>
+      <w>330</w>
+      <h>86</h>
+    </coordinates>
+    <panel_attributes>*SseProgressPublisher*
+«Observer: ConcreteObserver»
+--
++ onToolCalled / onToolResult / onFinished
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1220</x>
+      <y>312</y>
+      <w>330</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>*WebQuestionHandler*
+--
++ ask(q) : Optional&lt;String&gt; (waits &lt;= 5 min)
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>20</x>
+      <y>480</y>
+      <w>750</w>
+      <h>262</h>
+    </coordinates>
+    <panel_attributes>ui.cli
+layer=-1
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>50</x>
+      <y>520</y>
+      <w>330</w>
+      <h>102</h>
+    </coordinates>
+    <panel_attributes>*CliRunner*
+«CommandLineRunner»
+--
++ run(args) / getExitCode() : int
++ isCliMode(args) : boolean {static}
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>410</x>
+      <y>520</y>
+      <w>330</w>
+      <h>182</h>
+    </coordinates>
+    <panel_attributes>*CliCommands*
+«picocli root command»
+--
+- facade : CoopPilotFacade
+- json : boolean (--json)
+--
+subcommands: vault, posting, fit, scan,
+tailor, revise, edit-bullet, condense,
+undo, redo, letter, library, reuse, export,
+app, dashboard, goals, shell
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>830</x>
+      <y>480</y>
+      <w>1110</w>
+      <h>558</h>
+    </coordinates>
+    <panel_attributes>tracking
+layer=-1
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>860</x>
+      <y>520</y>
+      <w>330</w>
+      <h>150</h>
+    </coordinates>
+    <panel_attributes>*ApplicationTracker*
+«Observer: Subject»
+--
+- listeners : List&lt;ApplicationListener&gt;
+--
++ create(company, role, postingId, resume)
++ transition(id, target : Status, note)
++ addListener(l)
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1220</x>
+      <y>520</y>
+      <w>330</w>
+      <h>102</h>
+    </coordinates>
+    <panel_attributes>«interface»
+*ApplicationListener*
+«Observer: Observer»
+--
++ onApplicationChanged(a, e : StatusEvent)
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1580</x>
+      <y>520</y>
+      <w>330</w>
+      <h>150</h>
+    </coordinates>
+    <panel_attributes>*DashboardService*
+«Observer: ConcreteObserver»
+--
+- cached : DashboardStats
+--
++ stats() : DashboardStats
++ setGoals(g : Goals)
+~ compute(apps, goals, today) {static}
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1220</x>
+      <y>652</y>
+      <w>330</w>
+      <h>182</h>
+    </coordinates>
+    <panel_attributes>*Application*
+«State: Context»
+--
+- company, role, resumeName : String
+- appliedOn, followUpOn : LocalDate
+- state : ApplicationState
+- history : List&lt;StatusEvent&gt;
+--
++ transitionTo(target, today, note) :
+    StatusEvent
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>860</x>
+      <y>700</y>
+      <w>330</w>
+      <h>198</h>
+    </coordinates>
+    <panel_attributes>/*ApplicationState*/
+«State: State»
+--
++ TO_APPLY, APPLIED, ASSESSMENT, INTERVIEW,
+  OFFER, REJECTED, GHOSTED {static, one
+  subclass each, overriding onEnter}
+--
++ canMoveTo(s : Status) : boolean
++ allowedNext() : Set&lt;Status&gt;
+~ moveTo(app, target, today) : ApplicationState
+~ onEnter(app, today)
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1580</x>
+      <y>700</y>
+      <w>330</w>
+      <h>134</h>
+    </coordinates>
+    <panel_attributes>«enumeration»
+*Status*
+--
+TO_APPLY, APPLIED, ASSESSMENT, INTERVIEW,
+OFFER, REJECTED, GHOSTED
+--
++ state() : ApplicationState
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1220</x>
+      <y>864</y>
+      <w>330</w>
+      <h>134</h>
+    </coordinates>
+    <panel_attributes>*DashboardStats* «record»
+--
+totalApplied, responseRatePercent, interviews,
+offers, followUpsDue, appliedToday,
+appliedThisWeek, streakDays : int
+goals : Goals
+lastSevenDays : Map&lt;LocalDate, Integer&gt;
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1580</x>
+      <y>864</y>
+      <w>330</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>*SqliteApplicationRepository*
+--
+(status + history JSON columns)
+fontsize=11</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>370</x>
+      <y>105</y>
+      <w>500</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=10</panel_attributes>
+    <additional_attributes>10;130;490;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>370</x>
+      <y>113</y>
+      <w>860</w>
+      <h>132</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=10</panel_attributes>
+    <additional_attributes>10;122;850;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>370</x>
+      <y>213</y>
+      <w>500</w>
+      <h>32</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=10</panel_attributes>
+    <additional_attributes>10;22;490;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>370</x>
+      <y>225</y>
+      <w>860</w>
+      <h>24</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=10</panel_attributes>
+    <additional_attributes>10;10;850;14</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1540</x>
+      <y>113</y>
+      <w>50</w>
+      <h>184</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=10</panel_attributes>
+    <additional_attributes>40;174;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1735</x>
+      <y>172</y>
+      <w>20</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=10</panel_attributes>
+    <additional_attributes>10;40;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1180</x>
+      <y>277</y>
+      <w>410</w>
+      <h>72</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+m1=«create»
+fontsize=10</panel_attributes>
+    <additional_attributes>10;62;400;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1540</x>
+      <y>277</y>
+      <w>50</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+m1=«create»
+fontsize=10</panel_attributes>
+    <additional_attributes>10;70;40;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>370</x>
+      <y>561</y>
+      <w>50</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+m1=«create»
+fontsize=10</panel_attributes>
+    <additional_attributes>40;50;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>205</x>
+      <y>380</y>
+      <w>380</w>
+      <h>150</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=10</panel_attributes>
+    <additional_attributes>10;10;370;140</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>370</x>
+      <y>225</y>
+      <w>500</w>
+      <h>380</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=10</panel_attributes>
+    <additional_attributes>490;370;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>370</x>
+      <y>225</y>
+      <w>1220</w>
+      <h>380</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=10</panel_attributes>
+    <additional_attributes>1210;370;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1180</x>
+      <y>561</y>
+      <w>50</w>
+      <h>44</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m1=*
+fontsize=10</panel_attributes>
+    <additional_attributes>40;10;10;34</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1540</x>
+      <y>561</y>
+      <w>50</w>
+      <h>44</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+fontsize=10</panel_attributes>
+    <additional_attributes>10;10;40;34</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1180</x>
+      <y>585</y>
+      <w>50</w>
+      <h>168</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+fontsize=10</panel_attributes>
+    <additional_attributes>40;158;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1180</x>
+      <y>733</y>
+      <w>50</w>
+      <h>76</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m1=state
+fontsize=10</panel_attributes>
+    <additional_attributes>10;66;40;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1180</x>
+      <y>757</y>
+      <w>410</w>
+      <h>52</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=10</panel_attributes>
+    <additional_attributes>400;10;10;42</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1540</x>
+      <y>585</y>
+      <w>50</w>
+      <h>356</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+m1=«create»
+fontsize=10</panel_attributes>
+    <additional_attributes>10;346;40;10</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1180</x>
+      <y>585</y>
+      <w>410</w>
+      <h>324</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fontsize=10</panel_attributes>
+    <additional_attributes>400;314;10;10</additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>20</x>
+      <y>-150</y>
+      <w>900</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>CoopPilot — Stage 2 class diagram 3/3: facade, web GUI (Spring MVC + SSE), CLI (picocli) and application tracking (as implemented).
+Patterns: Facade (CoopPilotFacade, used by every controller and the CLI), State (Application/ApplicationState),
+Observer (ApplicationTracker -&gt; DashboardService; AgentSession -&gt; SseProgressPublisher). AgentSessionManager runs agents in the background.
+fontsize=11
+bg=yellow</panel_attributes>
+    <additional_attributes></additional_attributes>
+  </element>
+</diagram>
