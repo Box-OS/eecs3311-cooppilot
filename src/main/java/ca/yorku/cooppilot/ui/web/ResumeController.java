@@ -40,6 +40,7 @@ public class ResumeController {
         m.addAttribute("log", facade.revisionLog(id));
         m.addAttribute("postings", facade.postings().stream().filter(p -> p.isAnalyzed()).toList());
         m.addAttribute("selectedPosting", posting);
+        m.addAttribute("pagePercent", Math.round(facade.pageEstimate(id) * 100));
         return "resume";
     }
 
@@ -47,6 +48,17 @@ public class ResumeController {
     public String revise(@PathVariable String id, @RequestParam String instruction, RedirectAttributes flash) {
         return act(id, flash, () -> {
             facade.reviseResume(id, instruction);
+            var log = facade.revisionLog(id);
+            return log.get(log.size() - 1);
+        });
+    }
+
+    @PostMapping("/resumes/{id}/condense")
+    public String condense(@PathVariable String id, @RequestParam String postingId,
+                           @RequestParam(defaultValue = "RULES") ca.yorku.cooppilot.service.CondenseStrategy.Mode mode,
+                           RedirectAttributes flash) {
+        return act(id, flash, () -> {
+            facade.condenseResume(id, postingId, mode);
             var log = facade.revisionLog(id);
             return log.get(log.size() - 1);
         });

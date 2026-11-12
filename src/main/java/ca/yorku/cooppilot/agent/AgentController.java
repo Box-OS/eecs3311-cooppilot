@@ -19,8 +19,18 @@ public class AgentController {
     private final PromptBuilder prompts;
     private final int maxSteps;
     private final int maxTokens;
+    private final int maxRetries;
+    private final long backoffMillis;
 
     public AgentController(LLMClient llm, ToolRegistry tools, PromptBuilder prompts, int maxSteps, int maxTokens) {
+        this(llm, tools, prompts, maxSteps, maxTokens, 2, 1000);
+    }
+
+    /** maxRetries/backoffMillis: transient LLM errors (429, 5xx, network) are retried with doubling waits. */
+    public AgentController(LLMClient llm, ToolRegistry tools, PromptBuilder prompts, int maxSteps, int maxTokens,
+                           int maxRetries, long backoffMillis) {
+        this.maxRetries = maxRetries;
+        this.backoffMillis = backoffMillis;
         this.llm = llm;
         this.tools = tools;
         this.prompts = prompts;
@@ -42,7 +52,7 @@ public class AgentController {
             s.nextStep();
             LlmResponse r;
             try {
-                r = llm.complete(prompts.buildRequest(s, tools.schemas(), maxTokens));
+                r = completeWithRetry(prompts.buildRequest(s, tools.schemas(), maxTokens));
             } catch (LlmException e) {
                 return finish(s, AgentResult.Status.FAILED, "LLM error: " + e.getMessage(), in, out);
             }
@@ -67,6 +77,25 @@ public class AgentController {
         }
         return finish(s, AgentResult.Status.STEP_LIMIT,
                 "Stopped after " + maxSteps + " steps." + (lastText.isBlank() ? "" : " Last note: " + lastText), in, out);
+    }
+
+    /** Retries transient failures with exponential backoff; non-retryable errors (e.g. 400, 401) fail at once. */
+    private LlmResponse completeWithRetry(ca.yorku.cooppilot.llm.LlmRequest request) {
+        long wait = backoffMillis;
+        for (int attempt = 0; ; attempt++) {
+            try {
+                return llm.complete(request);
+            } catch (LlmException e) {
+                if (!e.retryable() || attempt >= maxRetries) throw e;
+                try {
+                    Thread.sleep(wait);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw e;
+                }
+                wait *= 2;
+            }
+        }
     }
 
     private static AgentResult finish(AgentSession s, AgentResult.Status st, String summary, int in, int out) {

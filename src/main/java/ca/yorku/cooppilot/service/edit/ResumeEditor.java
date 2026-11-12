@@ -1,6 +1,9 @@
 package ca.yorku.cooppilot.service.edit;
 
+import ca.yorku.cooppilot.domain.PostingAnalysis;
 import ca.yorku.cooppilot.domain.Resume;
+import ca.yorku.cooppilot.service.CondenseStrategy;
+import ca.yorku.cooppilot.service.PageEstimator;
 import ca.yorku.cooppilot.llm.LLMClient;
 import ca.yorku.cooppilot.llm.RevisionTask;
 import ca.yorku.cooppilot.service.LatexAssembler;
@@ -46,6 +49,12 @@ public class ResumeEditor {
     public Resume replaceBullet(String resumeId, String blockId, int index, String text) {
         Editing e = editing(resumeId);
         return run(e, new ReplaceBulletCommand(e.resume(), blockId, index, text));
+    }
+
+    /** F07: fit to one page with the given strategy, as an undoable command. */
+    public Resume condense(String resumeId, CondenseStrategy strategy, PostingAnalysis analysis, PageEstimator pages) {
+        Editing e = editing(resumeId);
+        return run(e, new CondenseCommand(e.resume(), strategy, analysis, pages));
     }
 
     public Resume removeBlock(String resumeId, String blockId) {

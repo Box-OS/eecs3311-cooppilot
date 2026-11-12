@@ -21,6 +21,24 @@
             <ol class="small muted" th:unless="${log.isEmpty()}"><li th:each="l : ${log}" th:text="${l}"></li></ol>
         </section>
         <section class="card">
+            <h2>One page (F07)</h2>
+            <div class="stat" th:text="${pagePercent} + '%'" th:style="${pagePercent > 100} ? 'color:#b42318' : 'color:#127a3f'">0%</div>
+            <div class="stat-label" th:text="${pagePercent > 100} ? 'of one page: over, condense it' : 'of one page: fits'"></div>
+            <div style="background:#f2f4f7;border-radius:6px;height:10px;margin:.5rem 0">
+                <div th:style="'height:10px;border-radius:6px;width:' + ${pagePercent > 100 ? 100 : pagePercent} + '%;background:' + (${pagePercent > 100} ? '#b42318' : '#127a3f')"></div>
+            </div>
+            <p class="muted small" th:if="${postings.isEmpty()}">Analyze a posting first.</p>
+            <form method="post" th:unless="${postings.isEmpty()}" th:action="@{/resumes/{id}/condense(id=${resume.id})}">
+                <label>Relevant to
+                    <select name="postingId"><option th:each="p : ${postings}" th:value="${p.id}" th:text="${p.company + ' — ' + p.role}"
+                                                     th:selected="${p.id == selectedPosting}"></option></select></label>
+                <div class="row">
+                    <button name="mode" value="RULES" title="Free: cuts the least relevant content in a fixed order">Quick condense</button>
+                    <button name="mode" value="SMART" class="ghost" title="1 LLM request: the model chooses what to cut or shorten">Smart condense</button>
+                </div>
+            </form>
+        </section>
+        <section class="card">
             <h2>Cover letter (F09)</h2>
             <p class="muted small" th:if="${postings.isEmpty()}">Analyze a posting first.</p>
             <form method="post" th:unless="${postings.isEmpty()}" th:action="@{/resumes/{id}/letter(id=${resume.id})}">

@@ -55,6 +55,15 @@ public class CoopPilotFacade {
     private final ApplicationTracker tracker;
     private final DashboardService dashboard;
     private ResumeEditor editor;
+    private java.util.Map<ca.yorku.cooppilot.service.CondenseStrategy.Mode, ca.yorku.cooppilot.service.CondenseStrategy> condensers;
+    private ca.yorku.cooppilot.service.PageEstimator pages;
+
+    @org.springframework.beans.factory.annotation.Autowired
+    void setCondense(java.util.Map<ca.yorku.cooppilot.service.CondenseStrategy.Mode, ca.yorku.cooppilot.service.CondenseStrategy> condensers,
+                     ca.yorku.cooppilot.service.PageEstimator pages) {
+        this.condensers = condensers;
+        this.pages = pages;
+    }
     private CoverLetterRepository letters;
     private ExportService export;
     private String studentName = "";
@@ -103,6 +112,17 @@ public class CoopPilotFacade {
     /** F08: remove an entry; undoable. */
     public Resume removeBlock(String resumeId, String blockId) {
         return editor.removeBlock(resumeId, blockId);
+    }
+
+    /** F07: how much of one page the resume fills (1.0 = full). */
+    public double pageEstimate(String resumeId) {
+        return pages.estimate(resume(resumeId));
+    }
+
+    /** F07: fit a resume to one page for a posting, with RULES (free) or SMART (1 LLM request); undoable. */
+    public Resume condenseResume(String resumeId, String postingId, ca.yorku.cooppilot.service.CondenseStrategy.Mode mode) {
+        PostingAnalysis a = analysisOf(postingId);
+        return editor.condense(resumeId, condensers.get(mode), a, pages);
     }
 
     public String undo(String resumeId) {

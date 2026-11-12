@@ -53,7 +53,7 @@ import java.util.stream.Collectors;
         subcommands = {
                 CliCommands.VaultCmd.class, CliCommands.PostingCmd.class, CliCommands.FitCmd.class,
                 CliCommands.ScanCmd.class, CliCommands.TailorCmd.class, CliCommands.ReviseCmd.class,
-                CliCommands.EditBulletCmd.class, CliCommands.UndoCmd.class, CliCommands.RedoCmd.class,
+                CliCommands.EditBulletCmd.class, CliCommands.CondenseCmd.class, CliCommands.UndoCmd.class, CliCommands.RedoCmd.class,
                 CliCommands.LetterCmd.class, CliCommands.LibraryCmd.class, CliCommands.ReuseCmd.class,
                 CliCommands.ExportCmd.class, CliCommands.AppCmd.class, CliCommands.DashboardCmd.class,
                 CliCommands.GoalsCmd.class, CliCommands.ShellCmd.class})
@@ -379,6 +379,24 @@ public class CliCommands implements Runnable {
         }
     }
 
+    @Command(name = "condense", description = "Fit a resume to one page for a posting (F07); undoable in the shell.")
+    static class CondenseCmd implements Runnable {
+        @ParentCommand CliCommands root;
+        @Parameters(index = "0", paramLabel = "RESUME_ID") String resumeId;
+        @Parameters(index = "1", paramLabel = "POSTING_ID") String postingId;
+        @Option(names = "--mode", defaultValue = "RULES", description = "RULES (free) or SMART (1 LLM request)")
+        ca.yorku.cooppilot.service.CondenseStrategy.Mode mode;
+
+        public void run() {
+            long before = Math.round(root.facade.pageEstimate(resumeId) * 100);
+            Resume r = root.facade.condenseResume(resumeId, postingId, mode);
+            long after = Math.round(root.facade.pageEstimate(resumeId) * 100);
+            List<String> log = root.facade.revisionLog(resumeId);
+            root.print(Map.of("resume", resumeView(r), "pageBefore", before, "pageAfter", after, "report", log.get(log.size() - 1)),
+                    log.get(log.size() - 1));
+        }
+    }
+
     @Command(name = "undo", description = "Undo the last edit of a resume (F08; same session).")
     static class UndoCmd implements Runnable {
         @ParentCommand CliCommands root;
@@ -429,6 +447,7 @@ public class CliCommands implements Runnable {
                 j.put(fam, rs.stream().map(r -> Map.of("id", r.getId(), "name", r.getName(), "kind", r.getKind())).toList());
                 sb.append(fam).append(":\n");
                 rs.forEach(r -> sb.append("  ").append(r.getName()).append("  ").append(r.getKind())
+                        .append("  ").append(Math.round(root.facade.pageEstimate(r.getId()) * 100)).append("% page")
                         .append("  id ").append(r.getId()).append(r.hasPlaceholders() ? "  [placeholders]" : "").append('\n'));
             });
             root.print(j, sb.length() == 0 ? "(library is empty)" : sb.toString().stripTrailing());
