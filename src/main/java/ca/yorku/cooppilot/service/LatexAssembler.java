@@ -87,7 +87,7 @@ public class LatexAssembler {
         return m.find() ? template.substring(0, m.start()).stripTrailing() : DEFAULT_HEADER;
     }
 
-    static String heading(Section s) {
+    public static String heading(Section s) {
         return switch (s) {
             case EDUCATION -> "Education";
             case EXPERIENCE -> "Experience";

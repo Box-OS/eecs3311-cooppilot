@@ -68,6 +68,24 @@ public final class LatexText {
         return t.replaceAll("\\s+", " ").trim();
     }
 
+    /**
+     * Safe HTML for a LaTeX fragment: escapes &lt; &gt; &amp; and quotes first, then turns \textbf / \textit /
+     * \emph into tags and resolves common escapes. Unknown commands are dropped.
+     */
+    public static String toHtml(String latex) {
+        if (latex == null) return "";
+        String t = latex.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;");
+        for (int pass = 0; pass < 3; pass++) {
+            t = t.replaceAll("\\\\textbf\\s*\\{([^{}]*)}", "<strong>$1</strong>")
+                 .replaceAll("\\\\(textit|emph)\\s*\\{([^{}]*)}", "<em>$2</em>")
+                 .replaceAll("\\\\(underline|small|scshape)\\s*\\{([^{}]*)}", "$2");
+        }
+        t = t.replace("$|$", "|").replace("\\&amp;", "&amp;").replace("\\%", "%").replace("\\$", "$")
+             .replace("\\#", "#").replace("\\_", "_").replace("---", "—").replace("--", "–");
+        t = t.replaceAll("\\\\[a-zA-Z]+\\*?", "").replace("{", "").replace("}", "");
+        return t.replaceAll("\\s+", " ").trim();
+    }
+
     /** True if the text looks like a date range ("Sep. 2025 -- Present", "May 2021"). */
     public static boolean looksLikeDate(String text) {
         String t = plain(text).toLowerCase(Locale.ROOT);

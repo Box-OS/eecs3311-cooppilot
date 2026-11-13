@@ -41,6 +41,7 @@ public class ResumeController {
         m.addAttribute("postings", facade.postings().stream().filter(p -> p.isAnalyzed()).toList());
         m.addAttribute("selectedPosting", posting);
         m.addAttribute("pagePercent", Math.round(facade.pageEstimate(id) * 100));
+        m.addAttribute("preview", facade.preview(id));
         return "resume";
     }
 

@@ -57,6 +57,7 @@ public class CoopPilotFacade {
     private ResumeEditor editor;
     private java.util.Map<ca.yorku.cooppilot.service.CondenseStrategy.Mode, ca.yorku.cooppilot.service.CondenseStrategy> condensers;
     private ca.yorku.cooppilot.service.PageEstimator pages;
+    private final ca.yorku.cooppilot.service.ResumePreview resumePreview = new ca.yorku.cooppilot.service.ResumePreview();
 
     @org.springframework.beans.factory.annotation.Autowired
     void setCondense(java.util.Map<ca.yorku.cooppilot.service.CondenseStrategy.Mode, ca.yorku.cooppilot.service.CondenseStrategy> condensers,
@@ -112,6 +113,11 @@ public class CoopPilotFacade {
     /** F08: remove an entry; undoable. */
     public Resume removeBlock(String resumeId, String blockId) {
         return editor.removeBlock(resumeId, blockId);
+    }
+
+    /** Readable, PDF-like view of a resume for the GUI. */
+    public ca.yorku.cooppilot.service.ResumePreview.Preview preview(String resumeId) {
+        return resumePreview.build(resume(resumeId));
     }
 
     /** F07: how much of one page the resume fills (1.0 = full). */
