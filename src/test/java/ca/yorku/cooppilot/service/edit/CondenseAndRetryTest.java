@@ -82,7 +82,7 @@ class CondenseAndRetryTest {
         };
         AgentResult r = new AgentController(flaky, new ToolRegistry(new ArrayList<>()), new PromptBuilder(), 5, 100, 2, 1)
                 .run(goal, QuestionHandler.NONE, null);
-        assertEquals(3, calls.get(), "two retries, then success");
+        assertEquals(3 + AgentController.MAX_NUDGES, calls.get(), "two retries, then success, then the nudges");
         assertEquals(AgentResult.Status.FAILED, r.status(), "ended without saving, but not because of the LLM");
         assertFalse(r.summary().contains("LLM error"));
     }

@@ -342,10 +342,11 @@ public class CliCommands implements Runnable {
             j.put("steps", r.steps());
             j.put("toolCalls", steps);
             j.put("summary", r.summary());
-            j.put("resume", r.resumeOpt().map(CliCommands::resumeView).orElse(null));
+            j.put("resume", r.status() == AgentResult.Status.COMPLETED ? r.resumeOpt().map(CliCommands::resumeView).orElse(null) : null);
             j.put("tokens", Map.of("input", r.inputTokens(), "output", r.outputTokens()));
             root.print(j, "\n" + r.status() + " after " + r.steps() + " steps"
-                    + r.resumeOpt().map(x -> ": " + x.getName() + " (id " + x.getId() + ")").orElse("")
+                    + (r.status() == AgentResult.Status.COMPLETED
+                        ? r.resumeOpt().map(x -> ": " + x.getName() + " (id " + x.getId() + ")").orElse("") : " (nothing saved)")
                     + "\n" + r.summary() + "\nTokens: " + r.inputTokens() + " in / " + r.outputTokens() + " out");
         }
     }

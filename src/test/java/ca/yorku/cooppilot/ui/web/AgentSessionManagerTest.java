@@ -48,7 +48,8 @@ class AgentSessionManagerTest {
             Thread.sleep(20);
         }
         List<String> types = agents.events(runId).stream().map(AgentSessionManager.Event::type).toList();
-        assertEquals(List.of("thinking", "tool", "question", "result", "thinking", "done"), types);
+        assertEquals(List.of("thinking", "tool", "question", "result", "thinking", "thinking", "thinking", "done"), types,
+                "the model stops without saving, so it is nudged twice before the run ends");
         String result = String.valueOf(agents.events(runId).get(3).data().get("text"));
         assertTrue(result.contains("SDL2 rendering"), result);
         assertFalse(agents.answer(runId, "late"), "no question pending any more");

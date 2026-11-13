@@ -111,6 +111,32 @@ class AgentControllerTest {
     }
 
     @Test
+    void modelThatStopsToChatIsNudgedToFinishAndSave() throws Exception {
+        // what happened on the first real run: the model asked "Would you like me to...?" instead of saving
+        MockLlmClient llm = new MockLlmClient()
+                .enqueue(calls(call("1", "echo", "{\"text\":\"draft\"}")))
+                .enqueueText("Would you like me to refine the draft or search your vault?")
+                .enqueue(calls(call("2", "save_resume", "{\"name\":\"CV_X\"}")))
+                .enqueueText("Saved.");
+        AgentResult r = controller(llm, 15).run(goal, QuestionHandler.NONE, new Recorder());
+
+        assertEquals(AgentResult.Status.COMPLETED, r.status());
+        LlmRequest afterChat = llm.received().get(2);
+        Message nudge = afterChat.messages().get(afterChat.messages().size() - 1);
+        assertEquals(Message.Role.USER, nudge.role());
+        assertTrue(nudge.content().contains("save_resume"));
+        assertTrue(afterChat.system().contains("autonomously"));
+    }
+
+    @Test
+    void nudgesAreLimitedSoAChattyModelStillEnds() {
+        MockLlmClient llm = new MockLlmClient().enqueueText("Shall I?").enqueueText("Shall I?").enqueueText("Shall I?");
+        AgentResult r = controller(llm, 15).run(goal, QuestionHandler.NONE, new Recorder());
+        assertEquals(AgentResult.Status.FAILED, r.status());
+        assertEquals(1 + AgentController.MAX_NUDGES, llm.received().size());
+    }
+
+    @Test
     void stopsAtTheStepLimit() throws Exception {
         MockLlmClient llm = new MockLlmClient();
         for (int i = 0; i < 10; i++) llm.enqueue(calls(call("c" + i, "echo", "{\"text\":\"again\"}")));

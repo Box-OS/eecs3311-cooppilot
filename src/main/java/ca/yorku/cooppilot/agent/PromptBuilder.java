@@ -18,7 +18,8 @@ public class PromptBuilder {
             "Never bold words in Education or Technical Skills.",
             "The resume must fit on one page: call estimate_page after composing and condense if it is over.",
             "Bullets: strong verb + what was done + result or scale, about 15-25 words, one idea each; never label soft skills.",
-            "Save the final resume with save_resume (named CV_Company_Role), then reply with a short summary.");
+            "You work autonomously: the student cannot reply to chat messages, only to ask_user. Never stop to offer options or ask permission; decide and keep calling tools.",
+            "You are finished only when save_resume succeeds. Then reply with 1-3 plain sentences (no markdown) saying what you changed and why.");
 
     public String buildSystemPrompt(AgentGoal goal) {
         Posting p = goal.posting();
@@ -38,8 +39,15 @@ public class PromptBuilder {
         return new LlmRequest(buildSystemPrompt(s.goal()), s.messages(), schemas, maxTokens);
     }
 
+    /** Sent when the model ends its turn without saving: the run continues instead of failing. */
+    public String nudge() {
+        return "You stopped without saving. I can't answer questions here. Decide yourself (use ask_user only for a "
+                + "missing fact), finish the draft, run estimate_page, condense if over one page, and call save_resume.";
+    }
+
     public String firstUserMessage(AgentGoal goal) {
         return "Tailor my resume for posting " + goal.posting().getId() + ". Start by checking which saved resume "
-                + "is closest and what the posting needs.";
+                + "is closest and what the posting needs, then compose, check keywords and page length, and save. "
+                + "Work through to save_resume without stopping to ask me anything except through ask_user.";
     }
 }

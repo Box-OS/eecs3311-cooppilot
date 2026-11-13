@@ -20,6 +20,8 @@ public class AgentController {
     private final int maxSteps;
     private final int maxTokens;
     private final int maxRetries;
+    /** How many times the loop pushes back when the model stops talking without having saved. */
+    public static final int MAX_NUDGES = 2;
     private final long backoffMillis;
 
     public AgentController(LLMClient llm, ToolRegistry tools, PromptBuilder prompts, int maxSteps, int maxTokens) {
@@ -46,7 +48,7 @@ public class AgentController {
     }
 
     AgentResult loop(AgentSession s) {
-        int in = 0, out = 0;
+        int in = 0, out = 0, nudges = 0;
         String lastText = "";
         while (s.stepCount() < maxSteps) {
             s.nextStep();
@@ -62,6 +64,11 @@ public class AgentController {
             s.addMessage(ca.yorku.cooppilot.agent.Message.assistant(r.text(), r.toolCalls()));
             s.notifyThinking(r.text());
 
+            if (!r.hasToolCalls() && s.saved().isEmpty() && nudges < MAX_NUDGES && s.stepCount() < maxSteps) {
+                nudges++;
+                s.addMessage(Message.user(prompts.nudge()));
+                continue;
+            }
             if (!r.hasToolCalls()) {
                 AgentResult.Status st = s.saved().isPresent() ? AgentResult.Status.COMPLETED : AgentResult.Status.FAILED;
                 String summary = st == AgentResult.Status.COMPLETED ? r.text()

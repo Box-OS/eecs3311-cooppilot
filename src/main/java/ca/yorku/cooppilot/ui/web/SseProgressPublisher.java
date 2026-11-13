@@ -43,8 +43,10 @@ public class SseProgressPublisher implements AgentEventListener {
         d.put("status", r.status().name());
         d.put("summary", r.summary());
         d.put("steps", r.steps());
-        d.put("resumeId", r.resumeOpt().map(x -> x.getId()).orElse(""));
-        d.put("resumeName", r.resumeOpt().map(x -> x.getName()).orElse(""));
+        // only a saved resume can be opened; an unsaved draft has no page
+        boolean saved = r.status() == AgentResult.Status.COMPLETED;
+        d.put("resumeId", saved ? r.resumeOpt().map(x -> x.getId()).orElse("") : "");
+        d.put("resumeName", saved ? r.resumeOpt().map(x -> x.getName()).orElse("") : "");
         manager.publish(run, new AgentSessionManager.Event("done", d));
     }
 }
