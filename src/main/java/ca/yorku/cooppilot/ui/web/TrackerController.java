@@ -57,6 +57,8 @@ public class TrackerController {
     public String dashboard(Model m) {
         var s = facade.dashboard();
         m.addAttribute("s", s);
+        m.addAttribute("followUps", facade.followUpsDue());
+        m.addAttribute("noApps", facade.applications().isEmpty());
         int max = s.lastSevenDays().values().stream().mapToInt(Integer::intValue).max().orElse(0);
         m.addAttribute("barMax", Math.max(max, Math.max(1, s.goals().daily())));
         return "dashboard";

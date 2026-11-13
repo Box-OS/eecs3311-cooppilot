@@ -139,6 +139,15 @@ public class CoopPilotFacade {
         return editor.condense(resumeId, condensers.get(mode), a, pages);
     }
 
+    /** F08: what the last edit, undo or redo changed. */
+    public List<ca.yorku.cooppilot.service.edit.ResumeDiff.Change> lastChanges(String resumeId) {
+        return editor.lastChanges(resumeId);
+    }
+
+    public String lastAction(String resumeId) {
+        return editor.lastAction(resumeId);
+    }
+
     public String undo(String resumeId) {
         return editor.undo(resumeId);
     }
@@ -242,6 +251,11 @@ public class CoopPilotFacade {
     /** F12. */
     public DashboardStats dashboard() {
         return dashboard.stats();
+    }
+
+    /** F11/F12: applications whose follow-up date has arrived. */
+    public List<Application> followUpsDue() {
+        return dashboard.followUpsDue();
     }
 
     public void setGoals(int daily, int weekly) {

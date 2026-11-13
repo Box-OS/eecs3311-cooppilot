@@ -62,6 +62,44 @@
             <p class="small" th:if="${resume.hasPlaceholders()}"><span class="chip thin">Contains [placeholders]</span> fill them in before sending.</p>
         </section>
     </div>
+    <section class="card" th:unless="${changes.isEmpty()}">
+        <h2>What changed <span class="muted small" th:text="'— ' + ${lastAction}"></span></h2>
+        <table>
+            <tr th:each="c : ${changes}">
+                <td class="small" style="width:9rem"><span class="chip" th:text="${c.kind()}"></span></td>
+                <td class="small" style="width:11rem" th:text="${c.block()}"></td>
+                <td class="small">
+                    <div th:unless="${c.before().isEmpty()}" style="color:#b42318;text-decoration:line-through" th:text="${c.before()}"></div>
+                    <div th:unless="${c.after().isEmpty()}" style="color:#127a3f" th:text="${c.after()}"></div>
+                </td>
+            </tr>
+        </table>
+    </section>
+    <div class="grid">
+        <section class="card" th:if="${scan != null}">
+            <h2>Keywords (F04) <span class="muted small" th:text="'vs ' + ${scanPosting.company}"></span></h2>
+            <div class="stat" th:text="${#numbers.formatDecimal(scan.coverage() * 100, 1, 0)} + '%'"></div>
+            <div class="stat-label">of the posting's keywords appear on this resume</div>
+            <p class="small">
+                <span class="chip ok" th:each="k : ${scan.backed()}" th:text="${k.term()}" title="on the resume, backed by experience"></span>
+                <span class="chip thin" th:each="k : ${scan.thin()}" th:text="${k.term()}" title="only in the skills line"></span>
+                <span class="chip known" th:each="k : ${scan.knownNotWorded()}" th:text="${k.term()}" title="you have it, not worded"></span>
+                <span class="chip miss" th:each="k : ${scan.missing()}" th:text="${k.term()}" title="no evidence"></span>
+            </p>
+            <form method="get" th:action="@{/resumes/{id}(id=${resume.id})}" class="row">
+                <select name="posting"><option th:each="p : ${postings}" th:value="${p.id}" th:text="${p.company + ' — ' + p.role}" th:selected="${p.id == scanPosting.id}"></option></select>
+                <button class="ghost">Scan</button>
+            </form>
+        </section>
+        <section class="card" th:unless="${postings.isEmpty()}">
+            <h2>Apply (F11)</h2>
+            <p class="small muted">Log an application that uses this resume; it starts as To apply.</p>
+            <form method="post" th:action="@{/resumes/{id}/log(id=${resume.id})}" class="row">
+                <select name="postingId"><option th:each="p : ${postings}" th:value="${p.id}" th:text="${p.company + ' — ' + p.role}" th:selected="${p.id == selectedPosting}"></option></select>
+                <button>Log application</button>
+            </form>
+        </section>
+    </div>
     <section class="card">
         <h2>Preview</h2>
         <p class="muted small">How the resume reads (Jake's template layout). Compile the downloaded .tex in Overleaf for the exact PDF.</p>
@@ -85,9 +123,28 @@
     </section>
     <section class="card">
         <h2>Blocks</h2>
+        <p class="muted small">✎ edits a bullet by hand, × removes an entry. Both can be undone.</p>
         <div th:each="b : ${resume.blocks}" style="margin-bottom:.7rem">
-            <strong th:text="${b.title}"></strong> <span class="muted small" th:text="${b.section} + (${b.subtitle.isBlank()} ? '' : ' · ' + ${b.subtitle})"></span>
-            <ul class="small"><li th:each="t : ${b.bullets}" th:text="${t}"></li></ul>
+            <div class="row">
+                <strong th:text="${b.title}"></strong> <span class="muted small" th:text="${b.section} + (${b.subtitle.isBlank()} ? '' : ' · ' + ${b.subtitle})"></span>
+                <form method="post" th:action="@{/resumes/{id}/remove-block(id=${resume.id})}" th:unless="${b.section.name() == 'EDUCATION'}">
+                    <input type="hidden" name="blockId" th:value="${b.id}">
+                    <button class="ghost" title="Remove this entry" style="padding:0 .45rem">×</button>
+                </form>
+            </div>
+            <ul class="small">
+                <li th:each="t, st : ${b.bullets}">
+                    <span th:text="${t}"></span>
+                    <details style="display:inline"><summary title="Edit this bullet" style="display:inline;cursor:pointer;color:#2f5bea"> ✎</summary>
+                        <form method="post" th:action="@{/resumes/{id}/bullet(id=${resume.id})}" style="margin:.3rem 0">
+                            <input type="hidden" name="blockId" th:value="${b.id}">
+                            <input type="hidden" name="index" th:value="${st.index}">
+                            <textarea name="text" rows="2" th:text="${t}"></textarea>
+                            <button style="margin-top:.2rem">Save bullet</button>
+                        </form>
+                    </details>
+                </li>
+            </ul>
         </div>
     </section>
     <section class="card">

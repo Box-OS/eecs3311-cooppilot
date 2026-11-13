@@ -49,6 +49,19 @@ class TrackerFlowTest {
     }
 
     @Test
+    void followUpsDueListsApplicationsWhoseDateArrived() {
+        Application old = facade.logApplication(null, "Old Co", "Dev", "");
+        facade.changeStatus(old.getId(), Status.APPLIED, "");
+        Application stored = repo.findById(old.getId()).orElseThrow();
+        stored.setFollowUpOn(java.time.LocalDate.now().minusDays(1));
+        repo.save(stored);
+        Application fresh = facade.logApplication(null, "New Co", "Dev", "");
+        facade.changeStatus(fresh.getId(), Status.APPLIED, "");
+
+        assertEquals(java.util.List.of("Old Co"), facade.followUpsDue().stream().map(Application::getCompany).toList());
+    }
+
+    @Test
     void goalsArePersisted() {
         facade.setGoals(4, 20);
         assertEquals(new Goals(4, 20), facade.dashboard().goals());

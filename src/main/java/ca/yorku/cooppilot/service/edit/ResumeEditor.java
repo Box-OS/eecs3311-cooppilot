@@ -2,6 +2,7 @@ package ca.yorku.cooppilot.service.edit;
 
 import ca.yorku.cooppilot.domain.PostingAnalysis;
 import ca.yorku.cooppilot.domain.Resume;
+import ca.yorku.cooppilot.domain.ResumeBlock;
 import ca.yorku.cooppilot.service.CondenseStrategy;
 import ca.yorku.cooppilot.service.PageEstimator;
 import ca.yorku.cooppilot.llm.LLMClient;
@@ -24,7 +25,22 @@ import java.util.stream.Collectors;
 @Service
 public class ResumeEditor {
 
-    private record Editing(Resume resume, RevisionHistory history) {}
+    /** One open resume: the working copy, its undo/redo history, the stored LaTeX it was loaded from, and the last diff. */
+    private static final class Editing {
+        final Resume resume;
+        final RevisionHistory history = new RevisionHistory();
+        String loadedLatex;
+        List<ResumeDiff.Change> lastChanges = List.of();
+        String lastAction = "";
+
+        Editing(Resume resume) {
+            this.resume = resume;
+            this.loadedLatex = resume.getLatex();
+        }
+
+        Resume resume() { return resume; }
+        RevisionHistory history() { return history; }
+    }
 
     private final ResumeLibrary library;
     private final VaultService vault;
@@ -64,16 +80,40 @@ public class ResumeEditor {
 
     public String undo(String resumeId) {
         Editing e = editing(resumeId);
+        List<ResumeBlock> before = snapshot(e);
         String what = e.history().undo();
         save(e);
+        record(e, before, "Undid: " + what);
         return what;
     }
 
     public String redo(String resumeId) {
         Editing e = editing(resumeId);
+        List<ResumeBlock> before = snapshot(e);
         String what = e.history().redo();
         save(e);
+        record(e, before, "Redid: " + what);
         return what;
+    }
+
+    /** What the last edit, undo or redo changed (UC07: "What changed"). */
+    public List<ResumeDiff.Change> lastChanges(String resumeId) {
+        Editing e = open.get(resumeId);
+        return e == null ? List.of() : e.lastChanges;
+    }
+
+    public String lastAction(String resumeId) {
+        Editing e = open.get(resumeId);
+        return e == null ? "" : e.lastAction;
+    }
+
+    private static List<ResumeBlock> snapshot(Editing e) {
+        return e.resume().getBlocks().stream().map(ResumeBlock::copy).toList();
+    }
+
+    private static void record(Editing e, List<ResumeBlock> before, String action) {
+        e.lastChanges = ResumeDiff.between(before, e.resume().getBlocks());
+        e.lastAction = action;
     }
 
     public List<String> log(String resumeId) {
@@ -89,8 +129,10 @@ public class ResumeEditor {
     }
 
     private Resume run(Editing e, ResumeEditCommand c) {
+        List<ResumeBlock> before = snapshot(e);
         e.history().run(c);
         save(e);
+        record(e, before, c.description());
         return e.resume();
     }
 
@@ -98,12 +140,21 @@ public class ResumeEditor {
         String template = e.resume().getLatex();
         assembler.assemble(e.resume(), template);
         library.save(e.resume());
+        e.loadedLatex = e.resume().getLatex();
     }
 
+    /**
+     * The open working copy. If the stored resume changed outside the editor (e.g. the agent saved a new
+     * version under the same name), the stale copy and its history are dropped and the new version loaded.
+     */
     private Editing editing(String resumeId) {
-        return open.computeIfAbsent(resumeId, id -> new Editing(
-                library.byId(id).orElseThrow(() -> new IllegalArgumentException("No resume with id " + id)),
-                new RevisionHistory()));
+        Resume stored = library.byId(resumeId).orElseThrow(() -> new IllegalArgumentException("No resume with id " + resumeId));
+        Editing e = open.get(resumeId);
+        if (e == null || !e.loadedLatex.equals(stored.getLatex())) {
+            e = new Editing(stored);
+            open.put(resumeId, e);
+        }
+        return e;
     }
 
     private String evidence(Resume r) {

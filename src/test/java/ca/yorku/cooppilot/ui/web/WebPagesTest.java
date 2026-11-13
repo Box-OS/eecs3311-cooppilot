@@ -90,8 +90,23 @@ class WebPagesTest {
                 .andExpect(content().string(containsString("Wrote Java practice sets")));
         mvc.perform(post("/resumes/" + resume.getId() + "/undo"))
                 .andExpect(flash().attribute("message", containsString("Undid")));
-        mvc.perform(get("/resumes/" + resume.getId())).andExpect(content().string(
-                org.hamcrest.Matchers.not(containsString("Wrote Java practice sets"))));
+        assertTrue(facade.resume(resume.getId()).getBlocks().stream().flatMap(b -> b.getBullets().stream())
+                .noneMatch(t -> t.equals("Wrote Java practice sets")), "undo restored the original bullet");
+        mvc.perform(get("/resumes/" + resume.getId())).andExpect(content().string(containsString("Undid")));
+
+        // manual bullet edit, remove an entry, then the diff and the keyword chips on the resume page
+        mvc.perform(post("/resumes/" + resume.getId() + "/bullet").param("blockId", tutor).param("index", "0")
+                .param("text", "Tutored first-year students in Java weekly")).andExpect(status().is3xxRedirection());
+        String cashier = resume.getBlocks().stream().filter(b -> b.getTitle().equals("Cashier")).findFirst().orElseThrow().getId();
+        mvc.perform(post("/resumes/" + resume.getId() + "/remove-block").param("blockId", cashier));
+        mvc.perform(get("/resumes/" + resume.getId()))
+                .andExpect(content().string(containsString("What changed")))
+                .andExpect(content().string(containsString("BLOCK_REMOVED")))
+                .andExpect(content().string(containsString("Keywords (F04)")))
+                .andExpect(content().string(containsString("Preview")));
+        mvc.perform(post("/resumes/" + resume.getId() + "/undo"));
+        mvc.perform(post("/resumes/" + resume.getId() + "/bullet").param("blockId", tutor).param("index", "0").param("text", " "))
+                .andExpect(flash().attribute("error", containsString("cannot be empty")));
 
         ((MockLlmClient) llm).enqueueText(CoverLetterTestSupport.letter("Northwind Labs"));
         MvcResult letter = mvc.perform(post("/resumes/" + resume.getId() + "/letter").param("postingId", posting.getId()))
@@ -99,8 +114,11 @@ class WebPagesTest {
         mvc.perform(get(letter.getResponse().getRedirectedUrl())).andExpect(status().isOk())
                 .andExpect(content().string(containsString("Dear Hiring Manager")));
 
-        mvc.perform(post("/tracker").param("postingId", posting.getId()).param("resumeName", "CV_Web"));
+        mvc.perform(post("/resumes/" + resume.getId() + "/log").param("postingId", posting.getId()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(flash().attribute("message", containsString("Logged Northwind Labs")));
         Application app = appRepo.findAll().get(0);
+        assertEquals("CV_Web", app.getResumeName());
         mvc.perform(post("/tracker/" + app.getId() + "/status").param("status", "APPLIED"));
         mvc.perform(get("/tracker")).andExpect(status().isOk()).andExpect(content().string(containsString("APPLIED")));
         mvc.perform(post("/tracker/" + app.getId() + "/status").param("status", "OFFER").param("note", "skip ahead"));
@@ -108,7 +126,8 @@ class WebPagesTest {
         mvc.perform(post("/dashboard/goals").param("daily", "1").param("weekly", "5"));
         mvc.perform(get("/dashboard")).andExpect(status().isOk())
                 .andExpect(content().string(containsString("Goal met")))
-                .andExpect(content().string(containsString("Last 7 days")));
+                .andExpect(content().string(containsString("Last 7 days")))
+                .andExpect(content().string(containsString("Follow-ups due")));
     }
 
     @Test

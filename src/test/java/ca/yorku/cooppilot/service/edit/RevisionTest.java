@@ -90,6 +90,34 @@ class RevisionTest {
     }
 
     @Test
+    void lastChangesDescribeTheEditAndTheUndo() {
+        facade.replaceBullet(resume.getId(), tutor.getId(), 0, "Tutored first-year students in Java");
+        var changes = facade.lastChanges(resume.getId());
+        assertEquals(1, changes.size());
+        assertEquals(ca.yorku.cooppilot.service.edit.ResumeDiff.Kind.REWORDED, changes.get(0).kind());
+        assertEquals("Tutored first-year students in Java", changes.get(0).after());
+        facade.undo(resume.getId());
+        assertEquals("Tutored first-year students in Java", facade.lastChanges(resume.getId()).get(0).before());
+        assertTrue(facade.lastAction(resume.getId()).startsWith("Undid"));
+    }
+
+    @Test
+    void editorReloadsWhenTheResumeWasReplacedElsewhere() {
+        facade.replaceBullet(resume.getId(), tutor.getId(), 0, "First edit");
+        // the agent saves a new version under the same id (e.g. tailoring the same posting again)
+        Resume newer = facade.resume(resume.getId());
+        Resume replaced = new Resume(newer.getId(), newer.getName(), newer.getFamily(), newer.getKind(),
+                newer.getBlocks().stream().filter(b -> !b.getTitle().equals("Cashier")).toList(), newer.getLatex() + "% v2");
+        resumeRepo.save(replaced);
+
+        facade.replaceBullet(resume.getId(), tutor.getId(), 1, "Second edit");
+        Resume now = facade.resume(resume.getId());
+        assertTrue(now.getBlocks().stream().noneMatch(b -> b.getTitle().equals("Cashier")),
+                "the edit applied to the new version, not the stale copy");
+        assertEquals(1, facade.revisionLog(resume.getId()).size(), "history restarts for the new version");
+    }
+
+    @Test
     void badEditTargetsFailFast() {
         assertThrows(IllegalArgumentException.class, () -> facade.replaceBullet(resume.getId(), tutor.getId(), 9, "x"));
         assertThrows(IllegalArgumentException.class, () -> facade.removeBlock(resume.getId(), "nope"));

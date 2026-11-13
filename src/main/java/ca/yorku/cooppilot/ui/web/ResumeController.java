@@ -42,6 +42,14 @@ public class ResumeController {
         m.addAttribute("selectedPosting", posting);
         m.addAttribute("pagePercent", Math.round(facade.pageEstimate(id) * 100));
         m.addAttribute("preview", facade.preview(id));
+        m.addAttribute("changes", facade.lastChanges(id));
+        m.addAttribute("lastAction", facade.lastAction(id));
+        var analyzed = facade.postings().stream().filter(p -> p.isAnalyzed()).toList();
+        String scanFor = posting != null ? posting : analyzed.isEmpty() ? null : analyzed.get(analyzed.size() - 1).getId();
+        if (scanFor != null) {
+            m.addAttribute("scanPosting", facade.posting(scanFor));
+            m.addAttribute("scan", facade.scanKeywords(id, scanFor));
+        }
         return "resume";
     }
 
@@ -63,6 +71,36 @@ public class ResumeController {
             var log = facade.revisionLog(id);
             return log.get(log.size() - 1);
         });
+    }
+
+    @PostMapping("/resumes/{id}/bullet")
+    public String editBullet(@PathVariable String id, @RequestParam String blockId, @RequestParam int index,
+                             @RequestParam String text, RedirectAttributes flash) {
+        return act(id, flash, () -> {
+            if (text == null || text.isBlank()) throw new IllegalArgumentException("A bullet cannot be empty.");
+            facade.replaceBullet(id, blockId, index, text.trim());
+            return "Bullet updated.";
+        });
+    }
+
+    @PostMapping("/resumes/{id}/remove-block")
+    public String removeBlock(@PathVariable String id, @RequestParam String blockId, RedirectAttributes flash) {
+        return act(id, flash, () -> {
+            facade.removeBlock(id, blockId);
+            return "Entry removed (Undo brings it back).";
+        });
+    }
+
+    @PostMapping("/resumes/{id}/log")
+    public String logApplication(@PathVariable String id, @RequestParam String postingId, RedirectAttributes flash) {
+        try {
+            var a = facade.logApplication(postingId, null, null, facade.resume(id).getName());
+            flash.addFlashAttribute("message", "Logged " + a.getCompany() + " (To apply). Move it to Applied once you submit.");
+            return "redirect:/tracker";
+        } catch (RuntimeException e) {
+            flash.addFlashAttribute("error", e.getMessage());
+            return "redirect:/resumes/" + id;
+        }
     }
 
     @PostMapping("/resumes/{id}/undo")

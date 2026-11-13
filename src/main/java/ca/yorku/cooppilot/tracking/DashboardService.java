@@ -46,6 +46,13 @@ public class DashboardService implements ApplicationListener {
         return cached;
     }
 
+    /** Applications whose follow-up date is today or earlier, oldest first. */
+    public List<Application> followUpsDue() {
+        LocalDate today = LocalDate.now(clock);
+        return tracker.all().stream().filter(a -> a.followUpDue(today))
+                .sorted(java.util.Comparator.comparing(Application::getFollowUpOn)).toList();
+    }
+
     public Goals goals() {
         int daily = setting("goal.daily", 3);
         int weekly = setting("goal.weekly", 15);

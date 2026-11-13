@@ -6,6 +6,8 @@
 <main>
     <h1>Dashboard</h1>
     <div th:replace="~{fragments :: flash}"></div>
+    <div class="card" th:if="${noApps}"><strong>No applications yet.</strong>
+        <span class="muted">Tailor a resume for a posting, then use <em>Log application</em> on the resume page or the <a href="/tracker">Tracker</a>.</span></div>
     <div class="grid">
         <div class="card"><div class="stat" th:text="${s.appliedToday()} + ' / ' + ${s.goals().daily()}"></div>
             <div class="stat-label">Today vs daily goal <span th:if="${s.dailyGoalMet()}" class="chip ok">Goal met</span></div></div>
@@ -26,6 +28,16 @@
             </div>
         </div>
         <p class="small muted">Green bars met the daily goal.</p>
+    </section>
+    <section class="card">
+        <h2>Follow-ups due (<span th:text="${followUps.size()}">0</span>)</h2>
+        <p class="muted small" th:if="${followUps.isEmpty()}">Nothing to follow up on today.</p>
+        <table th:unless="${followUps.isEmpty()}">
+            <tr><th>Company</th><th>Role</th><th>Applied</th><th>Follow up since</th></tr>
+            <tr th:each="a : ${followUps}"><td th:text="${a.company}"></td><td class="small" th:text="${a.role}"></td>
+                <td class="small" th:text="${a.appliedOn}"></td><td class="small" th:text="${a.followUpOn}"></td></tr>
+        </table>
+        <p class="small"><a href="/tracker">Open the tracker</a> to mark them Ghosted or record a reply.</p>
     </section>
     <section class="card">
         <h2>Goals</h2>
