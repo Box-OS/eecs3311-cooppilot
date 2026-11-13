@@ -33,11 +33,20 @@ public class LlmCondense implements CondenseStrategy {
 
     @Override
     public Resume condense(Resume original, PostingAnalysis a, PageEstimator pages) {
-        if (pages.fitsOnePage(original)) {
+        if (pages.fitsTarget(original)) {
             report.set("already fits");
             return original.copy();
         }
-        SmartCondenseTask.Plan plan = new SmartCondenseTask(llm, original, a, pages.estimate(original)).run();
+        SmartCondenseTask.Plan plan;
+        try {
+            plan = new SmartCondenseTask(llm, original, a, pages.estimate(original)).run();
+        } catch (ca.yorku.cooppilot.llm.LlmTask.LlmTaskException e) {
+            // UC05 2a: smart output failed validation (e.g. changed facts) -> fall back to the rules
+            Resume r = fallback.condense(original, a, pages);
+            report.set("smart condense output failed validation (" + String.join("; ", e.lastProblems())
+                    + "), so quick condense was used: " + fallback.lastReport());
+            return r;
+        }
         Resume r = original.copy();
         Map<String, ResumeBlock> byId = r.getBlocks().stream().collect(Collectors.toMap(ResumeBlock::getId, Function.identity()));
         for (SmartCondenseTask.Edit e : plan.shorten()) {
@@ -53,7 +62,7 @@ public class LlmCondense implements CondenseStrategy {
         });
         String msg = "smart condense: removed " + plan.remove().size() + ", shortened " + plan.shorten().size()
                 + (plan.reason().isBlank() ? "" : " (" + plan.reason() + ")");
-        if (!pages.fitsOnePage(r)) {
+        if (!pages.fitsTarget(r)) {
             r = fallback.condense(r, a, pages);
             msg += "; then rules: " + fallback.lastReport();
         }

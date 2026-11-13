@@ -136,6 +136,45 @@ class AgentControllerTest {
         assertEquals(1 + AgentController.MAX_NUDGES, llm.received().size());
     }
 
+    /** Sets a draft (like compose_resume does). */
+    static class DraftTool implements Tool {
+        public String name() { return "compose_resume"; }
+        public String description() { return "draft"; }
+        public JsonNode inputSchema() { return Schemas.object().build(); }
+        public ToolResult execute(JsonNode args, AgentSession s) {
+            s.updateDraft(new Resume(null, "draft", "", Resume.Kind.TAILORED, List.of(), "\\documentclass"));
+            return ToolResult.ok("drafted");
+        }
+    }
+
+    @Test
+    void partialDraftIsSavedWhenTheStepLimitIsReached() throws Exception {
+        MockLlmClient llm = new MockLlmClient();
+        for (int i = 0; i < 5; i++) llm.enqueue(calls(call("d" + i, "compose_resume", "{}")));
+        AgentController c = new AgentController(llm, new ToolRegistry(List.of(new DraftTool())), new PromptBuilder(), 3, 500);
+        List<String> savedNames = new ArrayList<>();
+        c.setDraftSaver((draft, posting) -> {
+            Resume r = new Resume(null, "CV_" + posting.getCompany() + "_Draft", "", Resume.Kind.GENERATED, draft.getBlocks(), draft.getLatex());
+            savedNames.add(r.getName());
+            return r;
+        });
+        AgentResult r = c.run(goal, QuestionHandler.NONE, new Recorder());
+        assertEquals(AgentResult.Status.STEP_LIMIT, r.status());
+        assertTrue(r.resumeSaved());
+        assertEquals(List.of("CV_Northwind_Draft"), savedNames);
+        assertTrue(r.summary().contains("partial draft was saved as CV_Northwind_Draft"));
+    }
+
+    @Test
+    void noDraftNoSave() throws Exception {
+        MockLlmClient llm = new MockLlmClient();
+        for (int i = 0; i < 5; i++) llm.enqueue(calls(call("e" + i, "echo", "{\"text\":\"x\"}")));
+        AgentController c = controller(llm, 2);
+        c.setDraftSaver((d, p) -> { throw new AssertionError("nothing to save"); });
+        AgentResult r = c.run(goal, QuestionHandler.NONE, new Recorder());
+        assertFalse(r.resumeSaved());
+    }
+
     @Test
     void stopsAtTheStepLimit() throws Exception {
         MockLlmClient llm = new MockLlmClient();

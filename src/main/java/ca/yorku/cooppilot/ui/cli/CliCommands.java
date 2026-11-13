@@ -318,7 +318,7 @@ public class CliCommands implements Runnable {
     static class TailorCmd implements Runnable {
         @ParentCommand CliCommands root;
         @Parameters(paramLabel = "POSTING_ID") String postingId;
-        @Option(names = "--no-questions", description = "never ask; the agent leaves unknown details out") boolean noQuestions;
+        @Option(names = {"--no-input", "--no-questions"}, description = "never ask; the agent leaves unknown details out") boolean noQuestions;
 
         public void run() {
             List<Map<String, Object>> steps = new ArrayList<>();
@@ -356,10 +356,10 @@ public class CliCommands implements Runnable {
             j.put("steps", r.steps());
             j.put("toolCalls", steps);
             j.put("summary", r.summary());
-            j.put("resume", r.status() == AgentResult.Status.COMPLETED ? r.resumeOpt().map(CliCommands::resumeView).orElse(null) : null);
+            j.put("resume", r.resumeSaved() ? r.resumeOpt().map(CliCommands::resumeView).orElse(null) : null);
             j.put("tokens", Map.of("input", r.inputTokens(), "output", r.outputTokens()));
             root.print(j, "\n" + r.status() + " after " + r.steps() + " steps"
-                    + (r.status() == AgentResult.Status.COMPLETED
+                    + (r.resumeSaved()
                         ? r.resumeOpt().map(x -> ": " + x.getName() + " (id " + x.getId() + ")").orElse("") : " (nothing saved)")
                     + "\n" + r.summary() + "\nTokens: " + r.inputTokens() + " in / " + r.outputTokens() + " out");
         }

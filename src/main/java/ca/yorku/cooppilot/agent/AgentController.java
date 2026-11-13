@@ -105,8 +105,26 @@ public class AgentController {
         }
     }
 
-    private static AgentResult finish(AgentSession s, AgentResult.Status st, String summary, int in, int out) {
-        AgentResult result = new AgentResult(st, s.saved().or(s::draft).orElse(null), summary, s.stepCount(), in, out);
+    private DraftSaver draftSaver;
+
+    /** Optional: keeps a partial draft when a run stops early (UC04 5a). */
+    public void setDraftSaver(DraftSaver draftSaver) {
+        this.draftSaver = draftSaver;
+    }
+
+    private AgentResult finish(AgentSession s, AgentResult.Status st, String summary, int in, int out) {
+        boolean stored = s.saved().isPresent();
+        if (!stored && st != AgentResult.Status.COMPLETED && s.draft().isPresent() && draftSaver != null) {
+            try {
+                s.markSaved(draftSaver.saveDraft(s.draft().get(), s.goal().posting()));
+                stored = true;
+                summary = summary + " A partial draft was saved as " + s.saved().get().getName()
+                        + "; review it before using it.";
+            } catch (RuntimeException e) {
+                summary = summary + " (The partial draft could not be saved: " + e.getMessage() + ")";
+            }
+        }
+        AgentResult result = new AgentResult(st, s.saved().or(s::draft).orElse(null), stored, summary, s.stepCount(), in, out);
         s.notifyFinished(result);
         return result;
     }

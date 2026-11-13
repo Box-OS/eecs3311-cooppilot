@@ -38,8 +38,17 @@ public class PageEstimator {
         return lines / linesPerPage;
     }
 
+    /** Condensing aims a little below a full page so small rendering differences cannot push it over. */
+    public static final double TARGET = 0.98;
+
+    /** Hard limit: nothing over one page can be saved. */
     public boolean fitsOnePage(Resume r) {
         return estimate(r) <= 1.0;
+    }
+
+    /** Condense goal (UC05): at most 98% of a page. */
+    public boolean fitsTarget(Resume r) {
+        return estimate(r) <= TARGET;
     }
 
     /** Lines one block takes: heading rows plus wrapped bullets. */

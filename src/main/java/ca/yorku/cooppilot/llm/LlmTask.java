@@ -24,6 +24,7 @@ public abstract class LlmTask<T> {
     public final T run() {
         List<String> problems = List.of();
         List<String> history = new ArrayList<>();
+        T lastInvalid = null;
         for (int attempt = 0; attempt <= maxRetries; attempt++) {
             LlmRequest request = attempt == 0 ? buildRequest() : withFeedback(buildRequest(), problems);
             LlmResponse response = llm.complete(request);
@@ -37,10 +38,11 @@ public abstract class LlmTask<T> {
             }
             problems = validate(result);
             if (problems.isEmpty()) return result;
+            lastInvalid = result;
             history.add("attempt " + (attempt + 1) + ": " + String.join("; ", problems));
         }
         throw new LlmTaskException(getClass().getSimpleName() + " failed after " + (maxRetries + 1)
-                + " attempts", history);
+                + " attempts", history, lastInvalid, problems);
     }
 
     /** Step 1: the prompt for this task. */
@@ -64,10 +66,27 @@ public abstract class LlmTask<T> {
     /** The task could not produce a valid result. */
     public static class LlmTaskException extends RuntimeException {
         private final List<String> attempts;
+        private final Object lastResult;
+        private final List<String> lastProblems;
 
         public LlmTaskException(String message, List<String> attempts) {
+            this(message, attempts, null, List.of());
+        }
+
+        public LlmTaskException(String message, List<String> attempts, Object lastResult, List<String> lastProblems) {
             super(message + (attempts.isEmpty() ? "" : ": " + attempts.get(attempts.size() - 1)));
             this.attempts = List.copyOf(attempts);
+            this.lastResult = lastResult;
+            this.lastProblems = lastProblems == null ? List.of() : List.copyOf(lastProblems);
+        }
+
+        /** The last reply that parsed but failed validation (null if none parsed), e.g. a letter to show with its problems. */
+        public Object lastResult() {
+            return lastResult;
+        }
+
+        public List<String> lastProblems() {
+            return lastProblems;
         }
 
         public List<String> attempts() {

@@ -41,9 +41,20 @@ public class AppConfig {
 
     @Bean
     public AgentController agentController(LLMClient llm, ToolRegistry tools, PromptBuilder prompts,
+                                           ca.yorku.cooppilot.service.ResumeLibrary library,
+                                           ca.yorku.cooppilot.service.ExportService export,
                                            @Value("${cooppilot.agent.max-steps:15}") int maxSteps,
                                            @Value("${cooppilot.llm.max-tokens:2048}") int maxTokens) {
-        return new AgentController(llm, tools, prompts, maxSteps, maxTokens);
+        AgentController agent = new AgentController(llm, tools, prompts, maxSteps, maxTokens);
+        agent.setDraftSaver((draft, posting) -> {
+            String name = export.fileName("CV", posting.getCompany(), posting.getRole()) + "_Draft";
+            String id = library.byName(name).map(ca.yorku.cooppilot.domain.Resume::getId).orElse(null);
+            var saved = new ca.yorku.cooppilot.domain.Resume(id, name, draft.getFamily(),
+                    ca.yorku.cooppilot.domain.Resume.Kind.GENERATED, draft.getBlocks(), draft.getLatex());
+            library.save(saved);
+            return saved;
+        });
+        return agent;
     }
 
     /** Strategy pattern: the condense algorithms selectable by mode. */

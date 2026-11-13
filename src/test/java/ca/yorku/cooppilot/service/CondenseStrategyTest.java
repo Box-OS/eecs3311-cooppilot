@@ -80,6 +80,22 @@ class CondenseStrategyTest {
     }
 
     @Test
+    void smartCondenseThatKeepsFailingValidationFallsBackToQuickCondense() {
+        Resume r = big.copy();
+        ResumeBlock tutor = r.blocksIn(Section.EXPERIENCE).get(0);
+        String bad = "{\"remove\":[],\"shorten\":[{\"block_id\":\"" + tutor.getId() + "\",\"index\":1,\"text\":\"Wrote 99 sets\"}]}";
+        MockLlmClient llm = new MockLlmClient().enqueueText(bad).enqueueText(bad);
+        LlmCondense smart = new LlmCondense(llm, new RuleBasedCondense());
+
+        Resume out = smart.condense(r, analysis, new PageEstimator(40));
+
+        assertTrue(new PageEstimator(40).fitsTarget(out));
+        assertTrue(smart.lastReport().contains("failed validation"), smart.lastReport());
+        assertTrue(smart.lastReport().contains("quick condense was used"));
+        assertFalse(out.blocksIn(Section.EXPERIENCE).get(0).getBullets().contains("Wrote 99 sets"));
+    }
+
+    @Test
     void smartCondenseAppliesAValidatedPlanThenFallsBackToRules() {
         Resume r = big.copy();
         ResumeBlock pixel = r.getBlocks().stream().filter(b -> b.getTitle().equals("Pixel Art Editor")).findFirst().orElseThrow();

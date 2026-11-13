@@ -30,7 +30,7 @@ public class RuleBasedCondense implements CondenseStrategy {
         report.set(log);
 
         // 1. projects with no posting keyword at all (keep at least 2 projects)
-        while (!pages.fitsOnePage(r) && projects(r).size() > 2) {
+        while (!pages.fitsTarget(r) && projects(r).size() > 2) {
             ResumeBlock weakest = weakest(projects(r), a);
             if (relevance(weakest, a) > 0) break;
             remove(r, weakest, log, "dropped project with no posting keywords");
@@ -39,14 +39,14 @@ public class RuleBasedCondense implements CondenseStrategy {
         trimTo(r, a, pages, 2, b -> b.getSection() == Section.PROJECTS, log);
         trimTo(r, a, pages, 2, b -> b.getSection() == Section.EXPERIENCE || b.getSection() == Section.LEADERSHIP, log);
         // 4. weakest extra project (keep 1)
-        while (!pages.fitsOnePage(r) && projects(r).size() > 1) {
+        while (!pages.fitsTarget(r) && projects(r).size() > 1) {
             remove(r, weakest(projects(r), a), log, "dropped least relevant project");
         }
         // 5-6. projects, then jobs, to 1 bullet
         trimTo(r, a, pages, 1, b -> b.getSection() == Section.PROJECTS, log);
         trimTo(r, a, pages, 1, b -> b.getSection() == Section.EXPERIENCE || b.getSection() == Section.LEADERSHIP, log);
 
-        if (!pages.fitsOnePage(r)) log.add("still over one page after all rule steps; try smart condense");
+        if (!pages.fitsTarget(r)) log.add("still over the 98% target after all rule steps (minimum content reached)");
         return r;
     }
 
@@ -62,7 +62,7 @@ public class RuleBasedCondense implements CondenseStrategy {
                 .filter(b -> b.getBullets().size() > max).toList());
         candidates.sort(Comparator.comparingInt(b -> relevance(b, a)));   // least relevant first
         for (ResumeBlock b : candidates) {
-            if (pages.fitsOnePage(r)) return;
+            if (pages.fitsTarget(r)) return;
             List<String> bullets = new ArrayList<>(b.getBullets());
             while (bullets.size() > max) {
                 int worst = 0;
