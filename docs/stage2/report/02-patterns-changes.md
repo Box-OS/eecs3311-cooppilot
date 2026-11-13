@@ -84,26 +84,28 @@ The class diagrams were redrawn for the implemented system in UMLet (sources in 
 | C08 | F10 match = skill overlap 65% + role-family similarity 35% | Share of the posting keywords the student has that the resume shows (must-haves ×2) | No reliable role-family classifier yet; keyword evidence is what an ATS sees | Same thresholds (≥ 75% reuse) |
 | C09 | F03 thresholds: ≥ 75% reuse only | REUSE ≥ 75%, TWEAK ≥ 45%, else GENERATE | A strategy needed a defined boundary between tweak and generate | `FitScorer.TWEAK_THRESHOLD` |
 | C10 | F06 answer rewritten by the LLM into a clean vault entry; repeat questions answered from the session | Answer appended as a fact line to the matching entry (or a new entry); repeats answered from the vault | Deterministic filing cannot lose or alter facts; vault lookup works across sessions | `VaultService.fileAnswer/knownAnswer` |
-| C11 | F08 "What changed" diff | Revision log ("You asked: … — summary") with undo/redo | Time; the log plus undo covers the user need to see and revert changes | Diff view listed as a limitation |
-| C12 | F09 validation 250–400 words; editable text area | Prompt asks for 250–350, validation accepts 180–450; letter viewed and downloaded | Strict ranges caused needless retries; editing is done in the downloaded file | `CoverLetterTask.validate` |
-| C13 | F02 manual field entry on failure; deadline extracted | Error message on failure (posting kept); no deadline extraction | Time; analysis can be retried with a button | Limitation |
-| C14 | F01 duplicate skill rejected with a message | Duplicates merged silently (tags/body kept) | Re-importing the same resume should be harmless | `VaultService.addEntry` |
+| C12 | F09 validation 250–400 words | Prompt asks for 250–350, validation accepts 180–450 | A strict range caused needless retries for letters that were fine | `CoverLetterTask.validate` |
+| C14 | F01 duplicate skill rejected with a message | Refused with a message when added by hand; during imports duplicates are merged (tags kept) silently | Re-importing the same resume or backup should be harmless | `VaultService.addEntry`, `VaultController.addEntry` |
 | C15 | F05 LLM failure → retry with backoff | Implemented: 429/5xx/network retried twice with doubling waits; 4xx fail at once | Matches Stage 1 (added after the first implementation review) | `AgentController.completeWithRetry` |
 | C16 | — (new class) | `FactGuard` shared deterministic check for invented numbers | Same rule needed by compose, revision and cover letters | Used by 3 classes |
 | C17 | `AgentSessionManager` runs the agent | Also buffers events so late or reconnecting pages see every step | The page subscribes after the run starts | SSE robust to timing |
 | C18 | Dates from the system clock | `Clock` bean injected into tracker and dashboard | Follow-up and streak rules must be testable | Test-only impact |
+| C19 | F07 page estimate (no calibration specified) | `PageEstimator` calibrated to 63 lines per page; condense target 98%, save limit 100% | With the author's 50 real one-page resumes imported, all estimated at 102–113%; now 83–98% | The agent no longer condenses or refuses to save good resumes |
+| C20 | F05 loop ends when the model stops calling tools | Rules state the agent works autonomously; if the model stops without saving, the loop nudges it to finish and save (max 2) | First real run with Claude Haiku 4.5 ended with the model asking "Would you like me to…?" in chat, so nothing was saved | `PromptBuilder.nudge`, `AgentController.MAX_NUDGES` |
+| C21 | — (new, extends F01) | JSON backup import of vault entries and resumes (`BackupImporter`; Vault page and `vault import-backup`) | Lets a student start from an existing vault; used to import the author's real data from his earlier tracker | No new use case; UC01 gains an alternative input |
+| C22 | UC04 5a partial draft shown | Partial draft saved as `CV_Company_Role_Draft` (`DraftSaver`); `AgentResult.resumeSaved` | The draft is otherwise lost when the run stops; a saved draft can be opened and finished | `AgentController.finish`, `AppConfig` |
+| C23 | Resume preview (Stage 1 mentions a preview) | `ResumePreview` renders a Jake's-template-like HTML page from the blocks (all text HTML-escaped) | LaTeX is compiled outside the app; the student needs a readable view in it | `resume.html`, `LatexText.toHtml` |
 
 ## 4.2 Modified features (Section 3 items 1–5)
 
-No feature was added, replaced or removed. The substantially modified features are:
+No feature was replaced or removed. F01 was extended with a JSON backup import (C21). The modified features are:
 
 | Feature | 1. Original | 2. Implemented behaviour | 3. What changed and why | 4. User need | 5. Affected use cases / classes / methods / patterns |
 |---|---|---|---|---|---|
-| C-F02 | F02 | Analyze with retries; failure shows an error, posting kept as text | No manual-entry form, no deadline (time) | Still turns a posting into requirements and keywords; "Analyze" can be retried | UC02; `PostingController.analyze`; Template Method |
+| C-F01 | F01 | Adds JSON backup import of vault entries and resumes | Students (and the author) already keep their experience elsewhere | Faster start with a complete vault | UC01; `BackupImporter`, `VaultController.importBackup`, `CliCommands.VaultCmd.ImportBackup` |
 | C-F03 | F03 | Adds TWEAK ≥ 45% | Needed a defined middle band | Same: score, gaps, strategy | UC03; `FitScorer.strategy` |
 | C-F06 | F06 | Fact lines + vault lookup | Deterministic, cross-session memory | Agent still never asks twice | UC06; `AskUserTool`, `VaultService.fileAnswer/knownAnswer` |
-| C-F08 | F08 | Revision log, undo/redo | No diff view (time) | Student still sees each change and can revert it | UC07; `ResumeEditor`, `RevisionHistory.log`; Command |
-| C-F09 | F09 | 180–450 validation, view/download | Fewer needless retries; no in-app editor | Letter still grounded, named and exportable | UC08; `CoverLetterTask.validate` |
+| C-F09 | F09 | 180–450 word validation window | Fewer needless retries | Letter still grounded, named, editable and exportable | UC08; `CoverLetterTask.validate` |
 | C-F10 | F10 | Keyword-evidence match % | No role-family classifier | Reuse suggestion still at ≥ 75% | UC09; `ResumeLibrary.findClosest/matchPercent` |
 
 ## 4.3 Modified patterns (Section 3 items 6–10)

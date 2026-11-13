@@ -30,14 +30,17 @@ only my real experience. This recording shows every feature in the web GUI."*
 3. Choose `samples/sample-resume.tex`, Save as `CV_General`, **Import** → "Imported 6 blocks … N new vault entries".
 4. Scroll the entries table (jobs, projects with tech tags, skills). Search `tutor`.
 5. Add an entry by hand: Title *"Hackathon — bus arrival bot"*, Kind ACTIVITY, Tags *python*, Details one line → **Save entry**.
-6. Import the same file again → "0 new vault entries" (duplicates merged).
+6. Import the same file again → "0 new vault entries" (duplicates merged). Add `Knows Java` by hand → refused: already in the vault (error case).
+7. Click ✎ on an entry, change its details → Save; click a tag chip to filter; × deletes an entry.
+8. **Import backup**: choose your `cooppilot-backup-sina.json` (or `samples/sample-backup.json`) → "N new vault entries, M resumes". Say: *"a student can start from an existing vault."* (If you use your real data, the rest of the demo runs on it.)
 
 ### A2 · F02 Posting import and analysis (hybrid — AI extracts, code validates)
 1. **Postings** → paste the text of `sample-posting.txt`, leave *Analyze* ticked → **Add posting**.
 2. Say: *"F02 — Claude extracts must-haves, ATS keywords and required documents as JSON; my code validates
    it and retries with the problems listed if it is invalid; the soft-skill flag is computed by code."*
 3. Point at Requirements: must-haves, nice-to-haves, documents (Cover Letter).
-4. Alternative: show the posting list and the raw posting text at the bottom of the page.
+4. Point at the **Deadline** read from the posting.
+5. Alternative: open **Edit the analysis**, add a keyword line such as `Kubernetes`, **Save analysis**; mention that the same form lets you fill the analysis in by hand if the AI analysis fails.
 
 ### A3 · F03 Fit analysis and strategy (hybrid)
 1. On the posting page, point at **Fit N/100**, the gaps, and **Recommended: GENERATE/TWEAK/REUSE**.
@@ -47,8 +50,8 @@ only my real experience. This recording shows every feature in the web GUI."*
 ### A4 · F04 ATS keyword scan (deterministic)
 1. Scroll to **Keyword scan**. Explain the colours: green backed, amber skills-line only, blue dashed
    "you have it but it isn't worded", grey missing.
-2. Alternative: pick another resume in the dropdown → **Scan** (after A5 you can pick the tailored one and
-   show coverage go up).
+2. Alternative: pick another resume in the dropdown → **Scan**. Later, on the resume page (A8), the same chips
+   appear under *Keywords (F04)* and change after an edit.
 
 ### A5 · F05 Agentic tailoring (AI)
 1. Click **Tailor with the agent**. Say: *"F05 — this is the agent. Claude plans and calls my tools one at
@@ -57,7 +60,8 @@ only my real experience. This recording shows every feature in the web GUI."*
    estimate_page → (condense) → save_resume. Open one result with ▸ to show what the tool returned.
 3. If a step shows ✗ or "REJECTED … numbers", stop and explain: *"the model tried to add a number that isn't
    in my material, so the tool refused it"* (error case). Otherwise point at the rules in the steps.
-4. At the end: status, step count, **Open CV_…** button.
+4. At the end: COMPLETED, step count, **Open CV_…** button. Mention: if a run stops early, the partial draft is
+   kept as `CV_…_Draft`.
 
 ### A6 · F06 Clarifying questions and vault learning (hybrid)
 1. If the agent asks a question during A5, answer it in the box and say: *"F06 — instead of guessing,
@@ -68,7 +72,7 @@ only my real experience. This recording shows every feature in the web GUI."*
 3. Alternative: skip a question (empty answer) → the agent leaves the detail out.
 
 ### A7 · F07 One-page fitting (hybrid)
-1. Open the tailored resume. Point at the **One page** meter (% of a page).
+1. Open the tailored resume. Scroll the **Preview** (how it will look as a PDF), then point at the **One page** meter.
 2. Click **Quick condense** → message "Condensed X% → Y% …" with what was cut. Say: *"rules, free: least
    relevant content first, jobs last."*
 3. **Undo** → back to the original (alternative case). Click **Smart condense** → Claude chooses what to cut
@@ -77,13 +81,16 @@ only my real experience. This recording shows every feature in the web GUI."*
 ### A8 · F08 Revision with undo/redo (hybrid)
 1. In **Ask for a change** type *"Make the tutoring bullet focus on Java"* → **Revise**.
 2. Point at the changed bullet in Blocks and the log line "You asked: …".
-3. **↶ Undo** → bullet back; **↷ Redo** → reapplied (*"no second AI call"*). Press Undo until "Nothing to undo"
-   (error case).
+3. Point at **What changed** (old text struck through, new text in green).
+4. **↶ Undo** → bullet back; **↷ Redo** → reapplied (*"no second AI call"*).
+5. In **Blocks**, click ✎ on a bullet, edit it by hand → Save bullet; click × on a project → removed; Undo brings
+   it back. Press Undo until "Nothing to undo" (error case).
 
 ### A9 · F09 Cover letter (AI)
 1. On the resume page, choose the posting → **Write cover letter** → the letter page (`CL_Company_Role`,
    word count). Say: *"F09 — written only from my resume and letter-safe vault facts; code checks length,
-   that it names the company, and that it invents no numbers."* Click **Download .txt**.
+   that it names the company, and that it invents no numbers."* Edit a sentence in the text area → **Save letter**,
+   then **Download .txt**. (If a draft still fails the checks, the page lists the problems above the letter.)
 
 ### A10 · F10 Library, reuse and export (deterministic)
 1. **Resumes** → library grouped by family; **.tex** download link.
@@ -92,7 +99,7 @@ only my real experience. This recording shows every feature in the web GUI."*
    offered; on one that fits ≥ 75%, click **Use as-is** → saved as `CV_Company_Role`.
 
 ### A11 · F11 Application tracking (deterministic, State pattern)
-1. **Tracker** → choose the posting and the tailored resume → **Log** (status TO_APPLY).
+1. On the tailored resume's page, **Apply (F11) → Log application** (status TO_APPLY); you land on the Tracker.
 2. Move to **APPLIED** → applied date + follow-up in 10 days. Move to **ASSESSMENT**, then **INTERVIEW**.
 3. Error case: show that the menu only offers legal next statuses; log a second application and note that
    OFFER isn't offered from TO_APPLY (CLI A-B4 shows the refusal message).
@@ -100,7 +107,8 @@ only my real experience. This recording shows every feature in the web GUI."*
 ### A12 · F12 Dashboard and goals (deterministic, Observer)
 1. **Dashboard** → tiles (today/week vs goals, response rate, interviews, follow-ups, streak) and the
    last-7-days chart. Say: *"the dashboard observes the tracker and only recomputes after a change."*
-2. Change goals to Daily 1 / Weekly 5 → **Save** → "Goal met" appears and the bar turns green.
+2. Change goals to Daily 1 / Weekly 5 → **Save** → "Goal met" appears and the bar turns green. Try Daily 0 →
+   refused (error case). Point at **Follow-ups due** (applications 10+ days old show here).
 
 ---
 

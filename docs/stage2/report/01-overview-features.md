@@ -21,16 +21,18 @@ Deterministic Java code enforces every rule the LLM could break: only facts from
 
 * **Web GUI** (Spring Boot 3 + Thymeleaf, `mvn spring-boot:run`, http://localhost:8080): Vault, Postings, live Tailoring page (agent steps streamed over Server-Sent Events, questions answered in the page), Resumes (revise/undo/redo, one-page meter and condense, cover letter, `.tex` download), Tracker, Dashboard.
 * **CLI** (picocli, `java -jar target/cooppilot-0.1.0.jar --cli <command>`): a command for every feature, `--json` output for scripting (used by the Stage 3 KUMA tests), and an interactive `shell` in which undo/redo history persists between commands.
-* **Storage:** SQLite (`cooppilot.db`, git-ignored). **Build:** Maven, Java 21. **Tests:** 86 automated tests (JUnit 5, Spring Boot Test, MockMvc) pass.
+* **Storage:** SQLite (`cooppilot.db`, git-ignored). **Build:** Maven (wrapper included: `mvnw`/`mvnw.cmd`), Java 21; runs on Windows, macOS and Linux. **Tests:** 108 automated tests (JUnit 5, Spring Boot Test, MockMvc) pass.
+* **Real use:** the agent was run end-to-end against Claude Haiku 4.5, and the author's real vault (65 entries) and resume library (50 resumes) were imported from his earlier tracker through the JSON backup import.
 
 **Limitations and incomplete functionality (honest list).**
 
-1. **Real-LLM behaviour is verified by one manual run, not by automated tests.** Automated tests drive the agent with a scripted `MockLlmClient`; the quality of the real model's tool choices was checked manually (Section 6). Systematic agent evaluation is Stage 3 (KUMA).
-2. **Undo/redo history lives in memory**: it is lost when the application restarts, and in the CLI it only spans one process (hence the `shell` command).
-3. **The page estimate is a heuristic** (line-cost model), not a compiled PDF; LaTeX is compiled by the student in Overleaf.
-4. **Single user, no authentication**; the app is meant to run locally.
-5. Not implemented from the Stage 1 design: the `OpenAiCompatibleAdapter` (only Claude and the mock exist), a "What changed" diff view for revisions (a revision log is shown instead), an editable cover-letter text area (letters are viewed and downloaded), manual entry of analysis fields when posting analysis fails, and deadline extraction from postings. Each is listed in Section 4 with its reason.
-6. Without an API key the app runs with the mock LLM: deterministic features work fully, LLM features return a fixed "no key" reply.
+1. **Real-LLM behaviour is verified by manual runs, not by automated tests.** Automated tests drive the agent with a scripted `MockLlmClient`; the real model's tool use was checked manually (Section 6). Systematic agent evaluation is Stage 3 (KUMA).
+2. **Only invented numbers are blocked deterministically.** `FactGuard` rejects new numbers, but a reworded bullet can still add small non-numeric embellishments (in one real run the model added "algorithms" to a tutoring bullet). The student reviews the "What changed" diff; deeper fact checking is Stage 3 work.
+3. **Undo/redo history lives in memory**: it is lost when the application restarts, and in the CLI it only spans one process (hence the `shell` command).
+4. **The page estimate is a heuristic** (line-cost model calibrated on 50 real one-page resumes), not a compiled PDF; the in-app preview approximates the layout and the student compiles the `.tex` in Overleaf.
+5. **Single user, no authentication**; the app is meant to run locally.
+6. Not implemented from the Stage 1 design: only the `OpenAiCompatibleAdapter` (a second LLM provider); Claude and the offline mock implement `LLMClient`. See C07.
+7. Without an API key the app runs with the mock LLM: deterministic features work fully, LLM features return a fixed "no key" reply.
 
 # 2. Feature-to-implementation mapping
 
@@ -41,26 +43,26 @@ Every Stage 1 feature (F01–F12) is accounted for below. No feature was removed
 | Field | Entry |
 |---|---|
 | Stage 1 reference | F01, UC01, SD08 |
-| Status | Implemented (minor modification: duplicates are merged, see C-F01) |
-| Classes / files | `service.LatexResumeParser` (splits a Jake's-template `.tex` into blocks), `service.LatexText` (brace-balanced argument reader, LaTeX→text, date ranges), `service.VaultService` (vault rules: dedupe, search, skills, import), `domain.VaultEntry`/`EntryKind`/`EntryUse`, `domain.ResumeBlock`/`Resume`/`Section`, `persistence.SqliteVaultRepository`, `persistence.SqliteResumeRepository`, `app.CoopPilotFacade`, `ui.web.VaultController` + `vault.html`, `ui.cli.CliCommands.VaultCmd` |
-| Key methods | `LatexResumeParser.parse(latex)`, `VaultService.importFromResume(parse)`, `VaultService.addEntry(e)`, `VaultService.search(q, tags)`, `CoopPilotFacade.importResume(latex, name)` |
+| Status | Implemented + extended (JSON backup import; see C21) |
+| Classes / files | `service.LatexResumeParser` (splits a Jake's-template `.tex` into blocks), `service.LatexText` (brace-balanced argument reader, LaTeX→text, date ranges), `service.VaultService` (vault rules: dedupe, search, tag filter, skills, import), `service.BackupImporter` (JSON backup of vault entries and resumes), `vault-edit.html` (edit an entry), `domain.VaultEntry`/`EntryKind`/`EntryUse`, `domain.ResumeBlock`/`Resume`/`Section`, `persistence.SqliteVaultRepository`, `persistence.SqliteResumeRepository`, `app.CoopPilotFacade`, `ui.web.VaultController` + `vault.html`, `ui.cli.CliCommands.VaultCmd` |
+| Key methods | `LatexResumeParser.parse(latex)`, `VaultService.importFromResume(parse)`, `VaultService.addEntry(e)`, `VaultService.search(q, tags)`, `CoopPilotFacade.importResume(latex, name)`, `importBackup(json)`, `updateVaultEntry/deleteVaultEntry` |
 | Design patterns | Facade; Repository (not counted) |
 | Video | V01 |
 
-**Collaboration.** The Vault page uploads the `.tex` file (CLI: `vault import FILE`) → `VaultController` calls `CoopPilotFacade.importResume` → `LatexResumeParser` finds each `\section`, reads `\resumeSubheading` (detecting the education vs. experience argument order), `\resumeProjectHeading` (tech stack → tags), `\resumeItem` bullets and skill lines, and returns blocks plus warnings → the facade saves an `ORIGINAL` resume and `VaultService` creates one vault entry per experience and one skill entry per skill, merging duplicates → the page shows counts and warnings. Re-importing the same resume adds nothing.
+**Collaboration.** The Vault page uploads the `.tex` file (CLI: `vault import FILE`) → `VaultController` calls `CoopPilotFacade.importResume` → `LatexResumeParser` finds each `\section`, reads `\resumeSubheading` (detecting the education vs. experience argument order), `\resumeProjectHeading` (tech stack → tags), `\resumeItem` bullets and skill lines, and returns blocks plus warnings → the facade saves an `ORIGINAL` resume and `VaultService` creates one vault entry per experience and one skill entry per skill, merging duplicates → the page shows counts and warnings. Re-importing the same resume adds nothing. Entries can be edited (✎) or deleted (×), filtered by clicking a tag, and a duplicate added by hand (e.g. the same skill with different case or spacing) is refused with a message. **Import backup** (Vault page or `vault import-backup FILE`) loads a JSON file of vault entries and resumes, so a student can start from an existing vault; it was used to import the author's real data from his earlier tracker.
 
 ## F02 — Job Posting Import and Analysis (H)
 
 | Field | Entry |
 |---|---|
 | Stage 1 reference | F02, UC02, SD03 |
-| Status | Modified (no manual field entry on failure; deadline not extracted; see C-F02) |
+| Status | Implemented |
 | Classes / files | `llm.PostingAnalysisTask` (prompt, JSON parsing, validation, soft-skill rule), `llm.LlmTask` (retry template), `llm.JsonReply` (extracts JSON from chatty replies), `domain.Posting`/`PostingAnalysis`/`Keyword`, `persistence.SqlitePostingRepository`, `CoopPilotFacade`, `ui.web.PostingController` + `postings.html`/`posting.html`, `CliCommands.PostingCmd` |
-| Key methods | `CoopPilotFacade.importPosting(text, company, role)`, `CoopPilotFacade.analyzePosting(id)`, `LlmTask.run()`, `PostingAnalysisTask.parse/validate`, `PostingAnalysisTask.softSkillFocus(mustHaves)` |
+| Key methods | `CoopPilotFacade.importPosting(text, company, role)`, `CoopPilotFacade.analyzePosting(id)`, `CoopPilotFacade.saveAnalysis(...)`, `LlmTask.run()`, `PostingAnalysisTask.parse/validate`, `PostingAnalysisTask.softSkillFocus(mustHaves)` |
 | Design patterns | Template Method, Adapter, Facade |
 | Video | V02 |
 
-**Collaboration.** The student pastes a posting (CLI: `posting add FILE --analyze`) → the facade saves it → `PostingAnalysisTask.run()` (template) builds a strict-JSON prompt, calls `LLMClient`, parses must-haves, nice-to-haves, keywords with aliases and required documents, and validates (keywords non-empty, requirements present); invalid replies are retried with the problems listed. The **soft-skill focus** flag is then recomputed deterministically (2+ or 40%+ of must-haves are soft skills). Blank company/role/term are filled from the analysis.
+**Collaboration.** The student pastes a posting (CLI: `posting add FILE --analyze`) → the facade saves it → `PostingAnalysisTask.run()` (template) builds a strict-JSON prompt, calls `LLMClient`, parses must-haves, nice-to-haves, keywords with aliases and required documents, and validates (keywords non-empty, requirements present); invalid replies are retried with the problems listed. The **soft-skill focus** flag is then recomputed deterministically (2+ or 40%+ of must-haves are soft skills). Blank company/role/term/deadline are filled from the analysis. The student can **edit the analysis** (company, role, term, deadline, requirements, keywords as `term | aliases | must`, documents), or fill it in by hand when the LLM analysis fails (UC02 3a).
 
 ## F03 — Fit Analysis and Skill-Gap Detection (H)
 
@@ -81,25 +83,25 @@ Every Stage 1 feature (F01–F12) is accounted for below. No feature was removed
 |---|---|
 | Stage 1 reference | F04, UC03, SD03 |
 | Status | Implemented |
-| Classes / files | `service.KeywordScanner`, `service.ResumeText` (plain-text views of a resume; "evidence" text excludes the skills line), `domain.Keyword.appearsIn` (word-boundary matching: Java ≠ JavaScript, C++ handled), `domain.KeywordReport`, `agent.tools.KeywordScanTool`, `posting.html` chips, `CliCommands.ScanCmd` |
+| Classes / files | `service.KeywordScanner`, `service.ResumeText` (plain-text views of a resume; "evidence" text excludes the skills line), `domain.Keyword.appearsIn` (word-boundary matching: Java ≠ JavaScript, C++ handled), `domain.KeywordReport`, `agent.tools.KeywordScanTool`, chips on `posting.html` and `resume.html`, `CliCommands.ScanCmd` |
 | Key methods | `KeywordScanner.scan(resume, analysis)`, `Keyword.appearsIn(text)`, `KeywordReport.coverage()` |
 | Design patterns | N/A (used as an agent tool) |
 | Video | V04 |
 
-**Collaboration.** For a chosen resume, `KeywordScanner` strips LaTeX, then classifies each posting keyword as **backed** (in experience/project text), **thin** (only in the skills line), **known but not worded** (the vault supports it) or **missing**. The page shows coloured chips; the agent calls the same scanner through `keyword_scan`.
+**Collaboration.** For a chosen resume, `KeywordScanner` strips LaTeX, then classifies each posting keyword as **backed** (in experience/project text), **thin** (only in the skills line), **known but not worded** (the vault supports it) or **missing**. The posting page and the resume page show coloured chips (on the resume page they refresh after every edit, for any chosen posting); the agent calls the same scanner through `keyword_scan`.
 
 ## F05 — Agentic Resume Tailoring (AI)
 
 | Field | Entry |
 |---|---|
 | Stage 1 reference | F05, UC04, SD01, SD09 |
-| Status | Implemented (direct HTTP adapter instead of the SDK; richer `Message`; see C01, C02) |
+| Status | Implemented (direct HTTP adapter instead of the SDK; richer `Message`; autonomy nudges; see C01, C02, C20) |
 | Classes / files | `agent.AgentController` (loop, step limit, LLM retry), `agent.AgentSession` (conversation, draft, listeners), `agent.PromptBuilder` (goal + hard rules), `agent.tools.ToolRegistry` (argument validation), tools `FindSimilarResumeTool`, `SearchVaultTool`, `KeywordScanTool`, `ComposeResumeTool`, `EstimatePageTool`, `CondenseTool`, `AskUserTool`, `SaveResumeTool`; `service.LatexAssembler`, `service.FactGuard`, `service.ExportService.fileName`; `llm.ClaudeAdapter`; `ui.web.AgentSessionManager`, `SseProgressPublisher`, `TailorController` + `tailor.html`; `CliCommands.TailorCmd` |
 | Key methods | `CoopPilotFacade.tailorResume(postingId, q, listener)`, `AgentController.run/loop/completeWithRetry`, `ToolRegistry.execute/validateArgs`, `ComposeResumeTool.execute`, `LatexAssembler.assemble`, `SaveResumeTool.execute` |
 | Design patterns | Observer, Adapter, Facade (+ Strategy through `CondenseTool`) |
 | Video | V05 |
 
-**Collaboration.** "Tailor with the agent" (CLI: `tailor POSTING_ID`) → `AgentSessionManager` starts the run on a background thread → `AgentController` sends the system prompt (goal + rules) and tool schemas to Claude → each tool call the model makes is validated by `ToolRegistry` (unknown tools, missing or mistyped arguments and tool exceptions go back to the model as errors) and executed; results return to the conversation → typical plan: `find_similar_resume` → `search_vault` → `compose_resume` (keep/reorder blocks, front-load skills, reword bullets; rewrites with invented numbers are rejected) → `keyword_scan` → `estimate_page` → `condense` if needed → `save_resume` (refused over one page; named `CV_Company_Role`). `SseProgressPublisher` (observer) streams every step to the browser. The run ends when the model stops calling tools (`COMPLETED` if saved), at 15 steps (`STEP_LIMIT`), or on a non-retryable LLM error (`FAILED`); 429/5xx errors are retried with backoff.
+**Collaboration.** "Tailor with the agent" (CLI: `tailor POSTING_ID`) → `AgentSessionManager` starts the run on a background thread → `AgentController` sends the system prompt (goal + rules) and tool schemas to Claude → each tool call the model makes is validated by `ToolRegistry` (unknown tools, missing or mistyped arguments and tool exceptions go back to the model as errors) and executed; results return to the conversation → typical plan: `find_similar_resume` → `search_vault` → `compose_resume` (keep/reorder blocks, front-load skills, reword bullets; rewrites with invented numbers are rejected) → `keyword_scan` → `estimate_page` → `condense` if needed → `save_resume` (refused over one page; named `CV_Company_Role`). `SseProgressPublisher` (observer) streams every step to the browser. The run ends when `save_resume` has succeeded and the model stops (`COMPLETED`), at 15 steps (`STEP_LIMIT`), or on a non-retryable LLM error (`FAILED`); 429/5xx errors are retried with backoff. If the model stops to chat without saving (seen in the first real run), the loop tells it to finish and save, at most twice. When a run stops early, the partial draft is kept as `CV_Company_Role_Draft` (UC04 5a).
 
 ## F06 — Clarifying Questions and Vault Learning (H)
 
@@ -119,39 +121,39 @@ Every Stage 1 feature (F01–F12) is accounted for below. No feature was removed
 | Field | Entry |
 |---|---|
 | Stage 1 reference | F07, UC05, SD01 |
-| Status | Implemented (+ undoable `CondenseCommand`; smart mode falls back to rules; see C03) |
+| Status | Implemented (+ undoable `CondenseCommand`; see C03, C19) |
 | Classes / files | `service.PageEstimator`, `service.CondenseStrategy` (interface), `service.RuleBasedCondense`, `service.LlmCondense` + `llm.SmartCondenseTask`, `service.edit.CondenseCommand`, `agent.tools.EstimatePageTool`/`CondenseTool`, `AppConfig.condenseStrategies`, `resume.html` (page meter, Quick/Smart condense), `CliCommands.CondenseCmd` |
 | Key methods | `PageEstimator.estimate(resume)`, `CondenseStrategy.condense(resume, analysis, pages)`, `CoopPilotFacade.condenseResume(resumeId, postingId, mode)`, `ResumeEditor.condense` |
 | Design patterns | Strategy, Command, Template Method (smart) |
 | Video | V07 |
 
-**Collaboration.** `PageEstimator` sums each block's heading and wrapped-bullet lines into a fraction of a page (shown as a meter, red when over 100%). **Quick condense** (`RuleBasedCondense`, free) removes the least relevant content in a fixed order: irrelevant projects (keeping 2) → projects, then jobs, to 2 bullets → weakest extra project → projects, then jobs, to 1 bullet. Jobs give way last and one project always stays. **Smart condense** (`LlmCondense`) asks the model what to cut or shorten (validated: no unknown bullets, no new numbers) and finishes with the rules if still over. From the GUI/CLI the condense runs as a `CondenseCommand`, so it can be undone; inside the agent it runs through `CondenseTool`.
+**Collaboration.** `PageEstimator` sums each block's heading and wrapped-bullet lines into a fraction of a page (shown as a meter, red when over 100%). **Quick condense** (`RuleBasedCondense`, free) removes the least relevant content in a fixed order: irrelevant projects (keeping 2) → projects, then jobs, to 2 bullets → weakest extra project → projects, then jobs, to 1 bullet. Jobs give way last and one project always stays. **Smart condense** (`LlmCondense`) asks the model what to cut or shorten (validated: no unknown bullets, no new numbers); if its plan keeps failing validation it falls back to Quick condense (UC05 2a), and it finishes with the rules if still over. Condensing aims at ≤ 98% of a page; saving requires ≤ 100%. From the GUI/CLI the condense runs as a `CondenseCommand`, so it can be undone; inside the agent it runs through `CondenseTool`.
 
 ## F08 — Natural-Language Revision with Version History (H)
 
 | Field | Entry |
 |---|---|
 | Stage 1 reference | F08, UC07, SD04 |
-| Status | Modified (revision log instead of a diff view; see C-F08) |
-| Classes / files | `service.edit.ResumeEditor` (one `RevisionHistory` per resume; reassembles and saves after each step), `RevisionHistory` (invoker), `ResumeEditCommand` + `AiRevisionCommand`, `ReplaceBulletCommand`, `RemoveBlockCommand`, `CondenseCommand`; `llm.RevisionTask`; `service.FactGuard`; `resume.html`; `CliCommands.ReviseCmd/EditBulletCmd/UndoCmd/RedoCmd` |
+| Status | Implemented |
+| Classes / files | `service.edit.ResumeEditor` (one `RevisionHistory` per resume; reassembles and saves after each step; records the last diff), `service.edit.ResumeDiff` ("What changed"), `RevisionHistory` (invoker), `ResumeEditCommand` + `AiRevisionCommand`, `ReplaceBulletCommand`, `RemoveBlockCommand`, `CondenseCommand`; `llm.RevisionTask`; `service.FactGuard`; `resume.html`; `CliCommands.ReviseCmd/EditBulletCmd/UndoCmd/RedoCmd` |
 | Key methods | `CoopPilotFacade.reviseResume/replaceBullet/removeBlock/undo/redo/revisionLog`, `RevisionHistory.run/undo/redo`, `AiRevisionCommand.execute/undo` |
 | Design patterns | Command, Template Method |
 | Video | V08 |
 
-**Collaboration.** The student types a request (CLI: `revise ID "..."`) → `ResumeEditor` creates an `AiRevisionCommand` and runs it through the resume's `RevisionHistory` → the command snapshots the blocks and runs `RevisionTask` (bullet rewrites/removals as JSON; validation rejects unknown bullets and numbers not in the vault or resume) → the LaTeX is reassembled and saved. Undo restores the snapshot; redo reapplies the stored result **without calling the LLM again**. A new edit clears the redo branch.
+**Collaboration.** The student types a request (CLI: `revise ID "..."`) → `ResumeEditor` creates an `AiRevisionCommand` and runs it through the resume's `RevisionHistory` → the command snapshots the blocks and runs `RevisionTask` (bullet rewrites/removals as JSON; validation rejects unknown bullets and numbers not in the vault or resume) → the LaTeX is reassembled and saved. Undo restores the snapshot; redo reapplies the stored result **without calling the LLM again**. A new edit clears the redo branch. After every edit, undo or redo the page shows **What changed** (added, removed and reworded bullets, old text struck through, new text in green). Bullets can also be edited by hand (✎) and entries removed (×), both undoable.
 
 ## F09 — Cover Letter Drafting (AI)
 
 | Field | Entry |
 |---|---|
 | Stage 1 reference | F09, UC08, SD05 |
-| Status | Modified (180–450 word validation window; view + download instead of an editable text area; see C-F09) |
+| Status | Implemented (validation window 180–450 words; see C12) |
 | Classes / files | `llm.CoverLetterTask`, `persistence.CoverLetterRepository`, `domain.CoverLetter`, `CoopPilotFacade.writeCoverLetter`, `ui.web.ResumeController` + `letter.html`, `CliCommands.LetterCmd` |
-| Key methods | `CoopPilotFacade.writeCoverLetter(postingId, resumeId)`, `CoverLetterTask.buildRequest/parse/validate` |
+| Key methods | `CoopPilotFacade.draftCoverLetter(postingId, resumeId)`, `saveCoverLetter(name, body)`, `CoverLetterTask.buildRequest/parse/validate` |
 | Design patterns | Template Method |
 | Video | V09 |
 
-**Collaboration.** From a resume page (CLI: `letter POSTING_ID RESUME_ID`) → the facade collects only vault entries allowed in letters (`ALL`, `LETTERS_ONLY`; never `CONTEXT_ONLY`) → `CoverLetterTask` asks for a 250–350-word plain-text letter that states the posting's term and connects 2–3 real experiences to the must-haves → validation rejects bad length, letters that don't name the company, `[placeholders]` and invented numbers, with retries → saved as `CL_Company_Role`, viewable and downloadable as `.txt`.
+**Collaboration.** From a resume page (CLI: `letter POSTING_ID RESUME_ID`) → the facade collects only vault entries allowed in letters (`ALL`, `LETTERS_ONLY`; never `CONTEXT_ONLY`) → `CoverLetterTask` asks for a 250–350-word plain-text letter that states the posting's term and connects 2–3 real experiences to the must-haves → validation rejects bad length, letters that don't name the company, `[placeholders]` and invented numbers, with retries → saved as `CL_Company_Role` and shown in an editable text area (Save, Download .txt). If the draft still fails validation after the retries, it is saved anyway and shown with the problems listed (UC08 3a).
 
 ## F10 — Resume Library, Reuse and Export (D)
 
@@ -177,7 +179,7 @@ Every Stage 1 feature (F01–F12) is accounted for below. No feature was removed
 | Design patterns | State, Observer |
 | Video | V11 |
 
-**Collaboration.** An application starts in **To apply** → moving it (GUI dropdown shows only legal next states; CLI `app status ID STATUS`) calls `ApplicationTracker.transition` → `Application` delegates to its current state, which refuses illegal moves (e.g. Rejected → Offer) and runs entry actions (**Applied** stamps the date and a +10-day follow-up; final states clear it; **Ghosted** can still be revived by a late reply) → the history event is saved and listeners are notified.
+**Collaboration.** An application starts in **To apply** → moving it (GUI dropdown shows only legal next states; CLI `app status ID STATUS`) calls `ApplicationTracker.transition` → `Application` delegates to its current state, which refuses illegal moves (e.g. Rejected → Offer) and runs entry actions (**Applied** stamps the date and a +10-day follow-up; final states clear it; **Ghosted** can still be revived by a late reply) → the history event is saved and listeners are notified. An application can also be logged straight from a resume page ("Log application"), linking that resume.
 
 ## F12 — Progress Dashboard and Goals (D)
 
@@ -190,4 +192,4 @@ Every Stage 1 feature (F01–F12) is accounted for below. No feature was removed
 | Design patterns | Observer |
 | Video | V12 |
 
-**Collaboration.** `DashboardService` registers with `ApplicationTracker` and drops its cached statistics whenever an application changes (or the goals change); `stats()` recomputes only then (and when the date changes): today and this week vs. goals (with "Goal met"), total applied, response rate, interviews, offers, follow-ups due, daily-goal streak and a last-7-days bar chart. Goals are stored in SQLite.
+**Collaboration.** `DashboardService` registers with `ApplicationTracker` and drops its cached statistics whenever an application changes (or the goals change); `stats()` recomputes only then (and when the date changes): today and this week vs. goals (with "Goal met"), total applied, response rate, interviews, offers, follow-ups due, daily-goal streak and a last-7-days bar chart, plus the list of follow-ups due and an empty state when there are no applications. Goals are stored in SQLite and must be at least 1 (UC11 3a).
