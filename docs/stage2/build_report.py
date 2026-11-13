@@ -82,6 +82,9 @@ def main():
     todos = re.findall(r"\{\{TODO[^}]*\}\}", text)
 
     html_text = re.sub(r"\{\{(TODO[^}]*)\}\}", r'<span class="todo">[\1]</span>', text)
+    # the HTML is written to target/, so point images at absolute paths for wkhtmltopdf
+    html_text = re.sub(r"!\[([^\]]*)\]\((docs/[^)]+\.png)\)",
+                       lambda m: f"![{m.group(1)}]({os.path.join(ROOT, m.group(2))})", html_text)
     html_text += f"\n\n---\n*Generated {date.today().isoformat()} from `docs/stage2/report/`.*\n"
     tmp_md = os.path.join(ROOT, "target", "stage2-report.tmp.md")
     os.makedirs(os.path.dirname(tmp_md), exist_ok=True)
@@ -89,7 +92,7 @@ def main():
     css_path = os.path.join(ROOT, "target", "report.css")
     open(css_path, "w").write(CSS)
     html_out = os.path.join(ROOT, "target", "stage2-report.html")
-    subprocess.run(["pandoc", tmp_md, "-s", "--toc", "--toc-depth=2", "-c", css_path,
+    subprocess.run(["pandoc", "-f", "markdown-tex_math_dollars", tmp_md, "-s", "--toc", "--toc-depth=2", "-c", css_path,
                     "--metadata", "lang=en", "-o", html_out], check=True, cwd=ROOT)
     pdf_out = os.path.join(ROOT, "stage2-report.pdf")
     subprocess.run(["wkhtmltopdf", "--quiet", "--enable-local-file-access", "--page-size", "Letter",
