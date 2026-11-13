@@ -74,6 +74,11 @@ class WebPagesTest {
                 .andExpect(content().string(containsString("Keyword scan")))
                 .andExpect(content().string(containsString("Tailor with the agent")));
         mvc.perform(get("/postings")).andExpect(content().string(containsString("Northwind Labs")));
+        mvc.perform(post(postingUrl + "/analysis").param("company", "Northwind Labs").param("role", "Software Developer Co-op")
+                .param("deadline", "2026-12-05").param("mustHaves", "Java\nSQL").param("keywords", "Java | | must\nSQL | PostgreSQL | must\nGit")
+                .param("documents", "Resume\nCover Letter")).andExpect(flash().attribute("message", "Analysis saved."));
+        mvc.perform(get(postingUrl)).andExpect(content().string(containsString("2026-12-05")))
+                .andExpect(content().string(containsString("Edit the analysis")));
 
         mvc.perform(get("/resumes")).andExpect(status().isOk()).andExpect(content().string(containsString("CV_Web")));
         mvc.perform(get("/resumes/" + resume.getId())).andExpect(status().isOk())

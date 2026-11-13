@@ -56,7 +56,11 @@ public class DashboardService implements ApplicationListener {
     public Goals goals() {
         int daily = setting("goal.daily", 3);
         int weekly = setting("goal.weekly", 15);
-        return new Goals(daily, weekly);
+        try {
+            return new Goals(daily, weekly);
+        } catch (IllegalArgumentException e) {
+            return new Goals(3, 15); // stored values from before the rule; fall back to the defaults
+        }
     }
 
     public synchronized void setGoals(Goals g) {

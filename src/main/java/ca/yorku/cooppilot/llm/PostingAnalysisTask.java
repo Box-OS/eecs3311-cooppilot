@@ -19,7 +19,7 @@ import java.util.Set;
 public class PostingAnalysisTask extends LlmTask<PostingAnalysisTask.Result> {
 
     /** Analysis plus the company/role/term the model read from the text (used when the user left them blank). */
-    public record Result(PostingAnalysis analysis, String company, String role, String term) {}
+    public record Result(PostingAnalysis analysis, String company, String role, String term, java.time.LocalDate deadline) {}
 
     static final Set<String> SOFT_SKILLS = Set.of("communication", "interpersonal", "teamwork", "team player",
             "collaboration", "customer service", "leadership", "time management", "organization", "problem solving",
@@ -38,6 +38,7 @@ public class PostingAnalysisTask extends LlmTask<PostingAnalysisTask.Result> {
         String prompt = """
                 Extract from this posting:
                 {"company": "...", "role": "...", "term": "e.g. Winter 2027, 4 months or empty",
+                 "deadline": "application deadline as YYYY-MM-DD, or empty if none is given",
                  "mustHaves": ["required qualifications, short phrases"],
                  "niceToHaves": ["assets / preferred qualifications"],
                  "keywords": [{"term": "exact tool/skill word an ATS would scan for", "aliases": ["other spellings"], "mustHave": true}],
@@ -63,7 +64,18 @@ public class PostingAnalysisTask extends LlmTask<PostingAnalysisTask.Result> {
         }
         PostingAnalysis analysis = new PostingAnalysis(must, JsonReply.strings(j.get("niceToHaves")), keywords,
                 JsonReply.strings(j.get("documentsRequired")), softSkillFocus(must));
-        return new Result(analysis, j.path("company").asText(""), j.path("role").asText(""), j.path("term").asText(""));
+        return new Result(analysis, j.path("company").asText(""), j.path("role").asText(""), j.path("term").asText(""),
+                date(j.path("deadline").asText("")));
+    }
+
+    /** Lenient deadline parsing: an unreadable date is simply left empty. */
+    static java.time.LocalDate date(String s) {
+        if (s == null || s.isBlank()) return null;
+        try {
+            return java.time.LocalDate.parse(s.trim().substring(0, Math.min(10, s.trim().length())));
+        } catch (RuntimeException e) {
+            return null;
+        }
     }
 
     @Override
@@ -77,7 +89,7 @@ public class PostingAnalysisTask extends LlmTask<PostingAnalysisTask.Result> {
     }
 
     /** Soft-skill focus when 2+ must-haves, or 40%+ of them, are soft skills. */
-    static boolean softSkillFocus(List<String> mustHaves) {
+    public static boolean softSkillFocus(List<String> mustHaves) {
         if (mustHaves.isEmpty()) return false;
         long soft = mustHaves.stream().map(m -> m.toLowerCase(Locale.ROOT))
                 .filter(m -> SOFT_SKILLS.stream().anyMatch(m::contains)).count();

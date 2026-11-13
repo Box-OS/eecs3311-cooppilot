@@ -42,8 +42,8 @@
     <section class="card">
         <h2>Goals</h2>
         <form method="post" action="/dashboard/goals" class="row">
-            <label>Daily <input type="number" min="0" name="daily" th:value="${s.goals().daily()}" style="width:5rem"></label>
-            <label>Weekly <input type="number" min="0" name="weekly" th:value="${s.goals().weekly()}" style="width:5rem"></label>
+            <label>Daily <input type="number" min="1" name="daily" th:value="${s.goals().daily()}" style="width:5rem"></label>
+            <label>Weekly <input type="number" min="1" name="weekly" th:value="${s.goals().weekly()}" style="width:5rem"></label>
             <button>Save</button>
         </form>
     </section>

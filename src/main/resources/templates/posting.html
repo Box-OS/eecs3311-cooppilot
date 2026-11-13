@@ -8,9 +8,25 @@
         <span class="muted" th:text="${posting.role.isBlank() ? '' : '— ' + posting.role}"></span></h1>
     <div th:replace="~{fragments :: flash}"></div>
 
-    <section class="card" th:unless="${posting.analyzed}">
+    <section class="card" th:unless="${posting.analyzed}" th:with="a=${null}">
         <p>This posting has not been analyzed yet.</p>
         <form method="post" th:action="@{/postings/{id}/analyze(id=${posting.id})}"><button>Analyze with the LLM</button></form>
+        <details style="margin-top:.8rem"><summary>Or fill in the analysis by hand (e.g. if the AI analysis failed)</summary>
+            <form method="post" th:action="@{/postings/{id}/analysis(id=${posting.id})}">
+                <div class="row">
+                    <label>Company <input name="company" th:value="${posting.company}"></label>
+                    <label>Role <input name="role" th:value="${posting.role}"></label>
+                    <label>Term <input name="term" th:value="${posting.term}" placeholder="Winter 2027"></label>
+                    <label>Deadline <input name="deadline" type="date" th:value="${posting.deadline.orElse(null)}"></label>
+                </div>
+                <label>Must-haves (one per line) <textarea name="mustHaves" rows="4" th:text="${a == null ? '' : #strings.listJoin(a.mustHaves(), '&#10;')}"></textarea></label>
+                <label>Nice to have (one per line) <textarea name="niceToHaves" rows="3" th:text="${a == null ? '' : #strings.listJoin(a.niceToHaves(), '&#10;')}"></textarea></label>
+                <label>Keywords: one per line, as <code>term</code> or <code>term | alias, alias | must</code>
+                    <textarea name="keywords" rows="6" th:text="${kwText}"></textarea></label>
+                <label>Documents required (one per line) <textarea name="documents" rows="2" th:text="${a == null ? '' : #strings.listJoin(a.documentsRequired(), '&#10;')}"></textarea></label>
+                <button>Save analysis</button>
+            </form>
+        </details>
     </section>
 
     <th:block th:if="${posting.analyzed}" th:with="a=${posting.analysis.get()}">
@@ -41,9 +57,26 @@
         </div>
         <section class="card">
             <h2>Requirements (F02)</h2>
+            <p class="small" th:if="${posting.deadline.isPresent()}"><strong>Deadline:</strong> <span th:text="${posting.deadline.get()}"></span></p>
             <p class="small"><strong>Must-have:</strong> <span th:text="${#strings.listJoin(a.mustHaves(), '; ')}"></span></p>
             <p class="small"><strong>Nice to have:</strong> <span th:text="${#strings.listJoin(a.niceToHaves(), '; ')}"></span></p>
             <p class="small"><strong>Documents:</strong> <span th:text="${#strings.listJoin(a.documentsRequired(), ', ')}"></span></p>
+            <details><summary>Edit the analysis</summary>
+            <form method="post" th:action="@{/postings/{id}/analysis(id=${posting.id})}">
+                <div class="row">
+                    <label>Company <input name="company" th:value="${posting.company}"></label>
+                    <label>Role <input name="role" th:value="${posting.role}"></label>
+                    <label>Term <input name="term" th:value="${posting.term}" placeholder="Winter 2027"></label>
+                    <label>Deadline <input name="deadline" type="date" th:value="${posting.deadline.orElse(null)}"></label>
+                </div>
+                <label>Must-haves (one per line) <textarea name="mustHaves" rows="4" th:text="${a == null ? '' : #strings.listJoin(a.mustHaves(), '&#10;')}"></textarea></label>
+                <label>Nice to have (one per line) <textarea name="niceToHaves" rows="3" th:text="${a == null ? '' : #strings.listJoin(a.niceToHaves(), '&#10;')}"></textarea></label>
+                <label>Keywords: one per line, as <code>term</code> or <code>term | alias, alias | must</code>
+                    <textarea name="keywords" rows="6" th:text="${kwText}"></textarea></label>
+                <label>Documents required (one per line) <textarea name="documents" rows="2" th:text="${a == null ? '' : #strings.listJoin(a.documentsRequired(), '&#10;')}"></textarea></label>
+                <button>Save analysis</button>
+            </form>
+            </details>
         </section>
         <section class="card" th:if="${scan != null}">
             <div class="row" style="justify-content:space-between">

@@ -95,6 +95,7 @@ class ApplicationStateTest {
             apps.add(a);
         }
         assertEquals(2, DashboardService.streak(apps, new Goals(1, 5), MON));
-        assertEquals(0, DashboardService.streak(apps, new Goals(0, 5), MON));
+        assertThrows(IllegalArgumentException.class, () -> new Goals(0, 5), "UC11 3a: goal <= 0 rejected");
+        assertThrows(IllegalArgumentException.class, () -> new Goals(5, 3));
     }
 }

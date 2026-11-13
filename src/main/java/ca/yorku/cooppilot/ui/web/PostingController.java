@@ -60,6 +60,10 @@ public class PostingController {
     public String detail(@PathVariable String id, @RequestParam(required = false) String scan, Model m) {
         Posting p = facade.posting(id);
         m.addAttribute("posting", p);
+        m.addAttribute("kwText", p.getAnalysis().map(a -> a.keywords().stream()
+                .map(k -> k.term() + (k.aliases().isEmpty() && !k.mustHave() ? "" : " | " + String.join(", ", k.aliases()))
+                        + (k.mustHave() ? " | must" : ""))
+                .collect(java.util.stream.Collectors.joining("\n"))).orElse(""));
         List<Resume> resumes = facade.resumes().stream().sorted(Comparator.comparing(Resume::getName)).toList();
         m.addAttribute("resumes", resumes);
         if (p.isAnalyzed()) {
@@ -73,6 +77,21 @@ public class PostingController {
             }
         }
         return "posting";
+    }
+
+    @PostMapping("/postings/{id}/analysis")
+    public String saveAnalysis(@PathVariable String id, @RequestParam(required = false) String company,
+                               @RequestParam(required = false) String role, @RequestParam(required = false) String term,
+                               @RequestParam(required = false) String deadline, @RequestParam(required = false) String mustHaves,
+                               @RequestParam(required = false) String niceToHaves, @RequestParam(required = false) String keywords,
+                               @RequestParam(required = false) String documents, RedirectAttributes flash) {
+        try {
+            facade.saveAnalysis(id, company, role, term, deadline, mustHaves, niceToHaves, keywords, documents);
+            flash.addFlashAttribute("message", "Analysis saved.");
+        } catch (IllegalArgumentException e) {
+            flash.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/postings/" + id;
     }
 
     @PostMapping("/postings/{id}/tailor")

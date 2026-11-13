@@ -4,6 +4,8 @@ package ca.yorku.cooppilot.tracking;
 public record Goals(int daily, int weekly) {
 
     public Goals {
-        if (daily < 0 || weekly < 0) throw new IllegalArgumentException("goals cannot be negative");
+        // UC11 3a: a goal must be at least 1
+        if (daily < 1 || weekly < 1) throw new IllegalArgumentException("Goals must be at least 1 per day and 1 per week.");
+        if (weekly < daily) throw new IllegalArgumentException("The weekly goal cannot be smaller than the daily goal.");
     }
 }

@@ -22,11 +22,12 @@
         <h2>All postings</h2>
         <p class="muted" th:if="${postings.isEmpty()}">No postings yet.</p>
         <table th:unless="${postings.isEmpty()}">
-            <tr><th>Company</th><th>Role</th><th>Term</th><th>Status</th></tr>
+            <tr><th>Company</th><th>Role</th><th>Term</th><th>Deadline</th><th>Status</th></tr>
             <tr th:each="p : ${postings}">
                 <td><a th:href="@{/postings/{id}(id=${p.id})}" th:text="${p.company.isBlank() ? '(unnamed)' : p.company}"></a></td>
                 <td th:text="${p.role}"></td>
                 <td th:text="${p.term}"></td>
+                <td th:text="${p.deadline.orElse(null)}"></td>
                 <td th:text="${p.analyzed ? 'analyzed' : 'not analyzed'}"></td>
             </tr>
         </table>

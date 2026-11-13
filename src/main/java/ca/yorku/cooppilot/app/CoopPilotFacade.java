@@ -331,8 +331,51 @@ public class CoopPilotFacade {
         if (p.getCompany().isBlank()) p.setCompany(r.company());
         if (p.getRole().isBlank()) p.setRole(r.role());
         if (p.getTerm().isBlank()) p.setTerm(r.term());
+        if (p.getDeadline().isEmpty() && r.deadline() != null) p.setDeadline(r.deadline());
         postings.save(p);
         return p;
+    }
+
+    /**
+     * UC02 3a / F02: the student edits the analysis, or fills it in by hand when the LLM analysis failed.
+     * Keyword lines are "term", or "term | alias, alias | must". Soft-skill focus is recomputed.
+     */
+    public Posting saveAnalysis(String postingId, String company, String role, String term, String deadline,
+                                String mustHaves, String niceToHaves, String keywords, String documents) {
+        Posting p = posting(postingId);
+        List<ca.yorku.cooppilot.domain.Keyword> ks = new java.util.ArrayList<>();
+        java.util.Set<String> seen = new java.util.HashSet<>();
+        for (String line : lines(keywords)) {
+            String[] parts = line.split("\\|");
+            String t = parts[0].trim();
+            if (t.isEmpty() || !seen.add(t.toLowerCase())) continue;
+            java.util.Set<String> aliases = new java.util.LinkedHashSet<>();
+            if (parts.length > 1) for (String a : parts[1].split(",")) if (!a.isBlank()) aliases.add(a.trim());
+            boolean must = parts.length > 2 && parts[2].trim().toLowerCase().startsWith("must");
+            ks.add(new ca.yorku.cooppilot.domain.Keyword(t, aliases, must));
+        }
+        if (ks.isEmpty()) throw new IllegalArgumentException("Add at least one keyword.");
+        List<String> must = lines(mustHaves);
+        p.setAnalysis(new PostingAnalysis(must, lines(niceToHaves), ks, lines(documents),
+                PostingAnalysisTask.softSkillFocus(must)));
+        if (company != null && !company.isBlank()) p.setCompany(company.trim());
+        if (role != null && !role.isBlank()) p.setRole(role.trim());
+        if (term != null) p.setTerm(term.trim());
+        if (deadline != null) {
+            if (deadline.isBlank()) p.setDeadline(null);
+            else try {
+                p.setDeadline(java.time.LocalDate.parse(deadline.trim()));
+            } catch (java.time.format.DateTimeParseException e) {
+                throw new IllegalArgumentException("Deadline must look like 2026-12-01.");
+            }
+        }
+        postings.save(p);
+        return p;
+    }
+
+    private static List<String> lines(String text) {
+        if (text == null) return List.of();
+        return java.util.Arrays.stream(text.split("\\R")).map(String::trim).filter(x -> !x.isEmpty()).toList();
     }
 
     public Posting posting(String postingId) {
