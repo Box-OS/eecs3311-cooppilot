@@ -76,11 +76,28 @@ class CoverLetterTest {
     }
 
     @Test
-    void letterMustNameTheCompany() {
+    void draftThatKeepsFailingIsSavedWithItsProblems() {
+        // UC08 3a: after the retries the last draft is shown with the problems highlighted
         MockLlmClient mock = (MockLlmClient) llm;
         mock.enqueueText(letter("your company", "")).enqueueText(letter("your company", "")).enqueueText(letter("your company", ""));
-        LlmTask.LlmTaskException e = assertThrows(LlmTask.LlmTaskException.class,
-                () -> facade.writeCoverLetter(postingId, resume.getId()));
-        assertTrue(e.getMessage().contains("does not name the company"));
+        CoopPilotFacade.LetterOutcome out = facade.draftCoverLetter(postingId, resume.getId());
+        assertTrue(out.problems().get(0).contains("does not name the company"));
+        assertTrue(facade.coverLetter(out.letter().name()).isPresent(), "the draft is kept for editing");
+    }
+
+    @Test
+    void studentEditsAreSaved() {
+        ((MockLlmClient) llm).enqueueText(letter("Northwind Labs", ""));
+        CoverLetter cl = facade.writeCoverLetter(postingId, resume.getId());
+        facade.saveCoverLetter(cl.name(), "Dear Hiring Manager,\n\nMy own words.\n\nSincerely,\nAlex Chen");
+        assertTrue(facade.coverLetter(cl.name()).orElseThrow().body().contains("My own words."));
+        assertThrows(IllegalArgumentException.class, () -> facade.saveCoverLetter(cl.name(), "  "));
+    }
+
+    @Test
+    void unparseableRepliesStillFail() {
+        MockLlmClient mock = (MockLlmClient) llm;
+        mock.enqueueText("").enqueueText("").enqueueText("");
+        assertThrows(LlmTask.LlmTaskException.class, () -> facade.draftCoverLetter(postingId, resume.getId()));
     }
 }

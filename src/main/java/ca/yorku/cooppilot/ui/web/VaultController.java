@@ -7,6 +7,7 @@ import ca.yorku.cooppilot.domain.VaultEntry;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,8 +31,10 @@ public class VaultController {
     }
 
     @GetMapping("/vault")
-    public String vaultPage(@RequestParam(name = "q", required = false) String q, Model m) {
-        m.addAttribute("entries", facade.vaultEntries(q));
+    public String vaultPage(@RequestParam(name = "q", required = false) String q,
+                            @RequestParam(name = "tag", required = false) String tag, Model m) {
+        m.addAttribute("entries", facade.vaultEntries(q, tag));
+        m.addAttribute("tag", tag == null ? "" : tag);
         m.addAttribute("resumes", facade.resumes());
         m.addAttribute("q", q == null ? "" : q);
         m.addAttribute("kinds", EntryKind.values());
@@ -86,8 +89,47 @@ public class VaultController {
         }
         Set<String> tagSet = tags == null ? Set.of() : Arrays.stream(tags.split(","))
                 .map(String::trim).filter(t -> !t.isEmpty()).collect(Collectors.toCollection(LinkedHashSet::new));
-        VaultEntry saved = facade.addVaultEntry(new VaultEntry(null, title, kind, use, date, tagSet, body));
-        flash.addFlashAttribute("message", "Saved \"" + saved.getTitle() + "\".");
+        VaultEntry candidate = new VaultEntry(null, title, kind, use, date, tagSet, body);
+        VaultEntry saved = facade.addVaultEntry(candidate);
+        if (!saved.getId().equals(candidate.getId())) {
+            // UC01 5a: duplicate (e.g. the same skill with different spacing or case)
+            flash.addFlashAttribute("error", "\"" + title.trim() + "\" is already in the vault as \"" + saved.getTitle()
+                    + "\"; no new entry was added (its tags were merged).");
+        } else {
+            flash.addFlashAttribute("message", "Saved \"" + saved.getTitle() + "\".");
+        }
+        return "redirect:/vault";
+    }
+
+    @GetMapping("/vault/{id}/edit")
+    public String editPage(@PathVariable String id, Model m) {
+        m.addAttribute("e", facade.vaultEntry(id));
+        m.addAttribute("kinds", EntryKind.values());
+        m.addAttribute("uses", EntryUse.values());
+        return "vault-edit";
+    }
+
+    @PostMapping("/vault/{id}")
+    public String update(@PathVariable String id, @RequestParam String title, @RequestParam EntryKind kind,
+                         @RequestParam EntryUse use, @RequestParam(required = false) String date,
+                         @RequestParam(required = false) String tags, @RequestParam(required = false) String body,
+                         RedirectAttributes flash) {
+        if (title == null || title.isBlank()) {
+            flash.addFlashAttribute("error", "An entry needs a title.");
+            return "redirect:/vault/" + id + "/edit";
+        }
+        Set<String> tagSet = tags == null ? Set.of() : Arrays.stream(tags.split(","))
+                .map(String::trim).filter(t -> !t.isEmpty()).collect(Collectors.toCollection(LinkedHashSet::new));
+        facade.updateVaultEntry(id, title, kind, use, date, tagSet, body);
+        flash.addFlashAttribute("message", "Updated \"" + title.trim() + "\".");
+        return "redirect:/vault";
+    }
+
+    @PostMapping("/vault/{id}/delete")
+    public String delete(@PathVariable String id, RedirectAttributes flash) {
+        String title = facade.vaultEntry(id).getTitle();
+        facade.deleteVaultEntry(id);
+        flash.addFlashAttribute("message", "Deleted \"" + title + "\".");
         return "redirect:/vault";
     }
 }

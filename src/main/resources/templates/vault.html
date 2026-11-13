@@ -43,18 +43,27 @@
             <h2>Entries (<span th:text="${entries.size()}">0</span>)</h2>
             <form method="get" action="/vault" class="row">
                 <input name="q" th:value="${q}" placeholder="Search title, details or tags">
+                <input type="hidden" name="tag" th:value="${tag}">
                 <button type="submit" class="ghost">Search</button>
             </form>
         </div>
+        <p class="small" th:unless="${tag.isEmpty()}">Filtered by tag <span class="chip ok" th:text="${tag}"></span>
+            <a th:href="@{/vault(q=${q})}">clear</a></p>
         <table>
-            <tr><th>Kind</th><th>Title</th><th>Use</th><th>Date</th><th>Tags</th><th>Details</th></tr>
+            <tr><th>Kind</th><th>Title</th><th>Use</th><th>Date</th><th>Tags</th><th>Details</th><th></th></tr>
             <tr th:each="e : ${entries}">
                 <td th:text="${e.kind}"></td>
                 <td th:text="${e.title}"></td>
                 <td th:text="${e.use}"></td>
                 <td th:text="${e.date}"></td>
-                <td><span class="chip" th:each="t : ${e.tags}" th:text="${t}"></span></td>
+                <td><a class="chip" th:each="t : ${e.tags}" th:text="${t}" th:href="@{/vault(tag=${t})}" title="Show entries with this tag" style="text-decoration:none"></a></td>
                 <td><span class="small" style="white-space:pre-line" th:text="${e.body}"></span></td>
+                <td style="white-space:nowrap">
+                    <a th:href="@{/vault/{id}/edit(id=${e.id})}" title="Edit">✎</a>
+                    <form method="post" th:action="@{/vault/{id}/delete(id=${e.id})}" style="display:inline">
+                        <button class="ghost" title="Delete" style="padding:0 .45rem">×</button>
+                    </form>
+                </td>
             </tr>
         </table>
     </section>

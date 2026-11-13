@@ -7,7 +7,17 @@
     <h1 th:text="${letter.name()}">CL</h1>
     <p class="muted small"><span th:text="${letter.wordCount()}"></span> words ·
         <a th:href="@{/letters/{n}/download(n=${letter.name()})}">Download .txt</a></p>
-    <section class="card"><div style="white-space:pre-line;line-height:1.55" th:text="${letter.body()}"></div></section>
+    <div th:replace="~{fragments :: flash}"></div>
+    <div class="err" th:if="${problems != null and !problems.isEmpty()}">
+        <strong>This draft still has problems after the AI's retries; fix them below before sending:</strong>
+        <ul><li th:each="p : ${problems}" th:text="${p}"></li></ul>
+    </div>
+    <section class="card">
+        <form method="post" th:action="@{/letters/{n}(n=${letter.name()})}">
+            <textarea name="body" rows="22" style="line-height:1.5;font-family:Georgia,serif" th:text="${letter.body()}"></textarea>
+            <button style="margin-top:.5rem">Save letter</button>
+        </form>
+    </section>
 </main>
 </body>
 </html>

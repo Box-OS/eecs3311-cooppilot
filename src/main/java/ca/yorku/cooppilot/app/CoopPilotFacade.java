@@ -168,17 +168,45 @@ public class CoopPilotFacade {
      * F09: drafts a cover letter for an analyzed posting from a resume (usually the tailored one) and
      * the vault facts letters may use (ALL and LETTERS_ONLY; never CONTEXT_ONLY). Saved as CL_Company_Role.
      */
+    /** A drafted letter plus the validation problems still in it (empty when it passed). */
+    public record LetterOutcome(CoverLetter letter, List<String> problems) {}
+
     public CoverLetter writeCoverLetter(String postingId, String resumeId) {
+        return draftCoverLetter(postingId, resumeId).letter();
+    }
+
+    /**
+     * F09 / UC08: drafts and saves the letter. If it still fails validation after the retries, the last
+     * draft is saved anyway and returned with its problems so the student can fix it (UC08 3a).
+     */
+    public LetterOutcome draftCoverLetter(String postingId, String resumeId) {
         Posting p = posting(postingId);
         if (!p.isAnalyzed()) throw new IllegalStateException("Analyze the posting first.");
         Resume r = resume(resumeId);
         String facts = vault.all().stream().filter(e -> e.getUse().allowedInLetter())
                 .map(e -> e.getTitle() + ": " + e.getBody().replace('\n', ' '))
                 .collect(java.util.stream.Collectors.joining("\n"));
-        String body = new CoverLetterTask(llm, p, r, facts, studentName).run();
+        String body;
+        List<String> problems = List.of();
+        try {
+            body = new CoverLetterTask(llm, p, r, facts, studentName).run();
+        } catch (ca.yorku.cooppilot.llm.LlmTask.LlmTaskException e) {
+            if (!(e.lastResult() instanceof String draft)) throw e;
+            body = draft;
+            problems = e.lastProblems();
+        }
         CoverLetter letter = new CoverLetter(export.fileName("CL", p.getCompany(), p.getRole()), p.getId(), body);
         letters.save(letter);
-        return letter;
+        return new LetterOutcome(letter, problems);
+    }
+
+    /** F09: the student's own edits to a saved letter. */
+    public CoverLetter saveCoverLetter(String name, String body) {
+        CoverLetter old = coverLetter(name).orElseThrow(() -> new IllegalArgumentException("No cover letter " + name));
+        if (body == null || body.isBlank()) throw new IllegalArgumentException("The letter cannot be empty.");
+        CoverLetter updated = new CoverLetter(old.name(), old.postingId(), body.strip());
+        letters.save(updated);
+        return updated;
     }
 
     public java.util.Optional<CoverLetter> coverLetter(String name) {
@@ -339,6 +367,29 @@ public class CoopPilotFacade {
 
     public VaultEntry addVaultEntry(VaultEntry e) {
         return vault.addEntry(e);
+    }
+
+    /** F01 / UC01: entries matching the text and (if given) carrying the tag. */
+    public List<VaultEntry> vaultEntries(String query, String tag) {
+        return vault.search(query, tag == null || tag.isBlank() ? null : java.util.Set.of(tag));
+    }
+
+    public VaultEntry vaultEntry(String id) {
+        return vault.get(id).orElseThrow(() -> new IllegalArgumentException("No vault entry with id " + id));
+    }
+
+    /** UC01 step 5: edit an entry. */
+    public VaultEntry updateVaultEntry(String id, String title, ca.yorku.cooppilot.domain.EntryKind kind,
+                                       ca.yorku.cooppilot.domain.EntryUse use, String date, java.util.Set<String> tags, String body) {
+        VaultEntry old = vaultEntry(id);
+        VaultEntry e = new VaultEntry(old.getId(), title, kind, use, date, tags, body);
+        vault.update(e);
+        return e;
+    }
+
+    public void deleteVaultEntry(String id) {
+        vaultEntry(id);
+        vault.delete(id);
     }
 
     public List<VaultEntry> vaultEntries(String query) {

@@ -43,6 +43,10 @@ public class VaultService {
         return e;
     }
 
+    public Optional<VaultEntry> get(String id) {
+        return repo.findById(id);
+    }
+
     public void update(VaultEntry e) {
         repo.save(e);
     }

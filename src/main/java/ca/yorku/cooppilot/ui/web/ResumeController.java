@@ -116,8 +116,9 @@ public class ResumeController {
     @PostMapping("/resumes/{id}/letter")
     public String letter(@PathVariable String id, @RequestParam String postingId, RedirectAttributes flash) {
         try {
-            CoverLetter c = facade.writeCoverLetter(postingId, id);
-            return "redirect:/letters/" + c.name();
+            var outcome = facade.draftCoverLetter(postingId, id);
+            if (!outcome.problems().isEmpty()) flash.addFlashAttribute("problems", outcome.problems());
+            return "redirect:/letters/" + outcome.letter().name();
         } catch (RuntimeException e) {
             flash.addFlashAttribute("error", "Cover letter failed: " + e.getMessage());
             return "redirect:/resumes/" + id;
@@ -134,6 +135,17 @@ public class ResumeController {
     public String letterPage(@PathVariable String name, Model m) {
         m.addAttribute("letter", facade.coverLetter(name).orElseThrow(() -> new IllegalArgumentException("No cover letter " + name)));
         return "letter";
+    }
+
+    @PostMapping("/letters/{name}")
+    public String saveLetter(@PathVariable String name, @RequestParam String body, RedirectAttributes flash) {
+        try {
+            facade.saveCoverLetter(name, body);
+            flash.addFlashAttribute("message", "Letter saved.");
+        } catch (RuntimeException e) {
+            flash.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/letters/" + name;
     }
 
     @GetMapping("/letters/{name}/download")

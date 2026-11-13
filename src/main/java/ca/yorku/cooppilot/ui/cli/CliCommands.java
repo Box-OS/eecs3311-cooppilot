@@ -142,7 +142,8 @@ public class CliCommands implements Runnable {
     // ---------------------------------------------------------------- F01 vault
 
     @Command(name = "vault", description = "Experience vault (F01).",
-            subcommands = {VaultCmd.Import.class, VaultCmd.ImportBackup.class, VaultCmd.ListCmd.class, VaultCmd.Add.class})
+            subcommands = {VaultCmd.Import.class, VaultCmd.ImportBackup.class, VaultCmd.ListCmd.class, VaultCmd.Add.class,
+                    VaultCmd.Delete.class})
     static class VaultCmd {
         @ParentCommand CliCommands root;
 
@@ -186,13 +187,26 @@ public class CliCommands implements Runnable {
         static class ListCmd implements Runnable {
             @ParentCommand VaultCmd parent;
             @Option(names = {"-q", "--query"}) String query;
+            @Option(names = {"-t", "--tag"}) String tag;
 
             public void run() {
-                List<VaultEntry> es = parent.root.facade.vaultEntries(query);
+                List<VaultEntry> es = parent.root.facade.vaultEntries(query, tag);
                 parent.root.print(es, es.isEmpty() ? "(no entries)" : es.stream()
                         .map(e -> String.format("%-8s %s%s", e.getKind(), e.getTitle(),
                                 e.getUse() == EntryUse.ALL ? "" : " [" + e.getUse() + "]"))
                         .collect(Collectors.joining("\n")));
+            }
+        }
+
+        @Command(name = "delete", description = "Delete a vault entry by id (ids: vault list --json).")
+        static class Delete implements Runnable {
+            @ParentCommand VaultCmd parent;
+            @Parameters(paramLabel = "ENTRY_ID") String id;
+
+            public void run() {
+                String title = parent.root.facade.vaultEntry(id).getTitle();
+                parent.root.facade.deleteVaultEntry(id);
+                parent.root.print(Map.of("deleted", id), "Deleted \"" + title + "\".");
             }
         }
 
@@ -443,8 +457,11 @@ public class CliCommands implements Runnable {
         @Parameters(index = "1", paramLabel = "RESUME_ID") String resumeId;
 
         public void run() {
-            CoverLetter c = root.facade.writeCoverLetter(postingId, resumeId);
-            root.print(c, c.name() + " (" + c.wordCount() + " words)\n\n" + c.body());
+            var outcome = root.facade.draftCoverLetter(postingId, resumeId);
+            CoverLetter c = outcome.letter();
+            root.print(Map.of("letter", c, "problems", outcome.problems()), c.name() + " (" + c.wordCount() + " words)"
+                    + (outcome.problems().isEmpty() ? "" : "\nStill to fix: " + String.join("; ", outcome.problems()))
+                    + "\n\n" + c.body());
         }
     }
 
