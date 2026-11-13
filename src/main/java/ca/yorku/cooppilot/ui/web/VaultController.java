@@ -59,6 +59,23 @@ public class VaultController {
         return "redirect:/vault";
     }
 
+    @PostMapping("/vault/import-backup")
+    public String importBackup(@RequestParam("file") MultipartFile file, RedirectAttributes flash) throws IOException {
+        if (file.isEmpty()) {
+            flash.addFlashAttribute("error", "Choose a backup .json file first.");
+            return "redirect:/vault";
+        }
+        try {
+            var r = facade.importBackup(new String(file.getBytes(), StandardCharsets.UTF_8));
+            flash.addFlashAttribute("message", "Backup imported: " + r.vaultAdded() + " new vault entries (of "
+                    + r.vaultTotal() + "), " + r.resumesImported() + " resumes.");
+            flash.addFlashAttribute("warnings", r.warnings());
+        } catch (IllegalArgumentException e) {
+            flash.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/vault";
+    }
+
     @PostMapping("/vault/entries")
     public String addEntry(@RequestParam String title, @RequestParam EntryKind kind, @RequestParam EntryUse use,
                            @RequestParam(required = false) String date, @RequestParam(required = false) String tags,

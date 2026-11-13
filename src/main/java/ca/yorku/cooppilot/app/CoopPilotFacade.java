@@ -115,6 +115,14 @@ public class CoopPilotFacade {
         return editor.removeBlock(resumeId, blockId);
     }
 
+    @org.springframework.beans.factory.annotation.Autowired
+    private ca.yorku.cooppilot.service.BackupImporter backupImporter;
+
+    /** F01: import a JSON backup (vault entries + resumes), e.g. exported from another tracker. */
+    public ca.yorku.cooppilot.service.BackupImporter.Result importBackup(String json) {
+        return backupImporter.importJson(json);
+    }
+
     /** Readable, PDF-like view of a resume for the GUI. */
     public ca.yorku.cooppilot.service.ResumePreview.Preview preview(String resumeId) {
         return resumePreview.build(resume(resumeId));

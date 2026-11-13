@@ -142,7 +142,7 @@ public class CliCommands implements Runnable {
     // ---------------------------------------------------------------- F01 vault
 
     @Command(name = "vault", description = "Experience vault (F01).",
-            subcommands = {VaultCmd.Import.class, VaultCmd.ListCmd.class, VaultCmd.Add.class})
+            subcommands = {VaultCmd.Import.class, VaultCmd.ImportBackup.class, VaultCmd.ListCmd.class, VaultCmd.Add.class})
     static class VaultCmd {
         @ParentCommand CliCommands root;
 
@@ -165,6 +165,20 @@ public class CliCommands implements Runnable {
                 if (!outcome.parse().warnings().isEmpty()) text += "\nWarnings:\n- " + String.join("\n- ", outcome.parse().warnings());
                 r.print(j, text);
                 return outcome.resume() == null ? 1 : 0;
+            }
+        }
+
+        @Command(name = "import-backup", description = "Import a JSON backup of vault entries and resumes.")
+        static class ImportBackup implements Callable<Integer> {
+            @ParentCommand VaultCmd parent;
+            @Parameters(paramLabel = "FILE") Path file;
+
+            public Integer call() throws IOException {
+                var r = parent.root.facade.importBackup(Files.readString(file));
+                parent.root.print(r, "Backup imported: " + r.vaultAdded() + " new vault entries (of " + r.vaultTotal()
+                        + "), " + r.resumesImported() + " resumes."
+                        + (r.warnings().isEmpty() ? "" : "\nWarnings:\n- " + String.join("\n- ", r.warnings())));
+                return 0;
             }
         }
 

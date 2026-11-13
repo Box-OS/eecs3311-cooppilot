@@ -1,0 +1,10 @@
+{
+  "vault": [
+    {"title": "Knows Kotlin", "kind": "skill", "use": "all", "tags": ["kotlin"], "body": ""},
+    {"title": "Campus food-bank volunteer app", "kind": "project", "use": "all", "date": "2025-02",
+     "tags": ["flutter", "firebase"], "body": "- Built a Flutter app for volunteer shift sign-ups used by 25 volunteers"},
+    {"title": "Why I like logistics software", "kind": "story", "use": "letters", "body": "Grew up helping at a family shipping business."},
+    {"title": "Not yet experienced", "kind": "context", "use": "context", "body": "Has not used Kubernetes in production."}
+  ],
+  "resumes": []
+}

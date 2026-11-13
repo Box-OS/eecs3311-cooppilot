@@ -18,6 +18,10 @@
                 <label>Save as <input name="name" placeholder="CV_General"></label>
                 <button type="submit">Import</button>
             </form>
+            <form method="post" action="/vault/import-backup" enctype="multipart/form-data" style="margin-top:.8rem">
+                <label>Or a backup (.json: vault entries + resumes) <input type="file" name="file" accept=".json"></label>
+                <button type="submit" class="ghost">Import backup</button>
+            </form>
         </section>
         <section class="card">
             <h2>Add an entry</h2>
