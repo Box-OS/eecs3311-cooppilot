@@ -10,7 +10,7 @@ An AI agent that tailors one-page LaTeX resumes and cover letters to co-op job p
 
 ## Prerequisites
 
-- **Java 21** (`java -version`) and **Maven 3.9+** (`mvn -v`). On macOS: `brew install openjdk@21 maven`.
+- **Java 21** (`java -version`). Maven does **not** need to be installed: the included Maven Wrapper (`./mvnw` on macOS/Linux, `mvnw.cmd` on Windows) downloads it on first use. On macOS: `brew install openjdk@21`.
 - An **Anthropic API key** (console.anthropic.com → API Keys) for the AI features. Without a key the app still runs, using a mock LLM: deterministic features work fully; AI features return a fixed "no key" reply.
 
 ## Install and configure
@@ -36,6 +36,25 @@ Maven downloads all dependencies on the first build. Run the tests (no key neede
 ```
 mvn test
 ```
+
+### On Windows (PowerShell)
+
+```
+winget install Microsoft.OpenJDK.21
+winget install Git.Git
+# close and reopen PowerShell, then:
+git clone https://github.com/Box-OS/eecs3311-cooppilot.git
+cd eecs3311-cooppilot
+copy application-local.properties.example application-local.properties
+notepad application-local.properties          # set provider=claude and your key, save
+.\mvnw.cmd test
+.\mvnw.cmd spring-boot:run                    # then open http://localhost:8080
+.\mvnw.cmd package -DskipTests
+java -jar target\cooppilot-0.1.0.jar --cli --help
+```
+
+For the CLI's ✓/→ symbols to display correctly, use Windows Terminal or run `chcp 65001` first.
+On macOS/Linux, use `./mvnw` wherever this README says `mvn`.
 
 ## Run the web GUI
 
