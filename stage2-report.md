@@ -255,11 +255,11 @@ Seven distinct patterns are implemented, matching the seven planned in Stage 1. 
 
 The class diagrams were redrawn for the implemented system in UMLet (sources in `docs/stage2/diagrams/*.uxf`, PNG exports beside them). Pattern roles are marked with stereotypes.
 
-<div class="missing">Class diagram 1 — agent core, tools and LLM layer: export <code>docs/stage2/diagrams/class-1-agent-core.uxf</code> from UMLet (File → Export as… → PNG) to <code>docs/stage2/diagrams/class-1-agent-core.png</code>, then rebuild.</div>
+![Class diagram 1 — agent core, tools and LLM layer](docs/stage2/diagrams/class-1-agent-core.png)
 
-<div class="missing">Class diagram 2 — domain, services, edit commands and persistence: export <code>docs/stage2/diagrams/class-2-domain-services.uxf</code> from UMLet (File → Export as… → PNG) to <code>docs/stage2/diagrams/class-2-domain-services.png</code>, then rebuild.</div>
+![Class diagram 2 — domain, services, edit commands and persistence](docs/stage2/diagrams/class-2-domain-services.png)
 
-<div class="missing">Class diagram 3 — facade, web GUI, CLI and application tracking: export <code>docs/stage2/diagrams/class-3-web-cli-tracking.uxf</code> from UMLet (File → Export as… → PNG) to <code>docs/stage2/diagrams/class-3-web-cli-tracking.png</code>, then rebuild.</div>
+![Class diagram 3 — facade, web GUI, CLI and application tracking](docs/stage2/diagrams/class-3-web-cli-tracking.png)
 
 **Use-case and sequence diagrams.** The Stage 1 use-case diagram and SD01–SD08 still describe the implemented interactions; the differences are at the method level and are listed in Section 4 (notably: SD02 answers are filed by `VaultService.fileAnswer` as a fact line; SD04 commands are created by `ResumeEditor`, not the facade; SD06 export writes `exports/NAME.tex`; SD09 commands are `cooppilot --cli tailor POSTING_ID` and progress is printed by a listener in `TailorCmd`). No use case was added or removed.
 
@@ -380,7 +380,7 @@ Each reporting period (Toronto time) has at least five meaningful code commits. 
 | [`565700d`](https://github.com/Box-OS/eecs3311-cooppilot/commit/565700deee7e94399526071068e037cfb17dee02) | 2026-11-09 17:13 | CLI (picocli): a command for every feature, --json output, and an interactive shell |
 | [`e498dda`](https://github.com/Box-OS/eecs3311-cooppilot/commit/e498ddad5e760c657afb5cb36498b7abe65dd92f) | 2026-11-09 17:19 | Web GUI: postings, live agent page over SSE, resumes, tracker and dashboard (Thymeleaf) |
 
-**After the reporting periods:** [`83bc4ee`](https://github.com/Box-OS/eecs3311-cooppilot/commit/83bc4ee32348a3d75650c3c8a1e5faad96830f5a) F07 in the GUI and CLI as an undoable command; agent retries transient LLM errors; [`329b94c`](https://github.com/Box-OS/eecs3311-cooppilot/commit/329b94c27a390aa5621662e570dde31467b604a4) Stage 2 report draft, updated UMLet class diagrams, demo script and README; [`99bee20`](https://github.com/Box-OS/eecs3311-cooppilot/commit/99bee20b17170f7f45b86ba5d3da0d530dd40953) Add Maven Wrapper (mvnw / mvnw.cmd) so the app builds with only Java installed; Windows setup in README
+**After the reporting periods:** [`83bc4ee`](https://github.com/Box-OS/eecs3311-cooppilot/commit/83bc4ee32348a3d75650c3c8a1e5faad96830f5a) F07 in the GUI and CLI as an undoable command; agent retries transient LLM errors; [`329b94c`](https://github.com/Box-OS/eecs3311-cooppilot/commit/329b94c27a390aa5621662e570dde31467b604a4) Stage 2 report draft, updated UMLet class diagrams, demo script and README; [`99bee20`](https://github.com/Box-OS/eecs3311-cooppilot/commit/99bee20b17170f7f45b86ba5d3da0d530dd40953) Add Maven Wrapper (mvnw / mvnw.cmd) so the app builds with only Java installed; Windows setup in README; [`612cb83`](https://github.com/Box-OS/eecs3311-cooppilot/commit/612cb830c0c8aa5089d583adb23a3a8446929da4) Report: Claude Pro subscription cost in the AI tools table; [`beb96b1`](https://github.com/Box-OS/eecs3311-cooppilot/commit/beb96b1e44660474ff4fb30da6256b1fbd7e3b6a) Stage 2 class diagrams exported from UMLet
 
 
 ## 6.2 Verification performed
