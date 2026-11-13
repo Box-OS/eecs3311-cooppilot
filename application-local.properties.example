@@ -3,3 +3,6 @@
 cooppilot.llm.provider=claude
 cooppilot.llm.api-key=YOUR_LOCAL_API_KEY_HERE
 cooppilot.llm.model=claude-haiku-4-5
+
+# Your name, used to sign cover letters
+cooppilot.student-name=Your Name

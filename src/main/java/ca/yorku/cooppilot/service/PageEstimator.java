@@ -22,7 +22,7 @@ public class PageEstimator {
 
     private final int linesPerPage;
 
-    public PageEstimator(@Value("${cooppilot.page.lines-per-page:52}") int linesPerPage) {
+    public PageEstimator(@Value("${cooppilot.page.lines-per-page:63}") int linesPerPage) {
         this.linesPerPage = linesPerPage;
     }
 
