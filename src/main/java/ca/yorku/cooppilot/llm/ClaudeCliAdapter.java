@@ -24,6 +24,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class ClaudeCliAdapter implements LLMClient {
 
+    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ClaudeCliAdapter.class);
+
     private static final ObjectMapper JSON = new ObjectMapper();
     private static final long TIMEOUT_SECONDS = 240;
 
@@ -68,8 +70,12 @@ public class ClaudeCliAdapter implements LLMClient {
                 cmd.add("--json-schema");
                 cmd.add(SCHEMA);
             }
+            long t0 = System.currentTimeMillis();
             String out = runner.run(cmd, env(), transcript(request.messages()));
-            return parse(out, !request.tools().isEmpty());
+            LlmResponse r = parse(out, !request.tools().isEmpty());
+            LOG.info("claude -p {}: {} ms, {} in / {} out tokens{}", model, System.currentTimeMillis() - t0,
+                    r.inputTokens(), r.outputTokens(), r.hasToolCalls() ? ", calls " + r.toolCalls().size() : "");
+            return r;
         } catch (IOException e) {
             throw new LlmException("Could not run the Claude CLI (" + command + "): " + e.getMessage(), e);
         } catch (InterruptedException e) {
