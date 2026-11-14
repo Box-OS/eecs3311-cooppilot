@@ -14,7 +14,8 @@ public class HomeController {
     private final String provider;
 
     public HomeController(@Value("${cooppilot.llm.provider}") String provider) {
-        this.provider = provider;
+        // claude-cli is the same Claude model reached through the Claude Code CLI: shown as "claude" like the API route
+        this.provider = provider.equalsIgnoreCase("claude-cli") ? "claude" : provider;
     }
 
     @GetMapping("/")

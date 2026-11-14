@@ -70,14 +70,14 @@ public class ClaudeCliAdapter implements LLMClient {
             long t0 = System.currentTimeMillis();
             String out = runner.run(cmd, env(), transcript(request.messages()));
             LlmResponse r = parse(out, !request.tools().isEmpty());
-            LOG.info("claude -p {}: {} ms, {} in / {} out tokens{}", model, System.currentTimeMillis() - t0,
+            LOG.debug("claude -p {}: {} ms, {} in / {} out tokens{}", model, System.currentTimeMillis() - t0,
                     r.inputTokens(), r.outputTokens(), r.hasToolCalls() ? ", calls " + r.toolCalls().size() : "");
             return r;
         } catch (IOException e) {
-            throw new LlmException("Could not run the Claude CLI (" + command + "): " + e.getMessage(), e);
+            throw new LlmException("Could not reach Claude: " + e.getMessage(), e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new LlmException("Interrupted while waiting for the Claude CLI", e);
+            throw new LlmException("Interrupted while waiting for Claude", e);
         } finally {
             if (systemFile != null) {
                 try { Files.deleteIfExists(systemFile); } catch (IOException ignored) { /* temp file */ }
@@ -134,11 +134,11 @@ public class ClaudeCliAdapter implements LLMClient {
         try {
             root = JSON.readTree(out);
         } catch (IOException e) {
-            throw new LlmException("The Claude CLI returned something that isn't JSON: " + abbreviate(out), e);
+            throw new LlmException("Claude returned something that isn't JSON: " + abbreviate(out), e);
         }
         if (root == null || root.isMissingNode() || root.path("is_error").asBoolean(false)) {
             String why = root == null ? out : root.path("result").asText("unknown error");
-            throw new LlmException("Claude CLI error: " + why, 0);
+            throw new LlmException("Claude error: " + why, 0);
         }
         JsonNode usage = root.path("usage");
         int in = usage.path("input_tokens").asInt(0) + usage.path("cache_read_input_tokens").asInt(0)
