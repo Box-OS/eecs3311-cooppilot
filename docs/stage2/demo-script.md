@@ -131,10 +131,8 @@ only my real experience. This recording shows every feature in the web GUI."*
 ## Recording B — CLI (≈ 5–7 min)
 
 Say: *"Every feature is also available from the command line through the same facade."*
-Use a terminal with a large font, in the repo folder, and run `chcp 65001` first so ✓ and → display. A short `J` keeps
-commands readable. In PowerShell: `function J { java -jar target\cooppilot-0.1.0.jar --cli @args }`, then type `J` where
-the commands below say `$J`, and `$env:USERPROFILE` where they say `$USERPROFILE`.
-(macOS/Linux: `J="java -jar target/cooppilot-0.1.0.jar --cli"`, used as `$J`.)
+Use bash (Git Bash on Windows) with a large font, in the repo folder. A short `$J` keeps commands readable:
+`J="java -jar target/cooppilot-0.1.0.jar --cli"`. If ✓ or → show up as `?`, run `chcp.com 65001` first.
 
 ### B1 · Help and F01
 ```
