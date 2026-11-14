@@ -58,9 +58,10 @@ only my real experience. This recording shows every feature in the web GUI."*
 
 ### A3 · F03 Fit analysis and strategy (hybrid)
 1. On the posting page, point at **Fit N/100**, the gaps, and **Recommended: GENERATE/TWEAK/REUSE**.
-2. Say: *"F03 is deterministic: must-have keywords count double against my vault skills."* With 77 resumes in the library,
-   **Recommended** can be REUSE or TWEAK of one of mine: say which it picked and why. *"A resume with [placeholders] is never
-   offered for reuse."*
+2. Say: *"F03 is deterministic: must-have keywords count double, against my vault skills for the fit, and against each
+   saved resume for the closest match."* With the 77 resumes imported, Pinterest comes out around **Fit 44/100**, closest
+   resume `CV_RBC_CfoDataEng` at ~50–57% → **TWEAK** (45–74% tweaks the closest resume, 75%+ reuses it, below 45% generates).
+   *"A resume with [placeholders] is never offered for reuse."*
 
 ### A4 · F04 ATS keyword scan (deterministic)
 1. Scroll to **Keyword scan**. Explain the colours: green backed, amber skills-line only, blue dashed
@@ -111,8 +112,9 @@ only my real experience. This recording shows every feature in the web GUI."*
 ### A10 · F10 Library, reuse and export (deterministic)
 1. **Resumes** → library grouped by family (my 7 resume families); **.tex** download link.
 2. On the resume page click **Download .tex** and open the file briefly (ready for Overleaf).
-3. Alternative/error: on a posting where the closest resume has placeholders, show that "Use as-is" is not
-   offered; on one that fits ≥ 75%, click **Use as-is** → saved as `CV_Company_Role`.
+3. Back on the posting page, **Use CV_… as-is** saves the closest resume for this posting without the agent (alternative
+   to tailoring) → saved as `CV_Company_Role`. Say: *"it's offered for the closest placeholder-free resume; the app only
+   recommends it at 75%+, and none of mine reach that for Pinterest, so here it recommends TWEAK."*
 
 ### A11 · F11 Application tracking (deterministic, State pattern)
 1. On the tailored resume's page, **Apply (F11) → Log application** (status TO_APPLY); you land on the Tracker.

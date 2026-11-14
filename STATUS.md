@@ -19,6 +19,9 @@ How to run: `.\mvnw.cmd package -DskipTests`, then `java -jar target\cooppilot-0
 - [x] 2026-11-12 F01 backup import (GUI + CLI `vault import-backup`)
 
 ## Decisions
+- F03 closest-resume match counts every posting keyword (must-haves x2), not only those in the vault: the old way gave the
+  resume the vault came from 100% on every posting, so everything said REUSE even at 5/100 fit. With real data nothing
+  reaches 75% now (highest ~60%), so Pinterest shows TWEAK; Use as-is is still offered for the closest resume.
 - The API key stopped working (Anthropic returns 401), so the videos use provider=claude-cli on the board's priority
   account (Claude Marco). Thinking is off (MAX_THINKING_TOKENS=0): with it on, one analysis took 53 s instead of 8 s.
 - Videos use my real data, not the fictional samples: the demo data was too thin to show the features. Keep resume headers
