@@ -12,10 +12,16 @@ show it running and its output, say where AI is involved, and show an error or a
 1. In the repo folder, start from an empty database so the demo is clean: `rm -f cooppilot.db`.
 2. `application-local.properties` has your key and `cooppilot.llm.provider=claude`.
    **Never open this file, your terminal history with the key, or console.anthropic.com on screen.**
-3. `mvn package -DskipTests` (for the CLI), then `mvn spring-boot:run` (GUI at http://localhost:8080).
-4. Have `samples/sample-resume.tex` and `samples/sample-posting.txt` ready (both fictional, safe to show).
-   For a second posting, copy any real co-op posting text.
-5. Browser zoom ~110%, close other tabs, turn notifications off.
+3. `mvn package -DskipTests` (for the CLI), then `java -jar target/cooppilot-0.1.0.jar` (GUI at http://localhost:8080).
+4. The demo runs on my real data. Have these ready (they live outside the repo, in `%USERPROFILE%\AgentOfficeData\exports\`,
+   because they're personal and never committed):
+   - `CV_General.tex`: my real resume, for the `.tex` import
+   - `cooppilot-backup-sina.json`: my vault (65 entries) and 77 resumes, from ResumeBase
+   - `cooppilot-postings\Pinterest-Software-Engineering-Intern-2027-Toronto.txt`: the main posting; a second one from the
+     same folder (CIBC, Magna, 1Password, Celestica, Interac) for A6
+   The fictional `samples/` files still work for a demo without personal data.
+5. Browser zoom ~110%, close other tabs, turn notifications off. The videos are unlisted, but anyone with the link sees them:
+   keep a resume's header (phone, email) off screen.
 
 ---
 
@@ -27,15 +33,20 @@ only my real experience. This recording shows every feature in the web GUI."*
 ### A1 · F01 Experience vault and resume import (deterministic)
 1. Click **Vault**. Say: *"F01 — the vault is the agent's long-term memory."*
 2. Click **Import** with no file chosen → error *"Choose a .tex file first."* (error case).
-3. Choose `samples/sample-resume.tex`, Save as `CV_General`, **Import** → "Imported 6 blocks … N new vault entries".
-4. Scroll the entries table (jobs, projects with tech tags, skills). Search `tutor`.
-5. Add an entry by hand: Title *"Hackathon — bus arrival bot"*, Kind ACTIVITY, Tags *python*, Details one line → **Save entry**.
+3. Choose `CV_General.tex`, Save as `CV_General`, **Import** → "Imported 7 blocks as CV_General; 26 new vault entries", with
+   one warning: *Could not read the dates "Demo | GitHub"* for the Reville project. Say: *"when it can't read something it
+   warns instead of guessing."*
+4. Scroll the entries table (projects with tech tags, skills, courses). Search a skill I have, e.g. `java` or `react`.
+5. Add an entry by hand: something real that isn't on the resume (a hackathon, a club, a side project), with a kind, a tag and
+   one line of details → **Save entry**.
 6. Import the same file again → "0 new vault entries" (duplicates merged). Add `Knows Java` by hand → refused: already in the vault (error case).
 7. Click ✎ on an entry, change its details → Save; click a tag chip to filter; × deletes an entry.
-8. **Import backup**: choose your `cooppilot-backup-sina.json` (or `samples/sample-backup.json`) → "N new vault entries, M resumes". Say: *"a student can start from an existing vault."* (If you use your real data, the rest of the demo runs on it.)
+8. **Import backup**: choose `cooppilot-backup-sina.json` → "Backup imported: 59 new vault entries (of 65), 77 resumes". Say:
+   *"a student can start from an existing vault: six of these were already in it from my resume, so they were merged, not
+   duplicated, and my 77 existing resumes are now in the library."*
 
 ### A2 · F02 Posting import and analysis (hybrid — AI extracts, code validates)
-1. **Postings** → paste the text of `sample-posting.txt`, leave *Analyze* ticked → **Add posting**.
+1. **Postings** → paste the text of the Pinterest posting, leave *Analyze* ticked → **Add posting**.
 2. Say: *"F02 — Claude extracts must-haves, ATS keywords and required documents as JSON; my code validates
    it and retries with the problems listed if it is invalid; the soft-skill flag is computed by code."*
 3. Point at Requirements: must-haves, nice-to-haves, documents (Cover Letter).
@@ -44,8 +55,9 @@ only my real experience. This recording shows every feature in the web GUI."*
 
 ### A3 · F03 Fit analysis and strategy (hybrid)
 1. On the posting page, point at **Fit N/100**, the gaps, and **Recommended: GENERATE/TWEAK/REUSE**.
-2. Say: *"F03 is deterministic: must-have keywords count double against my vault skills. The closest saved
-   resume is never one with [placeholders] — my sample has one, so it isn't offered for reuse."*
+2. Say: *"F03 is deterministic: must-have keywords count double against my vault skills."* With 77 resumes in the library,
+   **Recommended** can be REUSE or TWEAK of one of mine: say which it picked and why. *"A resume with [placeholders] is never
+   offered for reuse."*
 
 ### A4 · F04 ATS keyword scan (deterministic)
 1. Scroll to **Keyword scan**. Explain the colours: green backed, amber skills-line only, blue dashed
@@ -66,8 +78,8 @@ only my real experience. This recording shows every feature in the web GUI."*
 ### A6 · F06 Clarifying questions and vault learning (hybrid)
 1. If the agent asks a question during A5, answer it in the box and say: *"F06 — instead of guessing,
    it asks me; the answer is saved to the vault so it never asks again."*
-2. If it didn't ask: add a posting that needs a fact your vault lacks (e.g. mentions a framework only one of
-   your projects might use), tailor again, answer the question. Then **Vault** → search the topic → show
+2. If it didn't ask: add the second posting (CIBC or Magna), or any that needs a fact my vault lacks (e.g. mentions a
+   framework only one of my projects might use), tailor again, answer the question. Then **Vault** → search the topic → show
    the saved fact line.
 3. Alternative: skip a question (empty answer) → the agent leaves the detail out.
 
@@ -79,7 +91,8 @@ only my real experience. This recording shows every feature in the web GUI."*
    (validated: no new numbers).
 
 ### A8 · F08 Revision with undo/redo (hybrid)
-1. In **Ask for a change** type *"Make the tutoring bullet focus on Java"* → **Revise**.
+1. In **Ask for a change** ask for a change to one of my real bullets, e.g. *"Make the first project bullet focus on Java"*
+   → **Revise**.
 2. Point at the changed bullet in Blocks and the log line "You asked: …".
 3. Point at **What changed** (old text struck through, new text in green).
 4. **↶ Undo** → bullet back; **↷ Redo** → reapplied (*"no second AI call"*).
@@ -93,7 +106,7 @@ only my real experience. This recording shows every feature in the web GUI."*
    then **Download .txt**. (If a draft still fails the checks, the page lists the problems above the letter.)
 
 ### A10 · F10 Library, reuse and export (deterministic)
-1. **Resumes** → library grouped by family; **.tex** download link.
+1. **Resumes** → library grouped by family (my 7 resume families); **.tex** download link.
 2. On the resume page click **Download .tex** and open the file briefly (ready for Overleaf).
 3. Alternative/error: on a posting where the closest resume has placeholders, show that "Use as-is" is not
    offered; on one that fits ≥ 75%, click **Use as-is** → saved as `CV_Company_Role`.
@@ -120,13 +133,14 @@ Use a terminal with a large font. `J="java -jar target/cooppilot-0.1.0.jar --cli
 ### B1 · Help and F01
 ```
 $J --help
-$J vault import samples/sample-resume.tex --name CV_General
+$J vault import "$USERPROFILE/AgentOfficeData/exports/CV_General.tex" --name CV_General      # 0 new: imported in A
+$J vault import-backup "$USERPROFILE/AgentOfficeData/exports/cooppilot-backup-sina.json"     # 0 new: same
 $J vault list -q java
 ```
 
 ### B2 · F02–F04
 ```
-$J posting add samples/sample-posting.txt --analyze      # note the posting id
+$J posting add "$USERPROFILE/AgentOfficeData/exports/cooppilot-postings/CIBC-Software-Application-Developer-Co-op.txt" --analyze   # note the posting id
 $J fit <postingId>
 $J scan <resumeId> <postingId>                           # ids from 'library' and 'posting list'
 $J fit <postingId> --json                                # machine-readable output (Stage 3 tests)
@@ -141,7 +155,7 @@ $J condense <newResumeId> <postingId> --mode RULES
 ### B4 · F08, F10, F11, F12 in the interactive shell
 ```
 $J shell
-cooppilot> revise <resumeId> "make the cashier bullet shorter"
+cooppilot> revise <resumeId> "make the first project bullet shorter"
 cooppilot> undo <resumeId>
 cooppilot> redo <resumeId>
 cooppilot> undo <resumeId>

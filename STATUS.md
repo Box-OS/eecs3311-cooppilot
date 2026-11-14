@@ -3,7 +3,7 @@ How to run: `.\mvnw.cmd package -DskipTests`, then `java -jar target\cooppilot-0
   (CLI: `java -jar target\cooppilot-0.1.0.jar --cli --help`; key in application-local.properties, git-ignored)
 
 ## Left
-- [ ] Record video A (web GUI, F01–F12) with my own data: docs/stage2/recording-real-data.md over docs/stage2/demo-script.md
+- [ ] Record video A (web GUI, F01–F12) with my own data: docs/stage2/demo-script.md
 - [ ] Record video B (CLI)
 - [ ] Upload both unlisted, add chapters, put the timestamped links in docs/stage2/report/03-ai-verification-demos.md
       (Section 7) and the README, rebuild the PDF (`python3 docs/stage2/build_report.py`)
