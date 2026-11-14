@@ -20,22 +20,18 @@ import java.util.TreeMap;
 public class ResumeLibrary {
 
     private final ResumeRepository repo;
-    private final VaultService vault;
 
-    public ResumeLibrary(ResumeRepository repo, VaultService vault) {
+    public ResumeLibrary(ResumeRepository repo) {
         this.repo = repo;
-        this.vault = vault;
     }
 
     /**
-     * Match % = of the posting keywords the student actually has (vault skills), the share this resume
-     * shows, with must-haves counted twice. Resumes with [placeholders] are never suggested.
+     * Match % = the share of the posting's keywords this resume shows, with must-haves counted twice (the same weighting
+     * as the fit score). Every keyword counts, not only those the vault already has: otherwise the resume the vault was
+     * imported from always scores 100%. Resumes with [placeholders] are never suggested.
      */
     public Optional<ResumeMatch> findClosest(PostingAnalysis a) {
-        String skillText = String.join(", ", vault.skills());
-        List<Keyword> relevant = a.keywords().stream().filter(k -> k.appearsIn(skillText)).toList();
-        if (relevant.isEmpty()) relevant = a.keywords();
-        final List<Keyword> keys = relevant;
+        final List<Keyword> keys = a.keywords();
         return repo.findAll().stream()
                 .filter(r -> !r.hasPlaceholders())
                 .map(r -> new ResumeMatch(r, matchPercent(r, keys)))
