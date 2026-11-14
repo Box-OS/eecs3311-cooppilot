@@ -12,9 +12,8 @@ show it running and its output, say where AI is involved, and show an error or a
 1. Start from an empty database so the demo is clean. Stop the app first (Ctrl+C in its terminal: it keeps the file open),
    then in the repo folder, in PowerShell: `Remove-Item cooppilot.db -ErrorAction SilentlyContinue`
    (macOS/Linux: `rm -f cooppilot.db`). The app makes a new, empty one when it starts.
-2. `application-local.properties` has `cooppilot.llm.provider=claude-cli`: the AI runs through the Claude Code CLI on my
-   Claude subscription, so no API key is needed (`provider=claude` uses the API key instead).
-   **Never open this file, your terminal history with a key, or console.anthropic.com on screen.**
+2. `application-local.properties` has your key and `cooppilot.llm.provider=claude`.
+   **Never open this file, your terminal history with the key, or console.anthropic.com on screen.**
 3. `.\mvnw.cmd package -DskipTests` (macOS/Linux: `./mvnw`), then `java -jar target\cooppilot-0.1.0.jar` (GUI at
    http://localhost:8080). Keep that terminal open while you record.
 4. The demo runs on my real data. Have these ready (they live outside the repo, in `%USERPROFILE%\AgentOfficeData\exports\`,
