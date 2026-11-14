@@ -9,10 +9,13 @@ show it running and its output, say where AI is involved, and show an error or a
 
 ## Before recording
 
-1. In the repo folder, start from an empty database so the demo is clean: `rm -f cooppilot.db`.
+1. Start from an empty database so the demo is clean. Stop the app first (Ctrl+C in its terminal: it keeps the file open),
+   then in the repo folder, in PowerShell: `Remove-Item cooppilot.db -ErrorAction SilentlyContinue`
+   (macOS/Linux: `rm -f cooppilot.db`). The app makes a new, empty one when it starts.
 2. `application-local.properties` has your key and `cooppilot.llm.provider=claude`.
    **Never open this file, your terminal history with the key, or console.anthropic.com on screen.**
-3. `mvn package -DskipTests` (for the CLI), then `java -jar target/cooppilot-0.1.0.jar` (GUI at http://localhost:8080).
+3. `.\mvnw.cmd package -DskipTests` (macOS/Linux: `./mvnw`), then `java -jar target\cooppilot-0.1.0.jar` (GUI at
+   http://localhost:8080). Keep that terminal open while you record.
 4. The demo runs on my real data. Have these ready (they live outside the repo, in `%USERPROFILE%\AgentOfficeData\exports\`,
    because they're personal and never committed):
    - `CV_General.tex`: my real resume, for the `.tex` import
@@ -128,7 +131,10 @@ only my real experience. This recording shows every feature in the web GUI."*
 ## Recording B — CLI (≈ 5–7 min)
 
 Say: *"Every feature is also available from the command line through the same facade."*
-Use a terminal with a large font. `J="java -jar target/cooppilot-0.1.0.jar --cli"` keeps commands short.
+Use a terminal with a large font, in the repo folder, and run `chcp 65001` first so ✓ and → display. A short `J` keeps
+commands readable. In PowerShell: `function J { java -jar target\cooppilot-0.1.0.jar --cli @args }`, then type `J` where
+the commands below say `$J`, and `$env:USERPROFILE` where they say `$USERPROFILE`.
+(macOS/Linux: `J="java -jar target/cooppilot-0.1.0.jar --cli"`, used as `$J`.)
 
 ### B1 · Help and F01
 ```
