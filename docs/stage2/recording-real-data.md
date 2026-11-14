@@ -1,57 +1,32 @@
 # Recording with my own data
 
-The same two recordings as `demo-script.md` (A: web GUI, B: CLI), with my real vault and resumes instead of the fictional samples.
-What differs from the script is here; anything not mentioned is as `demo-script.md` says.
+Follow `demo-script.md` step by step; this file only lists what to swap in so every screen shows my real data instead of the
+fictional samples.
 
-## Before recording
+## Files (outside the repo: personal, never committed)
 
-- The app runs on an **empty** database (`cooppilot.db`; the fictional one is kept as `cooppilot-demo-fictional.db`).
-  Start it with `java -jar target\cooppilot-0.1.0.jar` → http://localhost:8080.
-- My data: `%USERPROFILE%\AgentOfficeData\exports\cooppilot-backup.json` (65 vault entries, 77 resumes, from ResumeBase).
-- Real postings to paste: `%USERPROFILE%\AgentOfficeData\exports\cooppilot-postings\` (Pinterest, CIBC, Magna, 1Password,
-  Celestica, Interac). Use **Pinterest – Software Engineering Intern** as the main one.
-- Privacy: the videos are unlisted but public to anyone with the link. Don't scroll a resume's header (phone, email) into view,
-  and never show `application-local.properties`.
+| Instead of | Use |
+|---|---|
+| `samples/sample-resume.tex` | `%USERPROFILE%\AgentOfficeData\exports\CV_General.tex` (my real CV_General) |
+| `cooppilot-backup-sina.json` | `%USERPROFILE%\AgentOfficeData\exports\cooppilot-backup-sina.json` (65 vault entries, 77 resumes, from ResumeBase) |
+| `samples/sample-posting.txt` | `%USERPROFILE%\AgentOfficeData\exports\cooppilot-postings\Pinterest-Software-Engineering-Intern-2027-Toronto.txt` |
+| "a second posting" | `...\cooppilot-postings\CIBC-Software-Application-Developer-Co-op.txt` (or Magna, 1Password, Celestica, Interac) |
 
-## A1 · F01 Experience vault and resume import
+Start on an empty `cooppilot.db` (the fictional one is kept as `cooppilot-demo-fictional.db`). Keep resume headers (phone,
+email) off screen: the videos are unlisted, but anyone with the link sees them.
 
-1. **Vault**. Say: *"F01: the vault is the agent's long-term memory: every fact it may use about me."*
-2. Click **Import backup** with no file → *"Choose a backup .json file first."* (error case).
-3. Choose `cooppilot-backup.json` → **Import backup** → *"Backup imported: 65 new vault entries (of 65), 77 resumes."*
-   Say: *"This is my real data from my own resume tracker: skills, courses, projects, and 77 resumes I've already made."*
-4. Scroll the entries (projects with tech tags, skills, courses). Search `java`.
-5. Point at a **context** entry: *"context entries are facts the agent may know but must never put on a resume."*
-6. Import the same backup again → *"0 new vault entries"* (duplicates merged: the alternative case).
-7. Optional: **Add entry** by hand, one line, **Save entry**.
+## What to expect and say where it differs
 
-## A2–A4 · F02 posting, F03 fit, F04 keyword scan
-
-- **Postings** → paste the Pinterest posting → **Add posting** (Analyze ticked). Narrate as the script says.
-- **F03**: point at **Fit N/100**, the gaps, and **Recommended**. With 77 saved resumes it can suggest reusing or tweaking one:
-  say *"it looked through my library for the closest one; a resume with [placeholders] is never offered."*
-- **F04**: the coloured keyword chips; then pick another resume in the dropdown → **Scan** (alternative).
-
-## A5–A6 · F05 tailoring, F06 clarifying questions
-
-- **Tailor with the agent**, narrate the tool calls as the script says. With a real vault the agent has real choices: point
-  at `search_vault` returning my entries.
-- **F06**: if it asks a question, answer it and say it's saved to the vault. If it doesn't, add a second posting (CIBC or Magna)
-  that names a framework I haven't listed, tailor again, answer; then **Vault** → search it → the saved fact. Skipping a
-  question (empty answer) is the alternative.
-
-## A7–A12 · F07 one page, F08 revise, F09 letter, F10 library, F11 tracker, F12 dashboard
-
-As the script, on the tailored Pinterest resume. Two things that change with real data:
-- **F08** revise: pick a real bullet of mine, e.g. *"make the first project bullet focus on Java"*.
-- **F10** library: it's grouped into my 7 resume families; say *"these are my real resumes; any of them downloads as .tex
-  for Overleaf."*
-
-## B · CLI
-
-As the script, with my data:
-```
-$J vault import-backup %USERPROFILE%\AgentOfficeData\exports\cooppilot-backup.json   # "0 new" (already imported in A)
-$J vault list -q java
-$J posting add "%USERPROFILE%\AgentOfficeData\exports\cooppilot-postings\CIBC-Software-Application-Developer-Co-op.txt" --analyze
-```
-then `fit`, `scan`, `tailor`, the shell and `letter` exactly as in `demo-script.md`.
+- **A1 step 3**: *"Imported 7 blocks as CV_General; 26 new vault entries"*, with one warning: *Could not read the dates
+  "Demo | GitHub"* for the Reville project. Say: *"when it can't read something it warns instead of guessing."*
+- **A1 step 4**: search a skill I really have, e.g. `java` or `react`, instead of `tutor`.
+- **A1 step 5**: add something real that isn't on the resume (a hackathon, a club, a side project).
+- **A1 step 8**: *"Backup imported: 59 new vault entries (of 65), 77 resumes."* Say: *"six of these were already in the vault
+  from my resume, so they were merged, not duplicated, and now my 77 existing resumes are in the library."*
+- **A3**: with 77 resumes in the library, **Recommended** can be REUSE or TWEAK of one of mine; say which one it picked and why.
+- **A6**: if the agent doesn't ask a question on Pinterest, use the CIBC posting for the second run.
+- **A8**: revise one of my real bullets, e.g. *"make the first project bullet focus on Java"*.
+- **A10**: the library is grouped into my 7 resume families.
+- **B**: `$J vault import "%USERPROFILE%\AgentOfficeData\exports\CV_General.tex" --name CV_General` (shows 0 new: already
+  imported in A), `$J vault import-backup "%USERPROFILE%\AgentOfficeData\exports\cooppilot-backup-sina.json"`, and
+  `$J posting add "%USERPROFILE%\AgentOfficeData\exports\cooppilot-postings\CIBC-Software-Application-Developer-Co-op.txt" --analyze`.
