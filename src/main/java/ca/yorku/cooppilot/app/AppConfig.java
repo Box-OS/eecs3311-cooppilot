@@ -5,6 +5,7 @@ import ca.yorku.cooppilot.agent.PromptBuilder;
 import ca.yorku.cooppilot.agent.tools.Tool;
 import ca.yorku.cooppilot.agent.tools.ToolRegistry;
 import ca.yorku.cooppilot.llm.ClaudeAdapter;
+import ca.yorku.cooppilot.llm.ClaudeCliAdapter;
 import ca.yorku.cooppilot.llm.LLMClient;
 import ca.yorku.cooppilot.llm.MockLlmClient;
 import ca.yorku.cooppilot.service.CondenseStrategy;
@@ -26,9 +27,13 @@ public class AppConfig {
     @Bean
     public LLMClient llmClient(@Value("${cooppilot.llm.provider:mock}") String provider,
                                @Value("${cooppilot.llm.api-key:}") String apiKey,
-                               @Value("${cooppilot.llm.model:claude-haiku-4-5}") String model) {
+                               @Value("${cooppilot.llm.model:claude-haiku-4-5}") String model,
+                               @Value("${cooppilot.llm.cli.command:claude}") String cliCommand,
+                               @Value("${cooppilot.llm.cli.config-dir:}") String cliConfigDir,
+                               @Value("${cooppilot.llm.cli.token-file:}") String cliTokenFile) {
         return switch (provider.toLowerCase()) {
             case "claude" -> new ClaudeAdapter(apiKey, model);
+            case "claude-cli" -> new ClaudeCliAdapter(cliCommand, model, cliConfigDir, cliTokenFile);
             case "mock" -> new MockLlmClient();
             default -> throw new IllegalStateException("Unknown cooppilot.llm.provider: " + provider);
         };
