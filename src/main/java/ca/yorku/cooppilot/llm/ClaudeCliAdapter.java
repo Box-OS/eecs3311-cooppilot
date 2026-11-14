@@ -65,11 +65,8 @@ public class ClaudeCliAdapter implements LLMClient {
             Files.writeString(systemFile, system(request), StandardCharsets.UTF_8);
             List<String> cmd = new ArrayList<>(List.of(command, "-p", "--model", model, "--output-format", "json",
                     "--tools", "", "--strict-mcp-config", "--setting-sources", "", "--disable-slash-commands",
-                    "--no-session-persistence", "--system-prompt-file", systemFile.toString()));
-            if (!request.tools().isEmpty()) {
-                cmd.add("--json-schema");
-                cmd.add(SCHEMA);
-            }
+                    "--no-session-persistence",
+                    "--system-prompt-file", systemFile.toString()));
             long t0 = System.currentTimeMillis();
             String out = runner.run(cmd, env(), transcript(request.messages()));
             LlmResponse r = parse(out, !request.tools().isEmpty());
@@ -93,20 +90,15 @@ public class ClaudeCliAdapter implements LLMClient {
         return model;
     }
 
-    static final String SCHEMA = """
-            {"type":"object","properties":{
-              "text":{"type":"string"},
-              "tool_calls":{"type":"array","items":{"type":"object","properties":{
-                "name":{"type":"string"},"args":{"type":"object"}},"required":["name","args"]}}},
-             "required":["text","tool_calls"]}""".replaceAll("\\s+", "");
-
     /** The request's system prompt, plus the tools and how to call them when there are any. */
     String system(LlmRequest req) {
         StringBuilder s = new StringBuilder(req.system() == null ? "" : req.system());
         if (!req.tools().isEmpty()) {
-            s.append("\n\n# Tools\nYou can call these tools. To call tools, list them in tool_calls (name and args matching")
-             .append(" the tool's input schema); their results come back in the next turn. Put any message for the user")
-             .append(" in text. When you are finished, reply with an empty tool_calls list.\n");
+            s.append("\n\n# Tools\nThe tools below are available and working. CoopPilot runs them for you: to call them,")
+             .append(" reply with ONLY one JSON object, no prose or code fences around it:\n")
+             .append("{\"text\": \"a short note for the user\", \"tool_calls\": [{\"name\": \"tool_name\", \"args\": {...}}]}\n")
+             .append("args must match the tool's input schema. The results come back in the next turn as [tool result #id].")
+             .append(" You may call several tools in one reply. When the task is finished, reply with \"tool_calls\": [].\n");
             for (ToolSchema t : req.tools()) {
                 s.append("\n## ").append(t.name()).append('\n').append(t.description())
                  .append("\nInput schema: ").append(t.inputSchema()).append('\n');
@@ -144,7 +136,7 @@ public class ClaudeCliAdapter implements LLMClient {
         } catch (IOException e) {
             throw new LlmException("The Claude CLI returned something that isn't JSON: " + abbreviate(out), e);
         }
-        if (root == null || root.path("is_error").asBoolean(false)) {
+        if (root == null || root.isMissingNode() || root.path("is_error").asBoolean(false)) {
             String why = root == null ? out : root.path("result").asText("unknown error");
             throw new LlmException("Claude CLI error: " + why, 0);
         }
@@ -154,13 +146,12 @@ public class ClaudeCliAdapter implements LLMClient {
         int outTokens = usage.path("output_tokens").asInt(0);
         if (!withTools) return new LlmResponse(root.path("result").asText(""), List.of(), "end_turn", in, outTokens);
 
-        JsonNode reply = root.path("structured_output");
-        if (reply.isMissingNode() || reply.isNull()) {
-            try {
-                reply = JSON.readTree(root.path("result").asText("{}"));
-            } catch (IOException e) {
-                return new LlmResponse(root.path("result").asText(""), List.of(), "end_turn", in, outTokens);
-            }
+        String result = root.path("result").asText("");
+        JsonNode reply;
+        try {
+            reply = JsonReply.object(result);
+        } catch (IllegalArgumentException e) { // plain prose: a final answer with no tool calls
+            return new LlmResponse(result, List.of(), "end_turn", in, outTokens);
         }
         List<ToolCall> calls = new ArrayList<>();
         int n = 0;
@@ -175,25 +166,25 @@ public class ClaudeCliAdapter implements LLMClient {
     /** Which account the CLI uses; strips API-key settings so a stray key or proxy never takes over. */
     Map<String, String> env() throws IOException {
         Map<String, String> env = new java.util.HashMap<>();
+        env.put("MAX_THINKING_TOKENS", "0"); // like the API adapter: no extended thinking, so replies stay fast
         if (!configDir.isBlank()) env.put("CLAUDE_CONFIG_DIR", configDir);
         if (!tokenFile.isBlank()) env.put("CLAUDE_CODE_OAUTH_TOKEN", Files.readString(Path.of(tokenFile)).strip());
         return env;
     }
 
+    private static final boolean WINDOWS = System.getProperty("os.name", "").startsWith("Windows");
+
     private static String runProcess(List<String> command, Map<String, String> env, String stdin)
             throws IOException, InterruptedException {
-        ProcessBuilder pb = new ProcessBuilder(command);
+        // Windows passes one command-line string, and Java doesn't escape quotes inside an argument: escape them so a
+        // JSON argument such as --json-schema arrives intact.
+        List<String> args = WINDOWS ? command.stream().map(a -> a.replace("\"", "\\\"")).toList() : command;
+        ProcessBuilder pb = new ProcessBuilder(args);
         pb.environment().keySet().removeIf(k -> k.startsWith("ANTHROPIC_"));
         pb.environment().putAll(env);
-        pb.redirectError(ProcessBuilder.Redirect.DISCARD);
         Process p = pb.start();
-        CompletableFuture<String> out = CompletableFuture.supplyAsync(() -> {
-            try {
-                return new String(p.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-            } catch (IOException e) {
-                return "";
-            }
-        });
+        CompletableFuture<String> out = drain(p.getInputStream());
+        CompletableFuture<String> err = drain(p.getErrorStream());
         try (var w = p.getOutputStream()) {
             w.write(stdin.getBytes(StandardCharsets.UTF_8));
         }
@@ -201,7 +192,19 @@ public class ClaudeCliAdapter implements LLMClient {
             p.destroyForcibly();
             throw new IOException("timed out after " + TIMEOUT_SECONDS + " s");
         }
-        return out.join();
+        String result = out.join();
+        if (result.isBlank()) throw new IOException(err.join().isBlank() ? "no output (exit " + p.exitValue() + ")" : err.join().strip());
+        return result;
+    }
+
+    private static CompletableFuture<String> drain(java.io.InputStream in) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return new String(in.readAllBytes(), StandardCharsets.UTF_8);
+            } catch (IOException e) {
+                return "";
+            }
+        });
     }
 
     private static String abbreviate(String s) {
