@@ -22,7 +22,7 @@
         <section class="card">
             <h2>Ask for a change (F08)</h2>
             <form method="post" th:action="@{/resumes/{id}/revise(id=${resume.id})}">
-                <textarea name="instruction" rows="3" required placeholder="e.g. Make the tutoring bullet focus on Java"></textarea>
+                <textarea name="instruction" rows="3" required placeholder="e.g. Make the first project bullet focus on Java"></textarea>
                 <button style="margin-top:.4rem">Revise</button>
             </form>
             <div class="row" style="margin-top:.6rem">

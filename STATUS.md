@@ -10,6 +10,8 @@ How to run: `.\mvnw.cmd package -DskipTests`, then `java -jar target\cooppilot-0
 - [ ] Stage 3: testing (JUnit + KUMA)
 
 ## Done
+- [x] 2026-11-14 UI touch-up before recording: one shared stylesheet (fragments.html): lit nav tab and brand mark, card
+      shadows and hover, even grid spacing, styled links, button/input hover and focus states
 - [x] 2026-11-14 F01–F05 checked in the app; recording set up with real data (CV_General.tex, backup and postings from
       ResumeBase), rehearsed F01's imports; pulled the 5 GitHub commits (vault/letter editing, deadlines) and rebuilt
 - [x] 2026-11-12 F01 backup import (GUI + CLI `vault import-backup`)
