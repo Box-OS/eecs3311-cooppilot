@@ -1,6 +1,6 @@
 # eecs3311-cooppilot
 How to run: `.\mvnw.cmd package -DskipTests`, then `java -jar target\cooppilot-0.1.0.jar` → http://localhost:8080
-  (CLI: `java -jar target\cooppilot-0.1.0.jar --cli --help`; key in application-local.properties, git-ignored)
+  (CLI: `java -jar target\cooppilot-0.1.0.jar --cli --help`; AI settings in application-local.properties, git-ignored)
 
 ## Left
 - [ ] Record video A (web GUI, F01–F12) with my own data: docs/stage2/demo-script.md
@@ -10,6 +10,8 @@ How to run: `.\mvnw.cmd package -DskipTests`, then `java -jar target\cooppilot-0
 - [ ] Stage 3: testing (JUnit + KUMA)
 
 ## Done
+- [x] 2026-11-14 claude-cli provider (ClaudeCliAdapter): the AI runs through `claude -p` on a Claude subscription, no API
+      key; checked F02 analysis (~8 s) and a full F05 tailor run (13 steps, saved) on my real data
 - [x] 2026-11-14 UI touch-up before recording: one shared stylesheet (fragments.html): lit nav tab and brand mark, card
       shadows and hover, even grid spacing, styled links, button/input hover and focus states
 - [x] 2026-11-14 F01–F05 checked in the app; recording set up with real data (CV_General.tex, backup and postings from
@@ -17,6 +19,8 @@ How to run: `.\mvnw.cmd package -DskipTests`, then `java -jar target\cooppilot-0
 - [x] 2026-11-12 F01 backup import (GUI + CLI `vault import-backup`)
 
 ## Decisions
+- The API key stopped working (Anthropic returns 401), so the videos use provider=claude-cli on the board's priority
+  account (Claude Marco). Thinking is off (MAX_THINKING_TOKENS=0): with it on, one analysis took 53 s instead of 8 s.
 - Videos use my real data, not the fictional samples: the demo data was too thin to show the features. Keep resume headers
   (phone, email) off screen.
 - The real backup and postings live outside the repo (%USERPROFILE%\AgentOfficeData\exports): personal, never committed.

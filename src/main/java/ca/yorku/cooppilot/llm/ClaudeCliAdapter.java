@@ -19,8 +19,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * Adapter pattern — a second Adapter. Runs each request through the Claude Code CLI ({@code claude -p}) signed in with a
  * Claude subscription, so the app works without an API key. The CLI has no tool-use protocol of its own here (its built-in
- * tools are switched off), so the conversation and the tool list are written into the prompt, and the reply is
- * structured output checked against a JSON Schema: {@code {"text": ..., "tool_calls": [{"name", "args"}]}}.
+ * tools are switched off), so the conversation and the tool list are written into the prompt, and the model answers
+ * with one JSON object, {@code {"text": ..., "tool_calls": [{"name", "args"}]}}, that becomes the neutral response.
  */
 public class ClaudeCliAdapter implements LLMClient {
 
@@ -177,7 +177,7 @@ public class ClaudeCliAdapter implements LLMClient {
     private static String runProcess(List<String> command, Map<String, String> env, String stdin)
             throws IOException, InterruptedException {
         // Windows passes one command-line string, and Java doesn't escape quotes inside an argument: escape them so a
-        // JSON argument such as --json-schema arrives intact.
+        // JSON argument arrives intact.
         List<String> args = WINDOWS ? command.stream().map(a -> a.replace("\"", "\\\"")).toList() : command;
         ProcessBuilder pb = new ProcessBuilder(args);
         pb.environment().keySet().removeIf(k -> k.startsWith("ANTHROPIC_"));

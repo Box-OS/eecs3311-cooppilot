@@ -23,9 +23,9 @@ class ClaudeCliAdapterTest {
         ClaudeCliAdapter adapter = new ClaudeCliAdapter("claude", "claude-test", "", "", (cmd, env, stdin) -> {
             commands.add(cmd);
             inputs.add(stdin);
-            return """
-                    {"type":"result","is_error":false,"result":"","usage":{"input_tokens":10,"output_tokens":5},
-                     "structured_output":{"text":"Searching.","tool_calls":[{"name":"search_vault","args":{"query":"java"}}]}}""";
+            String reply = "{\"text\":\"Searching.\",\"tool_calls\":[{\"name\":\"search_vault\",\"args\":{\"query\":\"java\"}}]}";
+            return json.createObjectNode().put("is_error", false).put("result", reply)
+                    .set("usage", json.createObjectNode().put("input_tokens", 10).put("output_tokens", 5)).toString();
         });
         LlmRequest req = new LlmRequest("You are CoopPilot.",
                 List.of(Message.user("Tailor my resume"),
@@ -35,7 +35,7 @@ class ClaudeCliAdapterTest {
 
         LlmResponse r = adapter.complete(req);
 
-        assertTrue(commands.get(0).contains("--json-schema"));
+        assertTrue(commands.get(0).contains("--system-prompt-file"));
         assertTrue(inputs.get(0).contains("[tool result #call_1]"));
         assertTrue(inputs.get(0).contains("coverage 40%"));
         assertEquals("Searching.", r.text());
@@ -49,7 +49,6 @@ class ClaudeCliAdapterTest {
     @Test
     void plainPromptReturnsTheResultText() {
         ClaudeCliAdapter adapter = new ClaudeCliAdapter("claude", "m", "", "", (cmd, env, stdin) -> {
-            assertFalse(cmd.contains("--json-schema"));
             assertEquals("Analyze this posting", stdin);
             return "{\"is_error\":false,\"result\":\"{\\\"company\\\":\\\"Acme\\\"}\",\"usage\":{}}";
         });
