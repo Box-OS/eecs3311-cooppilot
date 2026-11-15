@@ -22,3 +22,6 @@ target/
 
 # Exported resumes and letters
 exports/
+
+# The demo recording script: personal, kept on this PC only
+docs/stage2/demo-script.md

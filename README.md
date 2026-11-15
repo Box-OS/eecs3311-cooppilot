@@ -107,7 +107,7 @@ $J shell                                                         # interactive: 
 
 ## Demonstration videos
 
-Feature-by-feature links with timestamps are in the report's **Section 7 — Demonstration index**. The recording plan is in [docs/stage2/demo-script.md](docs/stage2/demo-script.md).
+Feature-by-feature links with timestamps are in the report's **Section 7 — Demonstration index**.
 
 ## Project layout
 
