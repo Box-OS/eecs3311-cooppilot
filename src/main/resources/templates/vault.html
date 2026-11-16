@@ -57,12 +57,14 @@
                 <td th:text="${e.use}"></td>
                 <td th:text="${e.date}"></td>
                 <td><a class="chip" th:each="t : ${e.tags}" th:text="${t}" th:href="@{/vault(tag=${t})}" title="Show entries with this tag" style="text-decoration:none"></a></td>
-                <td><span class="small" style="white-space:pre-line" th:text="${e.body}"></span></td>
-                <td style="white-space:nowrap">
-                    <a th:href="@{/vault/{id}/edit(id=${e.id})}" title="Edit">✎</a>
-                    <form method="post" th:action="@{/vault/{id}/delete(id=${e.id})}" style="display:inline">
-                        <button class="ghost" title="Delete" style="padding:0 .45rem">×</button>
-                    </form>
+                <td><span class="small" style="white-space:pre-line;overflow-wrap:anywhere" th:text="${e.body}"></span></td>
+                <td style="width:1%">
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:.35rem">
+                        <a th:href="@{/vault/{id}/edit(id=${e.id})}" title="Edit">✎</a>
+                        <form method="post" th:action="@{/vault/{id}/delete(id=${e.id})}" style="margin:0">
+                            <button class="ghost" title="Delete" style="padding:0 .45rem">×</button>
+                        </form>
+                    </div>
                 </td>
             </tr>
         </table>
