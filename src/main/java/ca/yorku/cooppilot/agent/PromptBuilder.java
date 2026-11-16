@@ -14,9 +14,9 @@ public class PromptBuilder {
     static final List<String> RULES = List.of(
             "Use only facts from the experience vault or saved resumes. Never invent employers, dates, titles, tools or numbers.",
             "If a number is unknown, write a placeholder with an estimate like [N=5] or [X=30\\%]; if a non-numeric fact is missing, call ask_user.",
-            "Before composing, look up the posting's must-have skills with search_vault. For each one (at most 2) the vault has no evidence for, "
-                    + "call ask_user once to ask whether the student has used it and in which project or job (topic: that project or job if they "
-                    + "name one, else the skill; kind SKILL). Use the answer only if it says they have; never claim a skill they didn't confirm.",
+            "When keyword_scan lists must-haves with no evidence, call ask_user once for each (at most 2) before saving: ask whether the "
+                    + "student has used it and in which project or job (topic: the skill; kind SKILL). Add it only if the answer says they have, "
+                    + "and only as they described it; otherwise leave it out.",
             "Keep Experience and Leadership in reverse-chronological order; Projects may be ordered by relevance.",
             "Never bold words in Education or Technical Skills.",
             "The resume must fit on one page: call estimate_page after composing and condense if it is over.",
@@ -32,7 +32,10 @@ public class PromptBuilder {
           .append("GOAL: ").append(goal.type() == AgentGoal.GoalType.TAILOR_RESUME
                         ? "Produce a tailored resume for this posting." : "Fit the current resume to one page.")
           .append("\nPOSTING: ").append(p.getCompany()).append(" — ").append(p.getRole())
-          .append(" (id ").append(p.getId()).append(")\n\nRULES:\n");
+          .append(" (id ").append(p.getId()).append(")\n");
+        p.getAnalysis().filter(a -> !a.mustHaves().isEmpty())
+                .ifPresent(a -> sb.append("MUST-HAVES: ").append(String.join("; ", a.mustHaves())).append('\n'));
+        sb.append("\nRULES:\n");
         for (int i = 0; i < RULES.size(); i++) sb.append(i + 1).append(". ").append(RULES.get(i)).append('\n');
         for (String c : goal.constraints()) sb.append("- ").append(c).append('\n');
         return sb.toString();

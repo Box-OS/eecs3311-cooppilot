@@ -43,8 +43,10 @@ public class KeywordScanTool extends AgentTool {
             r = s.draft().orElseThrow(() -> new IllegalStateException("no draft yet: pass resume_id or call compose_resume first"));
         }
         KeywordReport k = scanner.scan(r, analysis(s));
-        return ToolResult.ok(String.format("coverage %d%%%nbacked: %s%nthin (skills line only): %s%nknown but not worded: %s%nmissing (no evidence, do not add): %s",
-                Math.round(k.coverage() * 100), terms(k.backed()), terms(k.thin()), terms(k.knownNotWorded()), terms(k.missing())));
+        List<Keyword> askAbout = k.missing().stream().filter(Keyword::mustHave).toList();
+        return ToolResult.ok(String.format("coverage %d%%%nbacked: %s%nthin (skills line only): %s%nknown but not worded: %s%nmissing (no evidence, do not add): %s%s",
+                Math.round(k.coverage() * 100), terms(k.backed()), terms(k.thin()), terms(k.knownNotWorded()), terms(k.missing()),
+                askAbout.isEmpty() ? "" : "\nmust-haves with no evidence (ask_user about these before leaving them out): " + terms(askAbout)));
     }
 
     private static String terms(List<Keyword> ks) {
