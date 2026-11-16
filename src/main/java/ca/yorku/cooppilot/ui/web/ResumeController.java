@@ -44,6 +44,7 @@ public class ResumeController {
         m.addAttribute("preview", facade.preview(id));
         m.addAttribute("changes", facade.lastChanges(id));
         m.addAttribute("lastAction", facade.lastAction(id));
+        m.addAttribute("addable", facade.addableBlocks(id));
         var analyzed = facade.postings().stream().filter(p -> p.isAnalyzed()).toList();
         String scanFor = posting != null ? posting : analyzed.isEmpty() ? null : analyzed.get(analyzed.size() - 1).getId();
         if (scanFor != null) {
@@ -88,6 +89,15 @@ public class ResumeController {
         return act(id, flash, () -> {
             facade.removeBlock(id, blockId);
             return "Entry removed (Undo brings it back).";
+        });
+    }
+
+    @PostMapping("/resumes/{id}/add-block")
+    public String addBlock(@PathVariable String id, @RequestParam(required = false) String source, RedirectAttributes flash) {
+        return act(id, flash, () -> {
+            facade.addBlock(id, source);
+            var log = facade.revisionLog(id);
+            return log.get(log.size() - 1) + " (Undo takes it out).";
         });
     }
 

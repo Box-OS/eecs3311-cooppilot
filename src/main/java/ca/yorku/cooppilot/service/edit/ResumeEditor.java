@@ -78,6 +78,12 @@ public class ResumeEditor {
         return run(e, new RemoveBlockCommand(e.resume(), blockId));
     }
 
+    /** Adds an entry copied from another saved resume; undoable. */
+    public Resume addBlock(String resumeId, ResumeBlock from) {
+        Editing e = editing(resumeId);
+        return run(e, new AddBlockCommand(e.resume(), from));
+    }
+
     public String undo(String resumeId) {
         Editing e = editing(resumeId);
         List<ResumeBlock> before = snapshot(e);

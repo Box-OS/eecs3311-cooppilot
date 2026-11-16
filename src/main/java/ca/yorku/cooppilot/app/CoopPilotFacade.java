@@ -115,6 +115,44 @@ public class CoopPilotFacade {
         return editor.removeBlock(resumeId, blockId);
     }
 
+    /** An entry from another saved resume that this one doesn't have yet: value "resumeId:blockId", shown as label. */
+    public record AddableBlock(String value, String label) {}
+
+    /**
+     * Projects, jobs and leadership entries in the library that this resume doesn't have (matched by title), one per title:
+     * the version with the most bullets. Education and skills are left out: a resume has one of each.
+     */
+    public List<AddableBlock> addableBlocks(String resumeId) {
+        Resume r = resume(resumeId);
+        java.util.Set<String> have = new java.util.HashSet<>();
+        r.getBlocks().forEach(b -> have.add(b.getTitle().toLowerCase(java.util.Locale.ROOT)));
+        java.util.Map<String, AddableBlock> best = new java.util.TreeMap<>();
+        java.util.Map<String, Integer> most = new java.util.HashMap<>();
+        for (Resume other : library.all()) {
+            if (other.getId().equals(resumeId)) continue;
+            for (var b : other.getBlocks()) {
+                var s = b.getSection();
+                if (s == ca.yorku.cooppilot.domain.Section.EDUCATION || s == ca.yorku.cooppilot.domain.Section.SKILLS) continue;
+                String key = b.getTitle().toLowerCase(java.util.Locale.ROOT);
+                if (key.isBlank() || have.contains(key) || most.getOrDefault(key, -1) >= b.getBullets().size()) continue;
+                most.put(key, b.getBullets().size());
+                best.put(key, new AddableBlock(other.getId() + ":" + b.getId(), b.getTitle() + " (" + ca.yorku.cooppilot.service.LatexAssembler.heading(s)
+                        + ", " + b.getBullets().size() + " bullets, from " + other.getName() + ")"));
+            }
+        }
+        return List.copyOf(best.values());
+    }
+
+    /** F08: add an entry from another saved resume ("resumeId:blockId"); undoable. */
+    public Resume addBlock(String resumeId, String source) {
+        int colon = source == null ? -1 : source.indexOf(':');
+        if (colon < 0) throw new IllegalArgumentException("Choose an entry to add.");
+        Resume from = resume(source.substring(0, colon));
+        var block = from.getBlocks().stream().filter(b -> b.getId().equals(source.substring(colon + 1))).findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("That entry isn't in " + from.getName() + " any more."));
+        return editor.addBlock(resumeId, block);
+    }
+
     @org.springframework.beans.factory.annotation.Autowired
     private ca.yorku.cooppilot.service.BackupImporter backupImporter;
 

@@ -44,6 +44,26 @@ class RevisionTest {
     }
 
     @Test
+    void anEntryFromAnotherResumeCanBeAddedAndUndone() throws Exception {
+        facade.importResume(Files.readString(Path.of("samples/sample-resume.tex")), "CV_Other");
+        facade.removeBlock(resume.getId(), tutor.getId());
+        String source = facade.addableBlocks(resume.getId()).stream().filter(a -> a.label().startsWith("Peer Tutor"))
+                .findFirst().orElseThrow(() -> new AssertionError("an entry this resume lacks is offered from the other resume")).value();
+        double before = facade.pageEstimate(resume.getId());
+
+        facade.addBlock(resume.getId(), source);
+        Resume r = facade.resume(resume.getId());
+        assertTrue(r.getBlocks().stream().anyMatch(b -> b.getTitle().equals("Peer Tutor") && !b.getId().equals(tutor.getId())),
+                "added as a copy with its own id");
+        assertTrue(r.getLatex().contains("Peer Tutor"));
+        assertTrue(facade.pageEstimate(resume.getId()) > before);
+        assertTrue(facade.addableBlocks(resume.getId()).stream().noneMatch(a -> a.label().startsWith("Peer Tutor")));
+
+        facade.undo(resume.getId());
+        assertTrue(facade.resume(resume.getId()).getBlocks().stream().noneMatch(b -> b.getTitle().equals("Peer Tutor")));
+    }
+
+    @Test
     void aiRevisionIsValidatedAppliedAndUndoable() {
         String original = bullet(1);
         ((MockLlmClient) llm)

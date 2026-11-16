@@ -19,6 +19,8 @@ How to run: `.\mvnw.cmd package -DskipTests`, then `java -jar target\cooppilot-0
 - [x] 2026-11-12 F01 backup import (GUI + CLI `vault import-backup`)
 
 ## Decisions
+- Resume page has Add entry (an entry from another saved resume, undoable): every real resume fits on one page (max 98%),
+  so F07 had nothing to condense. One added entry takes the Pinterest resume to 116%; Quick condense brings it to 91%.
 - F06 asking is enforced by code: save_resume refuses until the agent has asked about up to 2 must-haves with no evidence
   (soft skills and broad ones like "software development" skipped). Left to the model it never asked with my full vault
   (Haiku decided asking wasn't allowed). A "no" goes into one context-only "Not used" entry, so it never counts as the skill.

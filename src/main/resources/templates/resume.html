@@ -123,7 +123,13 @@
     </section>
     <section class="card">
         <h2>Blocks</h2>
-        <p class="muted small">✎ edits a bullet by hand, × removes an entry. Both can be undone.</p>
+        <p class="muted small">✎ edits a bullet by hand, × removes an entry, Add brings in an entry from another of your resumes. All can be undone.</p>
+        <form method="post" th:action="@{/resumes/{id}/add-block(id=${resume.id})}" class="row" th:unless="${addable.isEmpty()}" style="margin-bottom:.8rem">
+            <select name="source" style="flex:1;min-width:0">
+                <option th:each="a : ${addable}" th:value="${a.value()}" th:text="${a.label()}"></option>
+            </select>
+            <button class="ghost">Add entry</button>
+        </form>
         <div th:each="b : ${resume.blocks}" style="margin-bottom:.7rem">
             <div class="row">
                 <strong th:text="${b.title}"></strong> <span class="muted small" th:text="${b.section} + (${b.subtitle.isBlank()} ? '' : ' · ' + ${b.subtitle})"></span>
