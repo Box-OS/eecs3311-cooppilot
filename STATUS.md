@@ -19,6 +19,9 @@ How to run: `.\mvnw.cmd package -DskipTests`, then `java -jar target\cooppilot-0
 - [x] 2026-11-12 F01 backup import (GUI + CLI `vault import-backup`)
 
 ## Decisions
+- F06 asking is enforced by code: save_resume refuses until the agent has asked about up to 2 must-haves with no evidence
+  (soft skills and broad ones like "software development" skipped). Left to the model it never asked with my full vault
+  (Haiku decided asking wasn't allowed). A "no" goes into one context-only "Not used" entry, so it never counts as the skill.
 - F03 closest-resume match counts every posting keyword (must-haves x2), not only those in the vault: the old way gave the
   resume the vault came from 100% on every posting, so everything said REUSE even at 5/100 fit. With real data nothing
   reaches 75% now (highest ~60%), so Pinterest shows TWEAK; Use as-is is still offered for the closest resume.

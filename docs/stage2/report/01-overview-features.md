@@ -109,12 +109,12 @@ Every Stage 1 feature (F01–F12) is accounted for below. No feature was removed
 |---|---|
 | Stage 1 reference | F06, UC06, SD02 |
 | Status | Modified (answers filed as fact lines; repeats answered from the vault; see C-F06) |
-| Classes / files | `agent.tools.AskUserTool`, `agent.QuestionHandler` (interface), `ui.web.WebQuestionHandler` (waits ≤ 5 min for the browser's answer), CLI stdin handler in `CliCommands.TailorCmd`, `service.VaultService.fileAnswer/knownAnswer` |
+| Classes / files | `agent.tools.AskUserTool`, `agent.QuestionHandler` (interface), `ui.web.WebQuestionHandler` (waits ≤ 5 min for the browser's answer), CLI stdin handler in `CliCommands.TailorCmd`, `service.VaultService.fileAnswer/knownAnswer/answeredAbout`, `agent.tools.SaveResumeTool.unasked` |
 | Key methods | `AskUserTool.execute`, `QuestionHandler.ask(question)`, `AgentSessionManager.answer(runId, answer)`, `VaultService.fileAnswer(q, a, topic, kind)`, `VaultService.knownAnswer(q)` |
 | Design patterns | Interface polymorphism (`QuestionHandler`) |
 | Video | V06 |
 
-**Collaboration.** When a non-numeric fact is missing, the model calls `ask_user` → `AskUserTool` first checks the vault for an earlier answer to the same question → otherwise `QuestionHandler.ask` shows the question (web: an SSE `question` event and an answer box; CLI: a `?` prompt) → the answer is added to the vault entry it is about (or a new entry) → the tool result goes back to the model. An empty answer or a timeout tells the model not to guess.
+**Collaboration.** When a non-numeric fact is missing, the model calls `ask_user` → `AskUserTool` first checks the vault for an earlier answer to the same question → otherwise `QuestionHandler.ask` shows the question (web: an SSE `question` event and an answer box; CLI: a `?` prompt) → the answer is added to the vault entry it is about (or a new entry) → the tool result goes back to the model. An empty answer or a timeout tells the model not to guess. Asking is enforced, not left to the model: `keyword_scan` lists the must-haves with no evidence, and `SaveResumeTool` refuses to save until the agent has asked about up to two of them (soft skills and broad abilities like "software development" are skipped). A "no" is filed in one context-only entry, so it is remembered but never counts as evidence of the skill.
 
 ## F07 — One-Page Fitting (Estimate and Condense) (H)
 

@@ -98,7 +98,9 @@ public class ClaudeCliAdapter implements LLMClient {
              .append(" reply with ONLY one JSON object, no prose or code fences around it:\n")
              .append("{\"text\": \"a short note for the user\", \"tool_calls\": [{\"name\": \"tool_name\", \"args\": {...}}]}\n")
              .append("args must match the tool's input schema. The results come back in the next turn as [tool result #id].")
-             .append(" You may call several tools in one reply. When the task is finished, reply with \"tool_calls\": [].\n");
+             .append(" You may call several tools in one reply. When the task is finished, reply with \"tool_calls\": [].\n")
+             .append("Write only this turn's reply: never write [you], [tool result ...] or (called ...) lines yourself, and never")
+             .append(" assume what a tool will return. Wait for the real result in the next turn.\n");
             for (ToolSchema t : req.tools()) {
                 s.append("\n## ").append(t.name()).append('\n').append(t.description())
                  .append("\nInput schema: ").append(t.inputSchema()).append('\n');
@@ -147,12 +149,8 @@ public class ClaudeCliAdapter implements LLMClient {
         if (!withTools) return new LlmResponse(root.path("result").asText(""), List.of(), "end_turn", in, outTokens);
 
         String result = root.path("result").asText("");
-        JsonNode reply;
-        try {
-            reply = JsonReply.object(result);
-        } catch (IllegalArgumentException e) { // plain prose: a final answer with no tool calls
-            return new LlmResponse(result, List.of(), "end_turn", in, outTokens);
-        }
+        JsonNode reply = firstReply(result);
+        if (reply == null) return new LlmResponse(result, List.of(), "end_turn", in, outTokens); // plain prose: a final answer
         List<ToolCall> calls = new ArrayList<>();
         int n = 0;
         for (JsonNode c : reply.path("tool_calls")) {
@@ -161,6 +159,22 @@ public class ClaudeCliAdapter implements LLMClient {
                     args.isObject() ? args : JSON.createObjectNode()));
         }
         return new LlmResponse(reply.path("text").asText(""), calls, calls.isEmpty() ? "end_turn" : "tool_use", in, outTokens);
+    }
+
+    /**
+     * The first JSON object in the reply that has "tool_calls". The model sometimes writes prose first, or carries on with
+     * the next turns' replies after the first one; only the first is this turn's. null when there is none.
+     */
+    static JsonNode firstReply(String result) {
+        for (int i = result.indexOf('{'); i >= 0; i = result.indexOf('{', i + 1)) {
+            try (var parser = JSON.getFactory().createParser(result.substring(i))) {
+                JsonNode node = JSON.readTree(parser); // reads one value and stops: whatever follows is ignored
+                if (node != null && node.isObject() && node.has("tool_calls")) return node;
+            } catch (IOException ignored) {
+                // not JSON from here: try the next brace
+            }
+        }
+        return null;
     }
 
     /** Which account the CLI uses; strips API-key settings so a stray key or proxy never takes over. */

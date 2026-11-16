@@ -25,6 +25,16 @@ public class PostingAnalysisTask extends LlmTask<PostingAnalysisTask.Result> {
             "collaboration", "customer service", "leadership", "time management", "organization", "problem solving",
             "adaptability", "attention to detail");
 
+    /** Broad abilities every resume shows through its projects: nothing to ask the student about. */
+    static final Set<String> GENERIC = Set.of("software development", "software engineering", "programming", "coding",
+            "computer science", "development", "engineering");
+
+    /** A soft skill or a broad ability, not a specific skill or tool ("Problem-solving", "Software development"). */
+    public static boolean isSoftOrGeneric(String term) {
+        String t = term.toLowerCase(Locale.ROOT).replace('-', ' ').trim();
+        return GENERIC.contains(t) || SOFT_SKILLS.stream().anyMatch(t::contains);
+    }
+
     private final Posting posting;
 
     public PostingAnalysisTask(LLMClient llm, Posting posting) {

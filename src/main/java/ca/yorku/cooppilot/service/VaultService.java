@@ -83,10 +83,19 @@ public class VaultService {
 
     /**
      * F06: files the student's answer so the agent never has to ask again. If {@code topic} names an
-     * existing entry, the fact is added to its details; otherwise a new entry is created.
+     * existing entry, the fact is added to its details; otherwise a new entry is created. A "no" (the student
+     * hasn't used it) goes into one context-only entry instead, so it is remembered but never counts as evidence
+     * of the skill, on a resume or in the keyword scan.
      */
     public VaultEntry fileAnswer(String question, String answer, String topic, EntryKind kindIfNew) {
         String fact = "- " + question.trim().replaceAll("\\?$", "") + ": " + answer.trim();
+        if (isNo(answer)) {
+            VaultEntry e = repo.findAll().stream().filter(x -> x.getTitle().equals(NOT_USED)).findFirst()
+                    .orElseGet(() -> addEntry(new VaultEntry(null, NOT_USED, EntryKind.ACTIVITY, EntryUse.CONTEXT_ONLY, "", Set.of(), "")));
+            e.setBody(e.getBody().isBlank() ? fact : e.getBody() + "\n" + fact);
+            repo.save(e);
+            return e;
+        }
         Optional<VaultEntry> target = topic == null || topic.isBlank() ? Optional.empty()
                 : repo.findAll().stream().filter(e -> norm(e.getTitle()).contains(norm(topic))
                         || norm(topic).contains(norm(e.getTitle()))).findFirst();
@@ -99,6 +108,27 @@ public class VaultService {
         String title = topic == null || topic.isBlank() ? question.trim() : topic.trim();
         return addEntry(new VaultEntry(null, title, kindIfNew == null ? EntryKind.ACTIVITY : kindIfNew,
                 EntryUse.ALL, "", Set.of(), fact));
+    }
+
+    /** Title of the context-only entry that holds "no, I haven't used it" answers. */
+    public static final String NOT_USED = "Not used (answers to CoopPilot's questions)";
+
+    private static final java.util.regex.Pattern NO = java.util.regex.Pattern.compile(
+            "^\\s*(no|nope|never|not (really|yet)|i (have not|haven't|have never|never|did not|didn't|do not|don't))\\b",
+            java.util.regex.Pattern.CASE_INSENSITIVE);
+
+    static boolean isNo(String answer) {
+        return answer != null && NO.matcher(answer).find();
+    }
+
+    /** True if the student has already answered a question about this term (any filed answer line mentions it). */
+    public boolean answeredAbout(java.util.function.Predicate<String> mentions) {
+        for (VaultEntry e : repo.findAll()) {
+            for (String line : e.getBody().split("\n")) {
+                if (line.startsWith("- ") && line.contains(": ") && mentions.test(line.substring(0, line.indexOf(": ")))) return true;
+            }
+        }
+        return false;
     }
 
     /** An answer already filed for this exact question, if any (memory lookup before asking). */

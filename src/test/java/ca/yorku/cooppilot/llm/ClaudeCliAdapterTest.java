@@ -58,6 +58,15 @@ class ClaudeCliAdapterTest {
     }
 
     @Test
+    void onlyTheFirstReplyCountsWhenTheModelRunsOn() {
+        String out = "Let me check the page first.\n{\"text\":\"Checking.\",\"tool_calls\":[{\"name\":\"estimate_page\",\"args\":{}}]}\n"
+                + "{\"text\":\"Saving.\",\"tool_calls\":[{\"name\":\"save_resume\",\"args\":{}}]}";
+        var reply = ClaudeCliAdapter.firstReply(out);
+        assertEquals("estimate_page", reply.path("tool_calls").get(0).path("name").asText());
+        assertNull(ClaudeCliAdapter.firstReply("All done, saved."));
+    }
+
+    @Test
     void cliErrorBecomesLlmException() {
         ClaudeCliAdapter adapter = new ClaudeCliAdapter("claude", "m", "", "",
                 (cmd, env, stdin) -> "{\"is_error\":true,\"result\":\"Not logged in · Please run /login\"}");

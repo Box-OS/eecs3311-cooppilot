@@ -17,6 +17,9 @@ import java.util.Optional;
 @Component
 public class AskUserTool extends AgentTool {
 
+    /** Session scratch key: the questions asked in this run (save_resume checks the must-haves were asked about). */
+    static final String ASKED = "askedQuestions";
+
     private final VaultService vault;
 
     public AskUserTool(VaultService vault) {
@@ -40,6 +43,11 @@ public class AskUserTool extends AgentTool {
 
     public ToolResult execute(JsonNode args, AgentSession s) {
         String question = args.get("question").asText().trim();
+        s.<java.util.List<String>>get(ASKED).orElseGet(() -> {
+            java.util.List<String> l = new java.util.ArrayList<>();
+            s.put(ASKED, l);
+            return l;
+        }).add(question);
         Optional<String> known = vault.knownAnswer(question);
         if (known.isPresent()) {
             return ToolResult.ok("Already answered before (from the vault): " + known.get());
