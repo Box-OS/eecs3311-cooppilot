@@ -82,15 +82,15 @@ Each video shows the feature ID and name, how it is invoked and its input, the r
 
 | Feature | Video | Interface shown | Error / alternative shown |
 |---|---|---|---|
-| F01 Experience vault and resume import | V01: [GUI](https://youtu.be/AKj1a-joVHc) · [CLI](https://youtu.be/w0dNXOU_amM) | GUI (import, backup import, edit, tag filter) + CLI `vault import` | empty upload; duplicate skill refused |
-| F02 Posting import and analysis | V02: [GUI](https://youtu.be/AKj1a-joVHc) · [CLI](https://youtu.be/w0dNXOU_amM) | GUI | editing the analysis / filling it in by hand |
-| F03 Fit analysis and strategy | V03: [GUI](https://youtu.be/AKj1a-joVHc) · [CLI](https://youtu.be/w0dNXOU_amM) | GUI + CLI `fit` | resume with placeholders never suggested |
-| F04 ATS keyword scan | V04: [GUI](https://youtu.be/AKj1a-joVHc) · [CLI](https://youtu.be/w0dNXOU_amM) | GUI chips (posting and resume pages) + CLI `scan` | chips change after an edit |
-| F05 Agentic tailoring | V05: [GUI](https://youtu.be/AKj1a-joVHc) · [CLI](https://youtu.be/w0dNXOU_amM) | GUI live steps + CLI `tailor` | a rejected tool call / invented number |
-| F06 Clarifying questions and vault learning | V06: [GUI](https://youtu.be/AKj1a-joVHc) · [CLI](https://youtu.be/w0dNXOU_amM) | GUI question box | skipping a question; the answer reused later |
-| F07 One-page fitting | V07: [GUI](https://youtu.be/AKj1a-joVHc) · [CLI](https://youtu.be/w0dNXOU_amM) | GUI meter + Quick/Smart condense, CLI `condense` | undo the condense |
-| F08 Revision with undo/redo | V08: [GUI](https://youtu.be/AKj1a-joVHc) · [CLI](https://youtu.be/w0dNXOU_amM) | GUI (revise, ✎ bullet edit, What changed) + CLI `shell` | undo with nothing left |
-| F09 Cover letter | V09: [GUI](https://youtu.be/AKj1a-joVHc) · [CLI](https://youtu.be/w0dNXOU_amM) | GUI (draft, edit, save, download) | problems shown for a draft that fails validation |
-| F10 Library, reuse and export | V10: [GUI](https://youtu.be/AKj1a-joVHc) · [CLI](https://youtu.be/w0dNXOU_amM) | GUI "Use as-is" + download, CLI `export` | reuse refused for a placeholder resume |
-| F11 Application tracking | V11: [GUI](https://youtu.be/AKj1a-joVHc) · [CLI](https://youtu.be/w0dNXOU_amM) | GUI (log from resume page, tracker) + CLI `app status` | illegal move (e.g. To apply → Offer) refused |
-| F12 Dashboard and goals | V12: [GUI](https://youtu.be/AKj1a-joVHc) · [CLI](https://youtu.be/w0dNXOU_amM) | GUI + CLI `dashboard` | goal of 0 refused; follow-ups due |
+| F01 Experience vault and resume import | V01: [GUI](https://youtu.be/w0dNXOU_amM) · [CLI](https://youtu.be/AKj1a-joVHc) | GUI (import, backup import, edit, tag filter) + CLI `vault import` | empty upload; duplicate skill refused |
+| F02 Posting import and analysis | V02: [GUI](https://youtu.be/w0dNXOU_amM) · [CLI](https://youtu.be/AKj1a-joVHc) | GUI | editing the analysis / filling it in by hand |
+| F03 Fit analysis and strategy | V03: [GUI](https://youtu.be/w0dNXOU_amM) · [CLI](https://youtu.be/AKj1a-joVHc) | GUI + CLI `fit` | resume with placeholders never suggested |
+| F04 ATS keyword scan | V04: [GUI](https://youtu.be/w0dNXOU_amM) · [CLI](https://youtu.be/AKj1a-joVHc) | GUI chips (posting and resume pages) + CLI `scan` | chips change after an edit |
+| F05 Agentic tailoring | V05: [GUI](https://youtu.be/w0dNXOU_amM) · [CLI](https://youtu.be/AKj1a-joVHc) | GUI live steps + CLI `tailor` | a rejected tool call / invented number |
+| F06 Clarifying questions and vault learning | V06: [GUI](https://youtu.be/w0dNXOU_amM) · [CLI](https://youtu.be/AKj1a-joVHc) | GUI question box | skipping a question; the answer reused later |
+| F07 One-page fitting | V07: [GUI](https://youtu.be/w0dNXOU_amM) · [CLI](https://youtu.be/AKj1a-joVHc) | GUI meter + Quick/Smart condense, CLI `condense` | undo the condense |
+| F08 Revision with undo/redo | V08: [GUI](https://youtu.be/w0dNXOU_amM) · [CLI](https://youtu.be/AKj1a-joVHc) | GUI (revise, ✎ bullet edit, What changed) + CLI `shell` | undo with nothing left |
+| F09 Cover letter | V09: [GUI](https://youtu.be/w0dNXOU_amM) · [CLI](https://youtu.be/AKj1a-joVHc) | GUI (draft, edit, save, download) | problems shown for a draft that fails validation |
+| F10 Library, reuse and export | V10: [GUI](https://youtu.be/w0dNXOU_amM) · [CLI](https://youtu.be/AKj1a-joVHc) | GUI "Use as-is" + download, CLI `export` | reuse refused for a placeholder resume |
+| F11 Application tracking | V11: [GUI](https://youtu.be/w0dNXOU_amM) · [CLI](https://youtu.be/AKj1a-joVHc) | GUI (log from resume page, tracker) + CLI `app status` | illegal move (e.g. To apply → Offer) refused |
+| F12 Dashboard and goals | V12: [GUI](https://youtu.be/w0dNXOU_amM) · [CLI](https://youtu.be/AKj1a-joVHc) | GUI + CLI `dashboard` | goal of 0 refused; follow-ups due |

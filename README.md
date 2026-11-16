@@ -107,7 +107,7 @@ $J shell                                                         # interactive: 
 
 ## Demonstration videos
 
-Demo videos: [web GUI, F01–F12](https://youtu.be/AKj1a-joVHc) · [CLI](https://youtu.be/w0dNXOU_amM). The feature-by-feature index is in the report's **Section 7 — Demonstration index**.
+Demo videos: [web GUI, F01–F12](https://youtu.be/w0dNXOU_amM) · [CLI](https://youtu.be/AKj1a-joVHc). The feature-by-feature index is in the report's **Section 7 — Demonstration index**.
 
 ## Project layout
 
